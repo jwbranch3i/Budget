@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import com.opencsv.CSVReader;
 
-public class ReadData {
+public class WriteData {
 
-    public static ArrayList<CatName> readHeadings(String file) {
+    public static void readHeadings(String file) {
 
         ArrayList<CatName> items = new ArrayList<CatName>();
 

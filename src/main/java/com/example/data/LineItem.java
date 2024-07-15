@@ -1,20 +1,24 @@
 package com.example.data;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public class LineItem {
     int id = 0;
-    private String parent;
-    private String type;
-    private String category;
+    int type = 0;
+    private SimpleStringProperty parent = new SimpleStringProperty("");
+    private SimpleStringProperty category = new SimpleStringProperty("");
 
     public LineItem() {
     }
 
-    public LineItem(String parent, String type, String category) {
-        this.parent = parent;
+    public LineItem(SimpleStringProperty type, SimpleStringProperty parent, SimpleStringProperty category) {
         this.type = type;
+        this.parent = parent;
         this.category = category;
     }
 
+    /********************** id **********************************/
     public int getId() {
         return this.id;
     }
@@ -23,38 +27,51 @@ public class LineItem {
         this.id = id;
     }
 
-    public String getParent() {
-        return this.parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
-
-    public String getType() {
+    /********************* type ***********************************/
+    public int getType() {
         return this.type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 
-    public String getCategory() {
+    /********************* category ***********************************/
+    public StringProperty parentProperty() {
+        return this.parent;
+    }
+
+    public String getParent() {
+        return this.parent.get();
+    }
+
+    public void setParent(String parent) {
+        this.parent.set(parent);
+    }
+
+    /******************** parent ************************************/
+    public StringProperty categoryProperty() {
         return this.category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public String getCategory() {
+        return this.category.get();
     }
+
+    public void setCategory(String category) {
+        this.category.set(category);
+    }
+
 
     @Override
     public String toString() {
         return "{" +
-                " id='" + getId() + "'" +
-                ", type='" + getType() + "'" +
-                ", parent='" + getParent() + "'" +
-                ", category='" + getCategory() + "'" +
-                "}";
+            " id='" + getId() + "'" +
+            ", type='" + getType() + "'" +
+            ", parent='" + getParent() + "'" +
+            ", category='" + getCategory() + "'" +
+            "}";
     }
+
 
 }
