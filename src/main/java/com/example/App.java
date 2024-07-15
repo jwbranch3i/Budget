@@ -1,50 +1,55 @@
 package com.example;
 
-import java.util.ArrayList;
 
-import com.example.data.DB;
-import com.example.data.Item;
-import com.example.data.ReadCSVFile;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class App {
-    public static void main(String[] args) {
+import com.example.data.DataSource;
 
-        ArrayList<Item> items = new ArrayList<Item>();
+public class App extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("primary.fxml"));
+			Parent root;
 
+			root = loader.load();
 
-        items = ReadCSVFile.readDataLineByLine(DB.CSV_FILE);
+			PrimaryController controller = loader.getController();
+
+			Scene scene = new Scene(root, 1120, 1000);
+
+			primaryStage.setScene(scene);
+
+			primaryStage.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+		@Override
+	public void init() throws Exception {
+		super.init();
+		if (!DataSource.getInstance().open()) {
+			System.out.println("FATAL ERROR: Couldn't connect to database");
+			Platform.exit();
+		}
+	}
+
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		DataSource.getInstance().close();
+	}
+
+     public static void main(String[] args) {
+		launch(args);
+       System.out.println("*** finish ***");
     }
-
- 
 
 }
 
-/**
- * JavaFX App
- */
-// public class App extends Application {
-
-// private static Scene scene;
-
-// @Override
-// public void start(Stage stage) throws IOException {
-// scene = new Scene(loadFXML("primary"), 640, 480);
-// stage.setScene(scene);
-// stage.show();
-// }
-
-// static void setRoot(String fxml) throws IOException {
-// scene.setRoot(loadFXML(fxml));
-// }
-
-// private static Parent loadFXML(String fxml) throws IOException {
-// FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml +
-// ".fxml"));
-// return fxmlLoader.load();
-// }
-
-// public static void main(String[] args) {
-// launch();
-// }
-
-// }

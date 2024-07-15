@@ -1,24 +1,33 @@
 package com.example.data;
 
-public class Item {
+public class CatName {
 
-    private String type;
-    private String category;
-    private Double cost;
+    Integer type;
+    String parent;
+    String category;
 
-
-    public Item(String type, String category, Double cost) {
-        this.type = type;
-        this.category = category;
-        this.cost = cost;
+    public CatName() {
     }
 
+    public CatName(Integer type, String parent, String category) {
+        this.parent = parent;
+        this.type = type;
+        this.category = category;
+    }
 
-    public String getType() {
+    public String getParent() {
+        return this.parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    public Integer getType() {
         return this.type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
@@ -30,22 +39,15 @@ public class Item {
         this.category = category;
     }
 
-    public Double getCost() {
-        return this.cost;
-    }
-
-    public void setCost(Double cost) {
-        this.cost = cost;
-    }
-
 
     @Override
     public String toString() {
         return "{" +
             " type='" + getType() + "'" +
+            ", parent='" + getParent() + "'" +
             ", category='" + getCategory() + "'" +
-            ", cost='" + getCost() + "'" +
             "}";
     }
+
 
 }

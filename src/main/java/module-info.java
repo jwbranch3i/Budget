@@ -4,6 +4,7 @@ module com.example {
 
     requires transitive javafx.fxml;
     requires com.opencsv;
+    requires java.sql;
 
 
 
