@@ -3,7 +3,7 @@ package com.example;
 import java.io.IOException;
 
 import com.example.data.DB;
-import com.example.data.LineHeadings;
+import com.example.data.ReadData;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,9 +16,7 @@ public class PrimaryController {
 
     @FXML
     void readHeadings(ActionEvent event) {
-        LineHeadings.readHeadings(DB.CSV_FILE);
-
-
+        ReadData.readHeadings(DB.CSV_FILE);
     }
 
     @FXML

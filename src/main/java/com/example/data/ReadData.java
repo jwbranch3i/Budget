@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.opencsv.CSVReader;
 
-public class LineHeadings {
+public class ReadData {
 
     public static ArrayList<CatName> readHeadings(String file) {
 
