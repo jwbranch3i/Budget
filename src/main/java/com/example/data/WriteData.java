@@ -6,12 +6,24 @@ import java.util.ArrayList;
 import com.opencsv.CSVReader;
 
 public class WriteData {
+    private static int rejectedRecordCount = 0;
+    private static int addedRecordCount = 0;
+ 
+  
+    public static int getAddedRecordCount() {
+        return addedRecordCount;
+    }
 
-    public static void readHeadings(String file) {
+    public static int getRejectedRecordCount() {
+        return rejectedRecordCount;
+    }
 
-        ArrayList<CatName> items = new ArrayList<CatName>();
 
-        CatName newCatName;
+    public static ArrayList<LineItem> readHeadings(String file, Boolean clearRecords) {
+
+        ArrayList<LineItem> items = new ArrayList<LineItem>();
+
+        LineItem newLineItem;
 
         String[] nextRecord;
         String category = "";
@@ -19,9 +31,10 @@ public class WriteData {
         String workingType = "";
 
         int leadingSpaces = 0;
-        int lineCount = 0;
         int type = 0;
         int newRecordType = 0;
+
+        int lineCount = 0;
 
         try {
             FileReader filereader = new FileReader(file);
@@ -29,7 +42,7 @@ public class WriteData {
 
             // we are going to read data line by line
             while ((nextRecord = csvReader.readNext()) != null) {
-                // for degugging
+                // for debugging
                 lineCount++;
 
                 // if the line is empty, skip it
@@ -58,14 +71,14 @@ public class WriteData {
                         newRecordType = type;
                         parent = "";
                         workingType = category;
-                        newCatName = new CatName(newRecordType, parent, category);
-                        items.add(newCatName);
+                        newLineItem = new LineItem(newRecordType, parent, category);
+                        items.add(newLineItem);
                         break;
 
                     case 8:
                         parent = workingType;
-                        newCatName = new CatName(type, parent, category);
-                        items.add(newCatName);
+                        newLineItem = new LineItem(type, parent, category);
+                        items.add(newLineItem);
                         break;
 
                     default:
@@ -74,6 +87,26 @@ public class WriteData {
                 }
             }
             csvReader.close();
+
+            if (clearRecords) {
+                DataSource.getInstance().deleteAllCategeryRecords();
+            }
+
+            rejectedRecordCount = 0;
+            addedRecordCount = 0;
+           for (int i = 0; i < items.size(); i++){
+                
+                int matchingRecords = DataSource.getInstance().findCategeryRecords(items.get(i));
+                if (matchingRecords == 0) {
+                    Boolean goodWrite = DataSource.getInstance().insertCatogeoryRecord(items.get(i));
+                    addedRecordCount++;
+                    if (!goodWrite) {
+                        System.out.println("Error writing to database -- " + items.get(i).toString());
+                    }
+                }else {
+                    rejectedRecordCount++;
+                }
+            }
             return items;
         } catch (Exception e) {
             e.printStackTrace();

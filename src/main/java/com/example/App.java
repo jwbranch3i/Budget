@@ -1,6 +1,5 @@
 package com.example;
 
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +22,8 @@ public class App extends Application {
 
 			Scene scene = new Scene(root, 1120, 1000);
 
+			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
 			primaryStage.setScene(scene);
 
 			primaryStage.show();
@@ -31,7 +32,7 @@ public class App extends Application {
 		}
 	}
 
-		@Override
+	@Override
 	public void init() throws Exception {
 		super.init();
 		if (!DataSource.getInstance().open()) {
@@ -46,10 +47,9 @@ public class App extends Application {
 		DataSource.getInstance().close();
 	}
 
-     public static void main(String[] args) {
+	public static void main(String[] args) {
 		launch(args);
-       System.out.println("*** finish ***");
-    }
+		System.out.println("*** finish ***");
+	}
 
 }
-

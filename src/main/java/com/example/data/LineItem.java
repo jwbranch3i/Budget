@@ -12,10 +12,10 @@ public class LineItem {
     public LineItem() {
     }
 
-    public LineItem(SimpleStringProperty type, SimpleStringProperty parent, SimpleStringProperty category) {
+    public LineItem(Integer type, String parent, String category) {
         this.type = type;
-        this.parent = parent;
-        this.category = category;
+        this.parent.set(parent);
+        this.category.set(category);
     }
 
     /********************** id **********************************/

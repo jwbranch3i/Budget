@@ -2,6 +2,13 @@ package com.example.data;
 
 public class DB {
 
+    /* CVS file */
+    public static final String CSV_FILE_PATH = "D:\\VSCwork\\budget\\";
+
+    public static final String CSV_FILE_NAME = "budgetPrint.csv";
+    // public static final String CSV_FILE_NAME = "budgetPrintData.csv";
+    public static final String CSV_FILE = CSV_FILE_PATH + CSV_FILE_NAME;
+
     public static final int INFLOW = 0;
     public static final int OUTFLOW = 1;
 
@@ -17,11 +24,14 @@ public class DB {
     public static final int CAT_COL_PARENT_INDEX = 3;
     public static final int CAT_COL_CATEGORY_INDEX = 4;
 
-    /* table - transactions */
-    public static final INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + 
-        " (" + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY +
-        ") VALUES(?, ?, ?)";
+    /* table - category */
+    public static final String INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE +
+            " (" + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY +
+            ") VALUES(?, ?, ?)";
 
+    public static final String DELETE_ALL_CATEGORY = "DELETE FROM " + CAT_TABLE;
 
-    
+    public static final String FIND_CATEGORY = "SELECT * FROM " + CAT_TABLE +
+            " WHERE " + CAT_COL_PARENT + " = ? AND " + CAT_COL_CATEGORY + " = ?";
+
 }
