@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -30,21 +29,18 @@
                <children>
                   <VBox fx:id="categoryBox" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#readHeadings" text="Read Categories" />
-                        <CheckBox fx:id="clearCat" contentDisplay="CENTER" mnemonicParsing="false" text="Clear Categories" textAlignment="CENTER" />
+                        <Button mnemonicParsing="false" onAction="#readActual" text="Update Actual" />
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Label text="Records Added: " />
-                              <Label fx:id="addedRecords" text="Label" />
-                              <ProgressIndicator fx:id="progressIndicator" visible="false" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Label text="Rejected Records: " />
-                              <Label fx:id="rejectedRecords" text="Label" />
                            </children>
                         </HBox>
+                        <ProgressIndicator fx:id="progressIndicator" visible="false" />
                      </children>
                   </VBox>
                </children>
