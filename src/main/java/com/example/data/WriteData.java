@@ -19,11 +19,11 @@ public class WriteData {
     }
 
 
-    public static ArrayList<LineItem> readHeadings(String file, Boolean clearRecords) {
+    public static ArrayList<LineItemCSV> readHeadings(String file, Boolean clearRecords) {
 
-        ArrayList<LineItem> items = new ArrayList<LineItem>();
+        ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
 
-        LineItem newLineItem;
+        LineItemCSV newLineItem;
 
         String[] nextRecord;
         String category = "";
@@ -71,13 +71,13 @@ public class WriteData {
                         newRecordType = type;
                         parent = "";
                         workingType = category;
-                        newLineItem = new LineItem(newRecordType, parent, category);
+                        newLineItem = new LineItemCSV(newRecordType, parent, category);
                         items.add(newLineItem);
                         break;
 
                     case 8:
                         parent = workingType;
-                        newLineItem = new LineItem(type, parent, category);
+                        newLineItem = new LineItemCSV(type, parent, category);
                         items.add(newLineItem);
                         break;
 

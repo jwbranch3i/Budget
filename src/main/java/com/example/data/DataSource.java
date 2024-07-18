@@ -64,7 +64,7 @@ public class DataSource {
 	 *             inserted.
 	 * @return true if the record was successfully inserted, false otherwise.
 	 */
-	public boolean insertCatogeoryRecord(LineItem item) {
+	public boolean insertCatogeoryRecord(LineItemCSV item) {
 		PreparedStatement psInsertRecord = null;
 		try {
 
@@ -97,7 +97,7 @@ public class DataSource {
 	}
 
 	/*************************** find category record **********************/
-	public int findCategeryRecords(LineItem item) {
+	public int findCategeryRecords(LineItemCSV item) {
 		PreparedStatement psFindRecord = null;
 		ResultSet rs = null;
 		int count = 0;

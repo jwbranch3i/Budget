@@ -3,18 +3,32 @@ package com.example;
 import java.io.File;
 import java.io.IOException;
 
+import com.example.data.LineItem;
 import com.example.data.WriteData;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 public class PrimaryController {
+
+     @FXML
+    private TableColumn<LineItem, String> budgetCol_Actual;
+
+    @FXML
+    private TableColumn<LineItem, Double> budgetCol_Budget;
+
+    @FXML
+    private TableColumn<LineItem, Double> budgetCol_Category;
+
+    @FXML
+    private TableColumn<LineItem, Double> budgetCol_Diff;
 
     @FXML
     private VBox categoryBox;
@@ -23,10 +37,10 @@ public class PrimaryController {
     private AnchorPane myAnchorPane;
 
     @FXML
-    private Button primaryButton;
+    private ProgressIndicator progressIndicator;
 
     @FXML
-    private ProgressIndicator progressIndicator;
+    private TableView<LineItem> tableView_Budget;
 
     @FXML
     void readActual(ActionEvent event) {
@@ -39,12 +53,14 @@ public class PrimaryController {
         fileChooser.setInitialDirectory(new File(startFile));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
 
-        File selectedFile = fileChooser.showOpenDialog(primaryButton.getScene().getWindow());
+        File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             // Process the selected file
             String filePath = selectedFile.getAbsolutePath();
             System.out.println("File Path: " + filePath);
-       }
+            
+
+          }
 
     }
 
