@@ -20,9 +20,8 @@ public class LineItem {
     public LineItem() {
     }
 
-    public LineItem(int id, int type, LocalDate date, String parent, String category, double Actual, double Budget,
+    public LineItem(int type, LocalDate date, String parent, String category, double Actual, double Budget,
             double Diff) {
-        this.id = id;
         this.type = type;
         this.date.set(date);
         this.parent.set(parent);

@@ -2,9 +2,10 @@ package com.example;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 
 import com.example.data.LineItem;
-import com.example.data.WriteData;
+import com.example.data.ReadData;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -58,10 +59,9 @@ public class PrimaryController {
             // Process the selected file
             String filePath = selectedFile.getAbsolutePath();
             System.out.println("File Path: " + filePath);
-            
+            ReadData.readActual(filePath, LocalDate.now());
 
           }
-
     }
 
     @FXML
@@ -69,8 +69,7 @@ public class PrimaryController {
         progressIndicator.setVisible(true);
         progressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 
-        int temp = WriteData.getRejectedRecordCount();
-        // rejectedRecords.setText(String.valueOf(temp));
+       // rejectedRecords.setText(String.valueOf(temp));
         // addedRecords.setText(String.valueOf(WriteData.getAddedRecordCount()));
 
         progressIndicator.setVisible(false);

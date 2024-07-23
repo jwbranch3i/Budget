@@ -1,24 +1,23 @@
 package com.example.data;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
 public class LineItemCSV {
-    int id = 0;
-    int type = 0;
-    private SimpleStringProperty parent = new SimpleStringProperty("");
-    private SimpleStringProperty category = new SimpleStringProperty("");
+    private int id = 0;
+    private int type = 0;
+    private String parent = "";
+    private String category = "";
+    private Double amount = 0.0;
 
     public LineItemCSV() {
     }
 
-    public LineItemCSV(Integer type, String parent, String category) {
+
+    public LineItemCSV(int type, String parent, String category, Double amount ) {
         this.type = type;
-        this.parent.set(parent);
-        this.category.set(category);
+        this.parent = parent;
+        this.category = category;
     }
 
-    /********************** id **********************************/
+
     public int getId() {
         return this.id;
     }
@@ -27,7 +26,6 @@ public class LineItemCSV {
         this.id = id;
     }
 
-    /********************* type ***********************************/
     public int getType() {
         return this.type;
     }
@@ -36,32 +34,29 @@ public class LineItemCSV {
         this.type = type;
     }
 
-    /********************* category ***********************************/
-    public StringProperty parentProperty() {
+    public String getParent() {
         return this.parent;
     }
 
-    public String getParent() {
-        return this.parent.get();
-    }
-
     public void setParent(String parent) {
-        this.parent.set(parent);
-    }
-
-    /******************** parent ************************************/
-    public StringProperty categoryProperty() {
-        return this.category;
+        this.parent = parent;
     }
 
     public String getCategory() {
-        return this.category.get();
+        return this.category;
     }
 
     public void setCategory(String category) {
-        this.category.set(category);
+        this.category = category;
     }
 
+    public Double getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }   
 
     @Override
     public String toString() {
@@ -70,8 +65,7 @@ public class LineItemCSV {
             ", type='" + getType() + "'" +
             ", parent='" + getParent() + "'" +
             ", category='" + getCategory() + "'" +
+            ", amount='" + getAmount() + "'" +
             "}";
     }
-
-
 }

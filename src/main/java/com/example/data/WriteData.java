@@ -1,116 +1,70 @@
 package com.example.data;
 
-import java.io.FileReader;
-import java.util.ArrayList;
-
-import com.opencsv.CSVReader;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDate;
 
 public class WriteData {
-    private static int rejectedRecordCount = 0;
-    private static int addedRecordCount = 0;
- 
-  
-    public static int getAddedRecordCount() {
-        return addedRecordCount;
-    }
-
-    public static int getRejectedRecordCount() {
-        return rejectedRecordCount;
-    }
-
-
-    public static ArrayList<LineItemCSV> readHeadings(String file, Boolean clearRecords) {
-
-        ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
-
-        LineItemCSV newLineItem;
-
-        String[] nextRecord;
-        String category = "";
-        String parent = "";
-        String workingType = "";
-
-        int leadingSpaces = 0;
-        int type = 0;
-        int newRecordType = 0;
-
-        int lineCount = 0;
-
+    public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
         try {
-            FileReader filereader = new FileReader(file);
-            CSVReader csvReader = new CSVReader(filereader);
+            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.CAT_INSERT_CATEGORY,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            insertRecord.setInt(1, item.getType());
+            insertRecord.setString(2, item.getParent());
+            insertRecord.setString(3, item.getCategory());
 
-            // we are going to read data line by line
-            while ((nextRecord = csvReader.readNext()) != null) {
-                // for debugging
-                lineCount++;
-
-                // if the line is empty, skip it
-                if (nextRecord.length <= 1) {
-                    continue;
-                }
-
-                leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
-                if (nextRecord[1].trim().equals("INFLOWS")) {
-                    type = DB.INFLOW;
-                    continue;
-                } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
-                    type = DB.OUTFLOW;
-                    continue;
-                }
-
-                category = nextRecord[1].trim();
-                // if category contains the string 'TOTAL' then skip it
-                if (category.contains("TOTAL")) {
-                    continue;
-                }
-
-                switch (leadingSpaces) {
-                    case 4: // if the line is a category
-
-                        newRecordType = type;
-                        parent = "";
-                        workingType = category;
-                        newLineItem = new LineItemCSV(newRecordType, parent, category);
-                        items.add(newLineItem);
-                        break;
-
-                    case 8:
-                        parent = workingType;
-                        newLineItem = new LineItemCSV(type, parent, category);
-                        items.add(newLineItem);
-                        break;
-
-                    default:
-                        // Handle any other number of leading spaces
-                        break;
-                }
+            insertRecord.executeUpdate();
+            ResultSet rs = insertRecord.getGeneratedKeys();
+            if (rs.next()) {
+                item.setId(rs.getInt(1));
             }
-            csvReader.close();
-
-            if (clearRecords) {
-                DataSource.getInstance().deleteAllCategeryRecords();
-            }
-
-            rejectedRecordCount = 0;
-            addedRecordCount = 0;
-           for (int i = 0; i < items.size(); i++){
-                
-                int matchingRecords = DataSource.getInstance().findCategeryRecords(items.get(i));
-                if (matchingRecords == 0) {
-                    Boolean goodWrite = DataSource.getInstance().insertCatogeoryRecord(items.get(i));
-                    addedRecordCount++;
-                    if (!goodWrite) {
-                        System.out.println("Error writing to database -- " + items.get(i).toString());
-                    }
-                }else {
-                    rejectedRecordCount++;
-                }
-            }
-            return items;
+            return item;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
-        return items;
+        return item;
     }
+
+    public static void categoryUpdateAmount(LineItemCSV item) {
+        try {
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_AMOUNT);
+            updateRecord.setDouble(1, item.getAmount());
+            updateRecord.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void actualInsertRecord(LineItemCSV category, LocalDate inDate) {
+        try {
+            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
+            findRecord.setInt(1, category.getId());
+            findRecord.setInt(2, inDate.getMonthValue());
+            findRecord.setInt(3, inDate.getYear());
+
+            ResultSet rs = findRecord.executeQuery();
+            if (rs.next()) {
+                // update amount in actual table
+                int foundRecord = rs.getInt(DB.ACTUAL_COL_ID_INDEX);
+                double newAmount = category.getAmount();
+
+                PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
+                updateRecord.setDouble(1, newAmount);
+                updateRecord.setInt(2, foundRecord);
+                updateRecord.executeUpdate();
+            } else {
+                // insert new record in actual table
+                PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD);
+                insertRecord.setInt(1, category.getId());
+                insertRecord.setDate(2, Date.valueOf(inDate));
+                insertRecord.setDouble(3, category.getAmount());
+                insertRecord.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+    }
+
 }
