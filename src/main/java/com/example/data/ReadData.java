@@ -5,8 +5,12 @@ import java.sql.ResultSet;
 
 public class ReadData {
 
-
-
+    /**
+     * Finds the category of a LineItemCSV in the actual database table.
+     * 
+     * @param item The LineItemCSV object to find the category for.
+     * @return The category ID if found, or -1 if not found.
+     */
     public static int actualFindCategory(LineItemCSV item) {
         try {
             PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY,
@@ -27,7 +31,12 @@ public class ReadData {
         return -1;
     }
 
-
+    /**
+     * Finds the record index of a LineItemCSV in the category database table.
+     * 
+     * @param item The LineItemCSV object to find the record index for.
+     * @return The record index if found, or -1 if not found.
+     */
     public static int categoryFindRecord(LineItemCSV item) {
         PreparedStatement psFindRecord = null;
         ResultSet rs = null;
@@ -40,7 +49,6 @@ public class ReadData {
             if (rs.next()) {
                 int lineIndex = rs.getInt(DB.CAT_COL_ID_INDEX);
                 return lineIndex;
-
             } else {
                 return -1;
             }
@@ -50,6 +58,4 @@ public class ReadData {
         }
         return -1;
     }
-
-
 }
