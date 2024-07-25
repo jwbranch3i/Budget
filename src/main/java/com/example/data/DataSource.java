@@ -64,52 +64,32 @@ public class DataSource {
 	 *             inserted.
 	 * @return true if the record was successfully inserted, false otherwise.
 	 */
-	public boolean insertCatogeoryRecord(LineItem item) {
-		PreparedStatement psInsertRecord = null;
-		try {
-
-			String insertStmt = DB.INSERT_CATEGORY;
-			psInsertRecord = conn.prepareStatement(insertStmt, Statement.RETURN_GENERATED_KEYS);
-
-			psInsertRecord.setInt(1, item.getType());
-			psInsertRecord.setString(2, item.getParent());
-			psInsertRecord.setString(3, item.getCategory());
-
-			psInsertRecord.executeUpdate();
-
-			ResultSet rs = psInsertRecord.getGeneratedKeys();
-			if (rs.next()) {
-				item.setId(rs.getInt(1));
-			}
-		} catch (SQLException e) {
-			System.out.println("Could not insert record: " + e.getMessage());
-			return false;
-		} finally {
-			try {
-				if (psInsertRecord != null) {
-					psInsertRecord.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("Could not close statement: " + e.getMessage());
-			}
-		}
+	public boolean insertCategoryRecord(LineItemCSV item) {
 		return true;
 	}
 
-	/*************************** find category record **********************/
-	public int findCategeryRecords(LineItem item) {
+	/* check if category record is in database **********************/
+	public LineItemCSV findCategeryRecords(LineItemCSV item) {
+
+		LineItemCSV lineItem = new LineItemCSV();
 		PreparedStatement psFindRecord = null;
 		ResultSet rs = null;
-		int count = 0;
 		try {
-			psFindRecord = conn.prepareStatement(DB.FIND_CATEGORY);
+			psFindRecord = conn.prepareStatement(DB.CAT_FIND_CATEGORY);
 			psFindRecord.setString(1, item.getParent());
 			psFindRecord.setString(2, item.getCategory());
 
 			rs = psFindRecord.executeQuery();
-			while (rs.next()) {
-				count++;
+			if (rs.next()) {
+				lineItem.setId(rs.getInt(DB.CAT_COL_ID_INDEX));
+				lineItem.setType(rs.getInt(DB.CAT_COL_TYPE_INDEX));
+				lineItem.setParent(rs.getString(DB.CAT_COL_PARENT_INDEX));
+				lineItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY_INDEX));
+				return lineItem;
+			} else {
+				return item;
 			}
+
 		} catch (SQLException e) {
 			System.out.println("Error searching for record: " + e.getMessage());
 		} finally {
@@ -124,7 +104,7 @@ public class DataSource {
 				System.out.println("Could not close statement: " + e.getMessage());
 			}
 		}
-		return count;
+		return null;
 	}
 
 	public void deleteAllCategeryRecords() {
@@ -144,4 +124,7 @@ public class DataSource {
 			}
 		}
 	}
+
+	/**********************************************************/
+
 }

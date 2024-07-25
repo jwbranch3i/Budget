@@ -9,3 +9,17 @@ ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_0900_ai_ci;
 
+
+
+CREATE TABLE budget.actual(
+	id INT auto_increment NOT NULL PRIMARY KEY,
+	category INT NOT NULL,
+	date DATE NOT NULL,
+	amount DECIMAL(10,2) NOT NULL,
+	FOREIGN KEY (category)
+		REFERENCES budget.category(id)
+		ON DELETE CASCADE		
+)
+
+
+

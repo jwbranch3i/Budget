@@ -2,27 +2,16 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="287.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
-   <center>
-      <VBox alignment="CENTER" spacing="20.0">
-         <children>
-            <HBox prefHeight="165.0" prefWidth="2570.0" />
-            <Label text="Primary View" />
-            <Button fx:id="primaryButton" onAction="#switchToSecondary" text="Switch to Secondary View" />
-         </children>
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-      </VBox>
-   </center>
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
@@ -30,21 +19,18 @@
                <children>
                   <VBox fx:id="categoryBox" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#readHeadings" text="Read Categories" />
-                        <CheckBox fx:id="clearCat" contentDisplay="CENTER" mnemonicParsing="false" text="Clear Categories" textAlignment="CENTER" />
+                        <Button mnemonicParsing="false" onAction="#readActual" text="Update Actual" />
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Label text="Records Added: " />
-                              <Label fx:id="addedRecords" text="Label" />
-                              <ProgressIndicator fx:id="progressIndicator" visible="false" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
                               <Label text="Rejected Records: " />
-                              <Label fx:id="rejectedRecords" text="Label" />
                            </children>
                         </HBox>
+                        <ProgressIndicator fx:id="progressIndicator" visible="false" />
                      </children>
                   </VBox>
                </children>
@@ -59,4 +45,18 @@
    <bottom>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </bottom>
+   <center>
+      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="tableView_Budget" editable="true" prefHeight="26.0" prefWidth="326.0">
+              <columns>
+                <TableColumn fx:id="budgetCol_Category" prefWidth="75.0" text="Category" />
+                <TableColumn fx:id="budgetCol_Actual" prefWidth="75.0" text="Actual" />
+                  <TableColumn fx:id="budgetCol_Budget" prefWidth="75.0" text="Budget" />
+                  <TableColumn fx:id="budgetCol_Diff" prefWidth="75.0" text="Diff" />
+              </columns>
+            </TableView>
+         </children>
+      </HBox>
+   </center>
 </BorderPane>

@@ -1,116 +1,81 @@
 package com.example.data;
 
-import java.io.FileReader;
-import java.util.ArrayList;
-
-import com.opencsv.CSVReader;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class WriteData {
-    private static int rejectedRecordCount = 0;
-    private static int addedRecordCount = 0;
- 
-  
-    public static int getAddedRecordCount() {
-        return addedRecordCount;
-    }
-
-    public static int getRejectedRecordCount() {
-        return rejectedRecordCount;
-    }
-
-
-    public static ArrayList<LineItem> readHeadings(String file, Boolean clearRecords) {
-
-        ArrayList<LineItem> items = new ArrayList<LineItem>();
-
-        LineItem newLineItem;
-
-        String[] nextRecord;
-        String category = "";
-        String parent = "";
-        String workingType = "";
-
-        int leadingSpaces = 0;
-        int type = 0;
-        int newRecordType = 0;
-
-        int lineCount = 0;
-
+    /**
+     * Inserts a new category record into the database.
+     * 
+     * @param item The LineItemCSV object representing the category to be inserted.
+     * @return The LineItemCSV object with the generated ID set.
+     */
+    public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
         try {
-            FileReader filereader = new FileReader(file);
-            CSVReader csvReader = new CSVReader(filereader);
+            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.CAT_INSERT_CATEGORY,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            insertRecord.setInt(1, item.getType());
+            insertRecord.setString(2, item.getParent());
+            insertRecord.setString(3, item.getCategory());
 
-            // we are going to read data line by line
-            while ((nextRecord = csvReader.readNext()) != null) {
-                // for debugging
-                lineCount++;
-
-                // if the line is empty, skip it
-                if (nextRecord.length <= 1) {
-                    continue;
-                }
-
-                leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
-                if (nextRecord[1].trim().equals("INFLOWS")) {
-                    type = DB.INFLOW;
-                    continue;
-                } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
-                    type = DB.OUTFLOW;
-                    continue;
-                }
-
-                category = nextRecord[1].trim();
-                // if category contains the string 'TOTAL' then skip it
-                if (category.contains("TOTAL")) {
-                    continue;
-                }
-
-                switch (leadingSpaces) {
-                    case 4: // if the line is a category
-
-                        newRecordType = type;
-                        parent = "";
-                        workingType = category;
-                        newLineItem = new LineItem(newRecordType, parent, category);
-                        items.add(newLineItem);
-                        break;
-
-                    case 8:
-                        parent = workingType;
-                        newLineItem = new LineItem(type, parent, category);
-                        items.add(newLineItem);
-                        break;
-
-                    default:
-                        // Handle any other number of leading spaces
-                        break;
-                }
+            insertRecord.executeUpdate();
+            ResultSet rs = insertRecord.getGeneratedKeys();
+            if (rs.next()) {
+                item.setId(rs.getInt(1));
             }
-            csvReader.close();
-
-            if (clearRecords) {
-                DataSource.getInstance().deleteAllCategeryRecords();
-            }
-
-            rejectedRecordCount = 0;
-            addedRecordCount = 0;
-           for (int i = 0; i < items.size(); i++){
-                
-                int matchingRecords = DataSource.getInstance().findCategeryRecords(items.get(i));
-                if (matchingRecords == 0) {
-                    Boolean goodWrite = DataSource.getInstance().insertCatogeoryRecord(items.get(i));
-                    addedRecordCount++;
-                    if (!goodWrite) {
-                        System.out.println("Error writing to database -- " + items.get(i).toString());
-                    }
-                }else {
-                    rejectedRecordCount++;
-                }
-            }
-            return items;
+            return item;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error categoryInsertRecord: " + e.getMessage());
         }
-        return items;
+        return null;
+    }
+
+    /**
+     * Updates the amount for a given category ID in the database.
+     * 
+     * @param id     The ID of the category to update.
+     * @param amount The new amount value.
+     * @return true if the update was successful, false otherwise.
+     */
+    public static boolean autualUpdateAmount(int id, Double amount) {
+        try {
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
+            updateRecord.setDouble(1, amount);
+            updateRecord.setInt(2, id);
+            updateRecord.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error autualUpdateAmount: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Inserts a new record into the actual table in the database.
+     * 
+     * @param category The LineItemCSV object representing the record to be inserted.
+     * @return The LineItemCSV object with the generated ID set.
+     */
+    public static LineItemCSV actualInsertRecord(LineItemCSV category) {
+        try {
+            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            insertRecord.setInt(1, category.getId());
+            insertRecord.setDate(2, Date.valueOf(category.getDate()));
+            insertRecord.setDouble(3, category.getAmount());
+            insertRecord.executeUpdate();
+
+            ResultSet rs = insertRecord.getGeneratedKeys();
+            if (rs.next()) {
+                category.setId(rs.getInt(1));
+                return category;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error actualInsertRecord: " + e.getMessage());
+        }
+
+        return null;
     }
 }
