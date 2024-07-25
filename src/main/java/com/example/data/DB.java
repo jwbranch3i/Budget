@@ -35,8 +35,7 @@ public class DB {
                         ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE +
                         " WHERE " + CAT_COL_PARENT + " = ? AND " + CAT_COL_CATEGORY + " = ?";
 
-        public static final String CAT_UPDATE_AMOUNT = null;
-
+ 
         
 
         /* table - actual */
@@ -63,4 +62,5 @@ public class DB {
         public static final String ACTUAL_UPDATE_AMOUNT = "UPDATE " + ACTUAL_TABLE +
                         " SET " + ACTUAL_COL_AMOUNT + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
+    
 }

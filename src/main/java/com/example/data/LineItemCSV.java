@@ -1,8 +1,11 @@
 package com.example.data;
 
+import java.time.LocalDate;
+
 public class LineItemCSV {
     private int id = 0;
     private int type = 0;
+    private LocalDate date = LocalDate.now();
     private String parent = "";
     private String category = "";
     private Double amount = 0.0;
@@ -11,10 +14,12 @@ public class LineItemCSV {
     }
 
 
-    public LineItemCSV(int type, String parent, String category, Double amount ) {
+    public LineItemCSV(int type, LocalDate date, String parent, String category, Double amount ) {
         this.type = type;
+        this.date = date;
         this.parent = parent;
         this.category = category;
+        this.amount = amount;
     }
 
 
@@ -34,6 +39,15 @@ public class LineItemCSV {
         this.type = type;
     }
 
+
+    public LocalDate getDate() {
+        return this.date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    
     public String getParent() {
         return this.parent;
     }

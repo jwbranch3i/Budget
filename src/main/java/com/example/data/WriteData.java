@@ -3,7 +3,6 @@ package com.example.data;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 
 public class WriteData {
     public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
@@ -21,50 +20,49 @@ public class WriteData {
             }
             return item;
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error categoryInsertRecord: " + e.getMessage());
         }
-        return item;
+        return null;
     }
 
-    public static void categoryUpdateAmount(LineItemCSV item) {
+    public static boolean autualUpdateAmount(int id, Double amount) {
         try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_AMOUNT);
-            updateRecord.setDouble(1, item.getAmount());
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
+            updateRecord.setDouble(1, amount);
+            updateRecord.setInt(2, id);
             updateRecord.executeUpdate();
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+          } catch (Exception e) {
+
+            System.out.println("Error autualUpdateAmount: " + e.getMessage());
+
+            return false;
         }
+        return true;
     }
 
-    public static void actualInsertRecord(LineItemCSV category, LocalDate inDate) {
+    public static LineItemCSV actualInsertRecord(LineItemCSV category) {
         try {
-            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
-            findRecord.setInt(1, category.getId());
-            findRecord.setInt(2, inDate.getMonthValue());
-            findRecord.setInt(3, inDate.getYear());
+  
+            // insert new record in actual table
+            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            insertRecord.setInt(1, category.getId());
+            insertRecord.setDate(2, Date.valueOf(category.getDate()));
+            insertRecord.setDouble(3, category.getAmount());
+            insertRecord.executeUpdate();
 
-            ResultSet rs = findRecord.executeQuery();
+            ResultSet rs = insertRecord.getGeneratedKeys();
             if (rs.next()) {
-                // update amount in actual table
-                int foundRecord = rs.getInt(DB.ACTUAL_COL_ID_INDEX);
-                double newAmount = category.getAmount();
-
-                PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
-                updateRecord.setDouble(1, newAmount);
-                updateRecord.setInt(2, foundRecord);
-                updateRecord.executeUpdate();
-            } else {
-                // insert new record in actual table
-                PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD);
-                insertRecord.setInt(1, category.getId());
-                insertRecord.setDate(2, Date.valueOf(inDate));
-                insertRecord.setDouble(3, category.getAmount());
-                insertRecord.executeUpdate();
+                category.setId(rs.getInt(1));
+                return category;
             }
+
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error actualInsertRecord: " + e.getMessage());
         }
 
+        return null;
     }
 
-}
+
+ }

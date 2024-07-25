@@ -1,119 +1,34 @@
 package com.example.data;
 
-import java.io.FileReader;
-import java.util.ArrayList;
-
-import com.opencsv.CSVReader;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 
 public class ReadData {
 
-    public static ArrayList<LineItemCSV> readActual(String file, LocalDate inDate) {
 
-        ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
 
-        LineItemCSV newLineItem = new LineItemCSV();
-        LineItemCSV existingCategory = new LineItemCSV();
-
-        String[] nextRecord;
-        String category = "";
-        String parent = "";
-        String workingType = "";
-
-        Double amount = 0.0;
-
-        int leadingSpaces = 0;
-        int type = 0;
-        int newRecordType = 0;
-
-        int lineCount = 0;
-
+    public static int actualFindCategory(LineItemCSV item) {
         try {
-            FileReader filereader = new FileReader(file);
-            CSVReader csvReader = new CSVReader(filereader);
+            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            findRecord.setInt(1, item.getId());
+            findRecord.setInt(2, item.getDate().getMonthValue());
+            findRecord.setInt(3, item.getDate().getYear());
 
-            // we are going to read data line by line
-            while ((nextRecord = csvReader.readNext()) != null) {
-                // for debugging
-                lineCount++;
-
-                // if the line is empty, skip it
-                if (nextRecord.length <= 1) {
-                    continue;
-                }
-
-                leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
-                if (nextRecord[1].trim().equals("INFLOWS")) {
-                    type = DB.INFLOW;
-                    continue;
-                } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
-                    type = DB.OUTFLOW;
-                    continue;
-                }
-
-                category = nextRecord[1].trim();
-                // if category contains the string 'TOTAL' then skip it
-                if (category.contains("TOTAL")) {
-                    continue;
-                }
-
-                if (nextRecord.length < 3) {
-                    continue;
-                }
-
-                try {
-                    amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
-                } catch (NumberFormatException e) {
-                    amount = 0.0;
-                }
-
-                switch (leadingSpaces) {
-                    case 4: // if the line is a category
-
-                        newRecordType = type;
-                        parent = "";
-                        workingType = category;
-                        newLineItem = new LineItemCSV(newRecordType, parent, category, amount);
-                        existingCategory = categoryFindRecord(newLineItem);
-
-                        if (existingCategory == null) {
-                            existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                        }
-                        break;
-
-                    case 8:
-                        parent = workingType;
-                        newLineItem = new LineItemCSV(type, parent, category, amount);
-                        existingCategory = categoryFindRecord(newLineItem);
-
-                        if (existingCategory == null) {
-                            existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                        }
-                        break;
-
-                    default:
-                        // Handle any other number of leading spaces
-                        break;
-                }
-
-                WriteData.actualInsertRecord(existingCategory, inDate);
-
+            ResultSet rs = findRecord.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(DB.ACTUAL_COL_ID_INDEX);
+            } else {
+                return -1;
             }
-            csvReader.close();
-
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error actualFindCategory: " + e.getMessage());
         }
-        return items;
+        return -1;
     }
 
-    public static LineItemCSV categoryFindRecord(LineItemCSV item) {
 
-        LineItemCSV lineItem = new LineItemCSV();
-
+    public static int categoryFindRecord(LineItemCSV item) {
         PreparedStatement psFindRecord = null;
         ResultSet rs = null;
         try {
@@ -123,18 +38,18 @@ public class ReadData {
 
             rs = psFindRecord.executeQuery();
             if (rs.next()) {
-                lineItem.setId(rs.getInt(DB.CAT_COL_ID_INDEX));
-                lineItem.setType(rs.getInt(DB.CAT_COL_TYPE_INDEX));
-                lineItem.setParent(rs.getString(DB.CAT_COL_PARENT_INDEX));
-                lineItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY_INDEX));
-                return lineItem;
+                int lineIndex = rs.getInt(DB.CAT_COL_ID_INDEX);
+                return lineIndex;
+
             } else {
-                return null;
+                return -1;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Error categoryFindRecord: " + e.getMessage());
         }
-        return null;
+        return -1;
     }
+
 
 }

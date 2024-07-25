@@ -20,3 +20,6 @@ CREATE TABLE budget.actual(
 		REFERENCES budget.category(id)
 		ON DELETE CASCADE		
 )
+
+
+
