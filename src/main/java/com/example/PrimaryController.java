@@ -103,6 +103,8 @@ public class PrimaryController {
             System.out.println("File Path: " + filePath);
             readActual(filePath, LocalDate.now());
             getActuals();
+            getManditory();
+            getDiscretionary();
 
         }
     }
