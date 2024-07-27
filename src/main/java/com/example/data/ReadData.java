@@ -87,10 +87,14 @@ public class ReadData {
         }
     }
 
-    public static List<LineItem> getTableAmounts() {
+    public static List<LineItem> getTableAmounts(int type) {
         List<LineItem> items = new ArrayList<>();
         try {
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_TABLE_AMOUNTS);
+            ps.setInt(1, type);
+
+            System.out.println(ps.toString());
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LineItem newItem = new LineItem();

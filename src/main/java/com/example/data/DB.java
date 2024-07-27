@@ -9,8 +9,11 @@ public class DB {
         // public static final String CSV_FILE_NAME = "budgetPrintData.csv";
         public static final String CSV_FILE = CSV_FILE_PATH + CSV_FILE_NAME;
 
-        public static final int INFLOW = 0;
-        public static final int OUTFLOW = 1;
+
+        public static final int INCOME = 0;
+        public static final int MANDITORY = 1;
+        public static final int DISCRETIONARY = 2;
+
 
         /* table - catogery */
         public static final String CAT_TABLE = "category";
@@ -63,6 +66,7 @@ public class DB {
 
         public static final String GET_ACTUAL_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY +
                         " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_AMOUNT + " AS ACTUAL FROM " + CAT_TABLE + " INNER JOIN "
-                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID;
+                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID
+                        + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
 }

@@ -31,7 +31,6 @@ import javafx.util.converter.DoubleStringConverter;
 
 public class PrimaryController {
 
- 
     @FXML
     private VBox categoryBox;
 
@@ -86,7 +85,6 @@ public class PrimaryController {
     @FXML
     private TableView<LineItem> tableView_Mandatory;
 
-
     @FXML
     void readActual(ActionEvent event) {
         // routine to open dialog box to select file
@@ -139,11 +137,46 @@ public class PrimaryController {
 
         incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
         incomeTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        incomeTable_Budget.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+        incomeTable_Budget.setOnEditCommit(e -> incomeTableBudget_OnEditCommit(e));
 
         incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
         incomeTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-        incomeTable_Diff.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+        incomeTable_Diff.setOnEditCommit(e -> incomeTableDiff_OnEditCommit(e));
+
+        mandatoryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+        mandatoryTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+        mandatoryTable_Category.setOnEditCommit(e -> mandatoryTableCategory_OnEditCommit(e));
+
+        mandatoryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+        mandatoryTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        mandatoryTable_Actual.setOnEditCommit(e -> mandatoryTableActual_OnEditCommit(e));
+
+        mandatoryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+        mandatoryTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        mandatoryTable_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
+
+        mandatoryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+        mandatoryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        mandatoryTable_Diff.setOnEditCommit(e -> mandatoryTableDiff_OnEditCommit(e));
+
+
+        discretionaryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+        discretionaryTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+        discretionaryTable_Category.setOnEditCommit(e -> discretionaryTableCategory_OnEditCommit(e));
+
+        discretionaryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+        discretionaryTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        discretionaryTable_Actual.setOnEditCommit(e -> discretionaryTableActual_OnEditCommit(e));
+
+        discretionaryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+        discretionaryTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        discretionaryTable_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
+
+        discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+        discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
+
+
     }
 
     public static ArrayList<LineItemCSV> readActual(String file, LocalDate inDate) {
@@ -180,10 +213,10 @@ public class PrimaryController {
 
                 leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
                 if (nextRecord[1].trim().equals("INFLOWS")) {
-                    type = DB.INFLOW;
+                    type = DB.INCOME;
                     continue;
                 } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
-                    type = DB.OUTFLOW;
+                    type = DB.MANDITORY;
                     continue;
                 }
 
@@ -265,6 +298,19 @@ public class PrimaryController {
         new Thread(task).start();
     }
 
+    public void getManditory() {
+        Task<ObservableList<LineItem>> task = new ReadManditoryAmount();
+        tableView_Mandatory.itemsProperty().bind(task.valueProperty());
+        new Thread(task).start();
+    }
+
+    public void getDiscretionary() {
+        Task<ObservableList<LineItem>> task = new ReadDiscretionaryAmount();
+        tableView_Discretionary.itemsProperty().bind(task.valueProperty());
+        new Thread(task).start();
+    }
+
+
     public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
         LineItem item = e.getRowValue();
         item.setCategory(e.getNewValue());
@@ -281,14 +327,68 @@ public class PrimaryController {
     }
 
     public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-         LineItem item = e.getRowValue();
+        LineItem item = e.getRowValue();
         item.setDiff(e.getNewValue());
     }
+
+
+    public void mandatoryTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
+        LineItem item = e.getRowValue();
+        item.setCategory(e.getNewValue());
+    }
+
+    public void mandatoryTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setActual(e.getNewValue());
+    }
+
+    public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setBudget(e.getNewValue());
+    }
+
+    public void mandatoryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setDiff(e.getNewValue());
+    }
+
+    public void discretionaryTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
+        LineItem item = e.getRowValue();
+        item.setCategory(e.getNewValue());
+    }
+
+    public void discretionaryTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setActual(e.getNewValue());
+    }
+
+    public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setBudget(e.getNewValue());
+    }
+
+    public void discretionaryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setDiff(e.getNewValue());
+    }
+
 
 }
 
 class ReadActualAmount extends Task<ObservableList<LineItem>> {
     public ObservableList<LineItem> call() {
-        return FXCollections.observableArrayList(ReadData.getTableAmounts());
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME));
+    }
+}
+
+class ReadManditoryAmount extends Task<ObservableList<LineItem>> {
+    public ObservableList<LineItem> call() {
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY));
+    }
+}
+
+class ReadDiscretionaryAmount extends Task<ObservableList<LineItem>> {
+    public ObservableList<LineItem> call() {
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY));
     }
 }

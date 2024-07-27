@@ -52,7 +52,7 @@
                <children>
                   <TableView fx:id="tableView_Income" editable="true" prefWidth="500.0">
                     <columns>
-                      <TableColumn fx:id="incomeTable_Category" prefWidth="170.0" text="Category" />
+                      <TableColumn fx:id="incomeTable_Category" prefWidth="200.0" text="Category" />
                       <TableColumn fx:id="incomeTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
@@ -64,7 +64,7 @@
                <children>
                   <TableView fx:id="tableView_Mandatory" editable="true" prefWidth="500.0">
                      <columns>
-                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="170.0" text="Category" />
+                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="200.0" text="Category" />
                         <TableColumn fx:id="mandatoryTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="mandatoryTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="mandatoryTable_Diff" prefWidth="75.0" text="Diff" />
@@ -76,7 +76,7 @@
                <children>
                   <TableView fx:id="tableView_Discretionary" editable="true" prefWidth="500.0">
                      <columns>
-                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="170.0" text="Category" />
+                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="200.0" text="Category" />
                         <TableColumn fx:id="discretionaryTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="discretionaryTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="discretionaryTable_Diff" prefWidth="75.0" text="Diff" />
