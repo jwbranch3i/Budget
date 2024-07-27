@@ -48,14 +48,42 @@
    <center>
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="tableView_Income" editable="true" prefHeight="26.0" prefWidth="326.0">
-              <columns>
-                <TableColumn fx:id="incomeTable_Category" prefWidth="75.0" text="Category" />
-                <TableColumn fx:id="incomeTable_Actual" prefWidth="75.0" text="Actual" />
-                  <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
-                  <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
-              </columns>
-            </TableView>
+            <VBox alignment="CENTER" spacing="15.0">
+               <children>
+                  <TableView fx:id="tableView_Income" editable="true">
+                    <columns>
+                      <TableColumn fx:id="incomeTable_Category" prefWidth="75.0" text="Category" />
+                      <TableColumn fx:id="incomeTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="15.0">
+               <children>
+                  <TableView fx:id="tableView_Mandatory" editable="true">
+                     <columns>
+                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="75.0" text="Category" />
+                        <TableColumn fx:id="mandatoryTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="mandatoryTable_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="mandatoryTable_Diff" prefWidth="75.0" text="Diff" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0" spacing="15.0">
+               <children>
+                  <TableView fx:id="tableView_Discretionary" editable="true">
+                     <columns>
+                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="75.0" text="Category" />
+                        <TableColumn fx:id="discretionaryTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="discretionaryTable_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="discretionaryTable_Diff" prefWidth="75.0" text="Diff" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
          </children>
       </HBox>
    </center>

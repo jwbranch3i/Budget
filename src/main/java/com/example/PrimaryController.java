@@ -31,8 +31,21 @@ import javafx.util.converter.DoubleStringConverter;
 
 public class PrimaryController {
 
+ 
     @FXML
     private VBox categoryBox;
+
+    @FXML
+    private TableColumn<LineItem, Double> discretionaryTable_Actual;
+
+    @FXML
+    private TableColumn<LineItem, Double> discretionaryTable_Budget;
+
+    @FXML
+    private TableColumn<LineItem, String> discretionaryTable_Category;
+
+    @FXML
+    private TableColumn<LineItem, Double> discretionaryTable_Diff;
 
     @FXML
     private TableColumn<LineItem, Double> incomeTable_Actual;
@@ -47,13 +60,32 @@ public class PrimaryController {
     private TableColumn<LineItem, Double> incomeTable_Diff;
 
     @FXML
+    private TableColumn<LineItem, Double> mandatoryTable_Actual;
+
+    @FXML
+    private TableColumn<LineItem, Double> mandatoryTable_Budget;
+
+    @FXML
+    private TableColumn<LineItem, String> mandatoryTable_Category;
+
+    @FXML
+    private TableColumn<LineItem, Double> mandatoryTable_Diff;
+
+    @FXML
     private AnchorPane myAnchorPane;
 
     @FXML
     private ProgressIndicator progressIndicator;
 
     @FXML
+    private TableView<LineItem> tableView_Discretionary;
+
+    @FXML
     private TableView<LineItem> tableView_Income;
+
+    @FXML
+    private TableView<LineItem> tableView_Mandatory;
+
 
     @FXML
     void readActual(ActionEvent event) {
