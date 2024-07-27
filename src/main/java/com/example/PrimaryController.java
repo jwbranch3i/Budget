@@ -281,7 +281,7 @@ public class PrimaryController {
     }
 
     public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-        LineItem item = e.getRowValue();
+         LineItem item = e.getRowValue();
         item.setDiff(e.getNewValue());
     }
 

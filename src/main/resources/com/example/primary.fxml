@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="287.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
@@ -46,13 +46,13 @@
       <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </bottom>
    <center>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <VBox alignment="CENTER" spacing="15.0">
                <children>
-                  <TableView fx:id="tableView_Income" editable="true">
+                  <TableView fx:id="tableView_Income" editable="true" prefWidth="500.0">
                     <columns>
-                      <TableColumn fx:id="incomeTable_Category" prefWidth="75.0" text="Category" />
+                      <TableColumn fx:id="incomeTable_Category" prefWidth="170.0" text="Category" />
                       <TableColumn fx:id="incomeTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
@@ -62,9 +62,9 @@
             </VBox>
             <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="15.0">
                <children>
-                  <TableView fx:id="tableView_Mandatory" editable="true">
+                  <TableView fx:id="tableView_Mandatory" editable="true" prefWidth="500.0">
                      <columns>
-                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="75.0" text="Category" />
+                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="170.0" text="Category" />
                         <TableColumn fx:id="mandatoryTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="mandatoryTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="mandatoryTable_Diff" prefWidth="75.0" text="Diff" />
@@ -74,9 +74,9 @@
             </VBox>
             <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0" spacing="15.0">
                <children>
-                  <TableView fx:id="tableView_Discretionary" editable="true">
+                  <TableView fx:id="tableView_Discretionary" editable="true" prefWidth="500.0">
                      <columns>
-                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="75.0" text="Category" />
+                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="170.0" text="Category" />
                         <TableColumn fx:id="discretionaryTable_Actual" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="discretionaryTable_Budget" prefWidth="75.0" text="Budget" />
                         <TableColumn fx:id="discretionaryTable_Diff" prefWidth="75.0" text="Diff" />
@@ -85,6 +85,9 @@
                </children>
             </VBox>
          </children>
+         <BorderPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </BorderPane.margin>
       </HBox>
    </center>
 </BorderPane>
