@@ -35,9 +35,6 @@ public class DB {
                         ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE +
                         " WHERE " + CAT_COL_PARENT + " = ? AND " + CAT_COL_CATEGORY + " = ?";
 
- 
-        
-
         /* table - actual */
         public static final String ACTUAL_TABLE = "actual";
         public static final String ACTUAL_COL_ID = "id";
@@ -50,7 +47,9 @@ public class DB {
         public static final int ACTUAL_COL_DATE_INDEX = 3;
         public static final int ACTUAL_COL_AMOUNT_INDEX = 4;
 
-        public static final String ACTUAL_FIND_CATEGORY = "SELECT * FROM " + ACTUAL_TABLE +
+        public static final String ACTUAL_FIND_CATEGORY = "SELECT " + ACTUAL_COL_ID + ", "
+                        + ACTUAL_COL_CATEGORY + ", " + ACTUAL_COL_DATE
+                        + ", " + ACTUAL_COL_AMOUNT + " FROM " + ACTUAL_TABLE +
                         " WHERE " + ACTUAL_COL_CATEGORY + " = ?"
                         + " AND MONTH(" + ACTUAL_COL_DATE + ") = ?"
                         + " AND YEAR(" + ACTUAL_COL_DATE + ") = ?";
@@ -62,5 +61,8 @@ public class DB {
         public static final String ACTUAL_UPDATE_AMOUNT = "UPDATE " + ACTUAL_TABLE +
                         " SET " + ACTUAL_COL_AMOUNT + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
-    
+        public static final String GET_ACTUAL_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY +
+                        " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_AMOUNT + " AS ACTUAL FROM " + CAT_TABLE + " INNER JOIN "
+                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID;
+
 }

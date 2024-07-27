@@ -95,6 +95,7 @@ public class LineItem {
 
     public void setActual(Double Actual) {
         this.actual.set(Actual);
+        diff.set(calcDiff());
     }
 
     public Double getActual(){
@@ -106,8 +107,9 @@ public class LineItem {
         return this.budget;
     }
 
-    public void setBudgetl(Double budget) {
+    public void setBudget(Double budget) {
         this.actual.set(budget);
+        diff.set(calcDiff());
     }
 
     public Double getBudget() {
@@ -125,6 +127,10 @@ public class LineItem {
 
     public Double getDiff() {
         return this.diff.get();
+    }
+
+private Double calcDiff() {
+        return this.budget.get() - this.actual.get();
     }
 
     @Override

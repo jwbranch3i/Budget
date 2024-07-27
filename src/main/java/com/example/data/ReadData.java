@@ -2,6 +2,8 @@ package com.example.data;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReadData {
 
@@ -11,7 +13,17 @@ public class ReadData {
      * @param item The LineItemCSV object to find the category for.
      * @return The category ID if found, or -1 if not found.
      */
-    public static int actualFindCategory(LineItemCSV item) {
+    public static LineItemCSV actualFindCategory(LineItemCSV item) {
+        LineItemCSV returnItem = new LineItemCSV();
+        //copy the item to returnItem
+        returnItem.setId(item.getId());
+        returnItem.setAmount(item.getAmount());
+        returnItem.setDate(item.getDate());
+        returnItem.setCategory(item.getCategory());
+        returnItem.setParent(item.getParent());
+        returnItem.setType(item.getType());
+
+
         try {
             PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY,
                     PreparedStatement.RETURN_GENERATED_KEYS);
@@ -21,15 +33,17 @@ public class ReadData {
 
             ResultSet rs = findRecord.executeQuery();
             if (rs.next()) {
-                return rs.getInt(DB.ACTUAL_COL_ID_INDEX);
+                 returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID_INDEX));
+                 return returnItem;
             } else {
-                return -1;
+                returnItem.setId(-1);
+                return returnItem;
             }
         } catch (Exception e) {
             System.out.println("Error actualFindCategory: " + e.getMessage());
+            return item;
         }
-        return -1;
-    }
+     }
 
     /**
      * Finds the record index of a LineItemCSV in the category database table.
@@ -37,7 +51,17 @@ public class ReadData {
      * @param item The LineItemCSV object to find the record index for.
      * @return The record index if found, or -1 if not found.
      */
-    public static int categoryFindRecord(LineItemCSV item) {
+    public static LineItemCSV categoryFindRecord(LineItemCSV item) {
+        LineItemCSV returnItem = new LineItemCSV();
+        //copy the item to returnItem
+        returnItem.setId(item.getId());
+        returnItem.setAmount(item.getAmount());
+        returnItem.setDate(item.getDate());
+        returnItem.setCategory(item.getCategory());
+        returnItem.setParent(item.getParent());
+        returnItem.setType(item.getType());
+
+
         PreparedStatement psFindRecord = null;
         ResultSet rs = null;
         try {
@@ -47,15 +71,38 @@ public class ReadData {
 
             rs = psFindRecord.executeQuery();
             if (rs.next()) {
-                int lineIndex = rs.getInt(DB.CAT_COL_ID_INDEX);
-                return lineIndex;
+                returnItem.setId(rs.getInt(DB.CAT_COL_ID_INDEX));
+                returnItem.setType(rs.getInt(DB.CAT_COL_TYPE));
+                returnItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY));
+
+                return returnItem;
             } else {
-                return -1;
+                returnItem.setId(-1);
+                return returnItem;
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error categoryFindRecord: " + e.getMessage());
+            return item;
         }
-        return -1;
+    }
+
+    public static List<LineItem> getTableAmounts() {
+        List<LineItem> items = new ArrayList<>();
+        try {
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_TABLE_AMOUNTS);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                LineItem newItem = new LineItem();
+                newItem.setCategory(rs.getString("CATEGORY"));
+                newItem.setActual(rs.getDouble("ACTUAL"));
+
+                items.add(newItem);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getTableAmounts: " + e.getMessage());
+        }
+        return items;
     }
 }

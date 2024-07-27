@@ -3,8 +3,6 @@ package com.example;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -15,32 +13,38 @@ import com.example.data.ReadData;
 import com.example.data.WriteData;
 import com.opencsv.CSVReader;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.converter.DoubleStringConverter;
 
 public class PrimaryController {
 
     @FXML
-    private TableColumn<LineItem, String> budgetCol_Actual;
-
-    @FXML
-    private TableColumn<LineItem, Double> budgetCol_Budget;
-
-    @FXML
-    private TableColumn<LineItem, Double> budgetCol_Category;
-
-    @FXML
-    private TableColumn<LineItem, Double> budgetCol_Diff;
-
-    @FXML
     private VBox categoryBox;
+
+    @FXML
+    private TableColumn<LineItem, Double> incomeTable_Actual;
+
+    @FXML
+    private TableColumn<LineItem, Double> incomeTable_Budget;
+
+    @FXML
+    private TableColumn<LineItem, String> incomeTable_Category;
+
+    @FXML
+    private TableColumn<LineItem, Double> incomeTable_Diff;
 
     @FXML
     private AnchorPane myAnchorPane;
@@ -49,7 +53,7 @@ public class PrimaryController {
     private ProgressIndicator progressIndicator;
 
     @FXML
-    private TableView<LineItem> tableView_Budget;
+    private TableView<LineItem> tableView_Income;
 
     @FXML
     void readActual(ActionEvent event) {
@@ -68,6 +72,7 @@ public class PrimaryController {
             String filePath = selectedFile.getAbsolutePath();
             System.out.println("File Path: " + filePath);
             readActual(filePath, LocalDate.now());
+            getActuals();
 
         }
     }
@@ -91,6 +96,22 @@ public class PrimaryController {
 
     public void initialize() {
         myAnchorPane.getStyleClass().add("catBox");
+
+        incomeTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+        incomeTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+        incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
+
+        incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+        incomeTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        incomeTable_Actual.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+
+        incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+        incomeTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        incomeTable_Budget.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+
+        incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+        incomeTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        incomeTable_Diff.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
     }
 
     public static ArrayList<LineItemCSV> readActual(String file, LocalDate inDate) {
@@ -99,6 +120,7 @@ public class PrimaryController {
 
         LineItemCSV newLineItem = new LineItemCSV();
         LineItemCSV existingCategory = new LineItemCSV();
+        LineItemCSV existingActual = new LineItemCSV();
         int existingCategoryId = 0;
 
         String[] nextRecord;
@@ -112,16 +134,12 @@ public class PrimaryController {
         int type = 0;
         int newRecordType = 0;
 
-        int lineCount = 0;
-
         try {
             FileReader filereader = new FileReader(file);
             CSVReader csvReader = new CSVReader(filereader);
 
             // we are going to read data line by line
             while ((nextRecord = csvReader.readNext()) != null) {
-                // for debugging
-                lineCount++;
 
                 // if the line is empty, skip it
                 if (nextRecord.length <= 1) {
@@ -160,18 +178,18 @@ public class PrimaryController {
                         parent = "";
                         workingType = category;
                         newLineItem = new LineItemCSV(newRecordType, inDate, parent, category, amount);
-                        existingCategoryId = ReadData.categoryFindRecord(newLineItem);
+                        existingCategory = ReadData.categoryFindRecord(newLineItem);
 
-                        if ((existingCategoryId == -1)) {
+                        if ((existingCategory.getId() == -1)) {
                             existingCategory = WriteData.categoryInsertRecord(newLineItem);
                         }
 
-                        int existingActualId = ReadData.actualFindCategory(existingCategory);
+                        existingActual = ReadData.actualFindCategory(existingCategory);
 
-                        if (existingActualId == -1) {
-                            WriteData.actualInsertRecord(existingCategory);
+                        if (existingActual.getId() == -1) {
+                            WriteData.actualInsertRecord(existingActual, existingCategory);
                         } else {
-                            WriteData.autualUpdateAmount(existingActualId, existingCategory.getAmount());
+                            WriteData.autualUpdateAmount(existingActual);
                         }
 
                         break;
@@ -179,18 +197,18 @@ public class PrimaryController {
                     case 8:
                         parent = workingType;
                         newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
-                        existingCategoryId = ReadData.categoryFindRecord(newLineItem);
+                        existingCategory = ReadData.categoryFindRecord(newLineItem);
 
-                        if ((existingCategoryId == -1)) {
+                        if ((existingCategory.getId() == -1)) {
                             existingCategory = WriteData.categoryInsertRecord(newLineItem);
                         }
 
-                        existingActualId = ReadData.actualFindCategory(existingCategory);
+                        existingActual = ReadData.actualFindCategory(existingCategory);
 
-                        if (existingActualId == -1) {
-                            WriteData.actualInsertRecord(existingCategory);
+                        if (existingActual.getId() == -1) {
+                            WriteData.actualInsertRecord(existingActual, existingCategory);
                         } else {
-                            WriteData.autualUpdateAmount(existingActualId, existingCategory.getAmount());
+                            WriteData.autualUpdateAmount(existingActual);
                         }
 
                         break;
@@ -209,4 +227,36 @@ public class PrimaryController {
         return items;
     }
 
+    public void getActuals() {
+        Task<ObservableList<LineItem>> task = new ReadActualAmount();
+        tableView_Income.itemsProperty().bind(task.valueProperty());
+        new Thread(task).start();
+    }
+
+    public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
+        LineItem item = e.getRowValue();
+        item.setCategory(e.getNewValue());
+    }
+
+    public void incomeTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setActual(e.getNewValue());
+    }
+
+    public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setBudget(e.getNewValue());
+    }
+
+    public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
+        LineItem item = e.getRowValue();
+        item.setDiff(e.getNewValue());
+    }
+
+}
+
+class ReadActualAmount extends Task<ObservableList<LineItem>> {
+    public ObservableList<LineItem> call() {
+        return FXCollections.observableArrayList(ReadData.getTableAmounts());
+    }
 }

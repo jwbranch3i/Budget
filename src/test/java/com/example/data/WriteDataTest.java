@@ -46,38 +46,51 @@ public class WriteDataTest {
         // Add more assertions if needed
     }
 
-@Test
+    @Test
     public void testAutualUpdateAmount() {
-        // Call the method being tested
-        boolean result = WriteData.autualUpdateAmount(14, 12.36);
+        // Create a test LineItemCSV object
+        LineItemCSV item = new LineItemCSV();
+        item.setId(1);
+        item.setAmount(100.0);
 
+        // Call the method being tested
+        boolean result = WriteData.autualUpdateAmount(item);
+
+        // Assert the expected result
         assertTrue(result);
     }
 
     @Test
     public void testActualInsertRecord() {
-        // Create a test LineItemCSV object
-        LineItemCSV category = new LineItemCSV();
-        category.setId(483);
-        category.setType(1);
-        category.setDate(LocalDate.now());
-        category.setParent("Parent");
-        category.setCategory("Category");
-        category.setAmount(100.0);
 
-        // Create a test LocalDate object
-        LocalDate inDate = LocalDate.now();
+        // Create a test LineItemCSV object
+        LineItemCSV newActual = new LineItemCSV();
+        newActual.setId(1);
+        newActual.setAmount(100.0);
+        newActual.setDate(LocalDate.now());
+        newActual.setCategory("Category");
+        newActual.setParent("Parent");
+        newActual.setType(1);
+
+        LineItemCSV existingCategory = new LineItemCSV();
+        existingCategory.setId(1);
+        existingCategory.setAmount(100.0);
+        existingCategory.setDate(LocalDate.now());
+        existingCategory.setCategory("Category");
+        existingCategory.setParent("Parent");
+        existingCategory.setType(1);
 
         // Call the method being tested
-        LineItemCSV result = WriteData.actualInsertRecord(category);
+        LineItemCSV result = WriteData.actualInsertRecord(newActual, existingCategory);
 
         // Assert the expected result
         assertNotNull(result);
-        assertEquals(1, result.getType());
-        assertEquals(inDate, result.getDate());
-        assertEquals("Parent", result.getParent());
-        assertEquals("Category", result.getCategory());
+        assertEquals(1, result.getId());
         assertEquals(100.0, result.getAmount(), 0.0);
-
+        assertEquals(LocalDate.now(), result.getDate());
+        assertEquals("Category", result.getCategory());
+        assertEquals("Parent", result.getParent());
+        assertEquals(1, result.getType());
+        // Add more assertions if needed
     }
 }
