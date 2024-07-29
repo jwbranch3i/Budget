@@ -88,6 +88,40 @@ public class WriteData {
             System.out.println("Error actualInsertRecord: " + e.getMessage());
         }
 
-        return null;
+        return newActual;
+    }
+
+
+    public static LineItemCSV budgetInsertRecord(LineItemCSV newActual, LineItemCSV existingCategory) {
+        LineItemCSV returnActual = new LineItemCSV();
+        //copy the item to returnItem
+        returnActual.setId(newActual.getId());
+        returnActual.setAmount(newActual.getAmount());
+        returnActual.setDate(newActual.getDate());
+        returnActual.setCategory(newActual.getCategory());
+        returnActual.setParent(newActual.getParent());
+        returnActual.setType(newActual.getType());
+
+
+        try {
+            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.BUDGET_INSERT_RECORD,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+            insertRecord.setInt(1, existingCategory.getId());
+            insertRecord.setDate(2, Date.valueOf(newActual.getDate()));
+            insertRecord.setDouble(3, 0);
+
+            insertRecord.executeUpdate();
+
+            ResultSet rs = insertRecord.getGeneratedKeys();
+            if (rs.next()) {
+                returnActual.setId(rs.getInt(1));
+                return returnActual;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error budgetInsertRecord: " + e.getMessage());
+        }
+
+        return newActual;
     }
 }

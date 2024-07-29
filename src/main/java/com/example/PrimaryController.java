@@ -102,9 +102,12 @@ public class PrimaryController {
             String filePath = selectedFile.getAbsolutePath();
             System.out.println("File Path: " + filePath);
             readActual(filePath, LocalDate.now());
-            getActuals();
-            getManditory();
-            getDiscretionary();
+
+            LocalDate inDate = LocalDate.now();
+
+            getActuals(inDate);
+            getManditory(inDate);
+            getDiscretionary(inDate);
 
         }
     }
@@ -161,7 +164,6 @@ public class PrimaryController {
         mandatoryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
         mandatoryTable_Diff.setOnEditCommit(e -> mandatoryTableDiff_OnEditCommit(e));
 
-
         discretionaryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
         discretionaryTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
         discretionaryTable_Category.setOnEditCommit(e -> discretionaryTableCategory_OnEditCommit(e));
@@ -177,7 +179,6 @@ public class PrimaryController {
         discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
         discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
         discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
-
 
     }
 
@@ -245,18 +246,25 @@ public class PrimaryController {
                         parent = "";
                         workingType = category;
                         newLineItem = new LineItemCSV(newRecordType, inDate, parent, category, amount);
-                        existingCategory = ReadData.categoryFindRecord(newLineItem);
 
+                        // if the category is not in the category database, insert it
+                        existingCategory = ReadData.categoryFindRecord(newLineItem);
                         if ((existingCategory.getId() == -1)) {
                             existingCategory = WriteData.categoryInsertRecord(newLineItem);
                         }
 
+                        // if the category is not in the actual database, insert it
                         existingActual = ReadData.actualFindCategory(existingCategory);
-
                         if (existingActual.getId() == -1) {
                             WriteData.actualInsertRecord(existingActual, existingCategory);
                         } else {
                             WriteData.autualUpdateAmount(existingActual);
+                        }
+
+                        // if the category is not in the budget database, insert it
+                        existingActual = ReadData.budgetFindCategory(existingCategory);
+                        if (existingActual.getId() == -1) {
+                            WriteData.budgetInsertRecord(existingActual, existingCategory);
                         }
 
                         break;
@@ -264,18 +272,25 @@ public class PrimaryController {
                     case 8:
                         parent = workingType;
                         newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
-                        existingCategory = ReadData.categoryFindRecord(newLineItem);
 
+                        // if the category is not in the category database, insert it
+                        existingCategory = ReadData.categoryFindRecord(newLineItem);
                         if ((existingCategory.getId() == -1)) {
                             existingCategory = WriteData.categoryInsertRecord(newLineItem);
                         }
 
+                        // if the category is not in the actual database, insert it
                         existingActual = ReadData.actualFindCategory(existingCategory);
-
                         if (existingActual.getId() == -1) {
                             WriteData.actualInsertRecord(existingActual, existingCategory);
                         } else {
                             WriteData.autualUpdateAmount(existingActual);
+                        }
+
+                        // if the category is not in the budget database, insert it
+                        existingActual = ReadData.budgetFindCategory(existingCategory);
+                        if (existingActual.getId() == -1) {
+                            WriteData.budgetInsertRecord(existingActual, existingCategory);
                         }
 
                         break;
@@ -294,24 +309,23 @@ public class PrimaryController {
         return items;
     }
 
-    public void getActuals() {
-        Task<ObservableList<LineItem>> task = new ReadActualAmount();
+    public void getActuals(LocalDate inDate) {
+        Task<ObservableList<LineItem>> task = new ReadActualAmount(inDate);
         tableView_Income.itemsProperty().bind(task.valueProperty());
         new Thread(task).start();
     }
 
-    public void getManditory() {
-        Task<ObservableList<LineItem>> task = new ReadManditoryAmount();
+    public void getManditory(LocalDate inDate) {
+        Task<ObservableList<LineItem>> task = new ReadManditoryAmount(inDate);
         tableView_Mandatory.itemsProperty().bind(task.valueProperty());
         new Thread(task).start();
     }
 
-    public void getDiscretionary() {
-        Task<ObservableList<LineItem>> task = new ReadDiscretionaryAmount();
+    public void getDiscretionary(LocalDate inDate) {
+        Task<ObservableList<LineItem>> task = new ReadDiscretionaryAmount(inDate);
         tableView_Discretionary.itemsProperty().bind(task.valueProperty());
         new Thread(task).start();
     }
-
 
     public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
         LineItem item = e.getRowValue();
@@ -332,7 +346,6 @@ public class PrimaryController {
         LineItem item = e.getRowValue();
         item.setDiff(e.getNewValue());
     }
-
 
     public void mandatoryTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
         LineItem item = e.getRowValue();
@@ -374,23 +387,40 @@ public class PrimaryController {
         item.setDiff(e.getNewValue());
     }
 
-
 }
 
 class ReadActualAmount extends Task<ObservableList<LineItem>> {
+    private LocalDate inDate;
+
+    public ReadActualAmount(LocalDate inDate) {
+        this.inDate = inDate;
+    }
+
     public ObservableList<LineItem> call() {
-        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME));
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate));
     }
 }
 
 class ReadManditoryAmount extends Task<ObservableList<LineItem>> {
+    private LocalDate inDate;
+
+    public ReadManditoryAmount(LocalDate inDate) {
+        this.inDate = inDate;
+    }
+
     public ObservableList<LineItem> call() {
-        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY));
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate));
     }
 }
 
 class ReadDiscretionaryAmount extends Task<ObservableList<LineItem>> {
+    private LocalDate inDate;
+
+    public ReadDiscretionaryAmount(LocalDate inDate) {
+        this.inDate = inDate;
+    }
+
     public ObservableList<LineItem> call() {
-        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY));
+        return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate));
     }
 }
