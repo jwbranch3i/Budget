@@ -2,5 +2,6 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "maven.terminal.customEnv": [
         
-    ]
+    ],
+    "java.format.settings.url": ".vscode/java-formatter.xml"
 }

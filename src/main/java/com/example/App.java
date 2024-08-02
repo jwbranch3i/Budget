@@ -1,13 +1,14 @@
 package com.example;
 
+import com.example.data.DataSource;
+import com.example.controllers.PrimaryController;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import com.example.data.DataSource;
 
 public class App extends Application {
 	@Override
@@ -20,7 +21,11 @@ public class App extends Application {
 
 			PrimaryController controller = loader.getController();
 
-			Scene scene = new Scene(root, 1420, 1000);
+	
+			// LocalDate inDate = LocalDate.of(2021, 1, 1);
+			// controller.getActuals(inDate);
+
+			Scene scene = new Scene(root, 1420, 800);
 
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 

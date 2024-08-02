@@ -17,7 +17,7 @@ public class ReadData {
     public static LineItemCSV actualFindCategory(LineItemCSV item) {
         LineItemCSV returnItem = new LineItemCSV();
         // copy the item to returnItem
-        returnItem.setId(item.getId());
+        returnItem.setId(-1);
         returnItem.setAmount(item.getAmount());
         returnItem.setDate(item.getDate());
         returnItem.setCategory(item.getCategory());
@@ -25,9 +25,8 @@ public class ReadData {
         returnItem.setType(item.getType());
 
         try {
-            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY,
-                    PreparedStatement.RETURN_GENERATED_KEYS);
-            findRecord.setInt(1, item.getId());
+            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
+            findRecord.setInt(1, item.getId()); //category id in category table
             findRecord.setInt(2, item.getDate().getMonthValue());
             findRecord.setInt(3, item.getDate().getYear());
 
@@ -47,8 +46,9 @@ public class ReadData {
 
     public static LineItemCSV budgetFindCategory(LineItemCSV item) {
         LineItemCSV returnItem = new LineItemCSV();
+        returnItem.setId(-1);
         // copy the item to returnItem
-        returnItem.setId(item.getId());
+        returnItem.setId(-1);
         returnItem.setAmount(item.getAmount());
         returnItem.setDate(item.getDate());
         returnItem.setCategory(item.getCategory());
@@ -56,8 +56,7 @@ public class ReadData {
         returnItem.setType(item.getType());
 
         try {
-            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.BUDGET_FIND_CATEGORY,
-                    PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.BUDGET_FIND_CATEGORY);
             findRecord.setInt(1, item.getId());
             findRecord.setInt(2, item.getDate().getMonthValue());
             findRecord.setInt(3, item.getDate().getYear());
@@ -72,7 +71,7 @@ public class ReadData {
             }
         } catch (Exception e) {
             System.out.println("Error actualFindCategory: " + e.getMessage());
-            return item;
+            return returnItem;
         }
     }
 
@@ -84,8 +83,9 @@ public class ReadData {
      */
     public static LineItemCSV categoryFindRecord(LineItemCSV item) {
         LineItemCSV returnItem = new LineItemCSV();
+        returnItem.setId(-1);
         // copy the item to returnItem
-        returnItem.setId(item.getId());
+        returnItem.setId(-1);
         returnItem.setAmount(item.getAmount());
         returnItem.setDate(item.getDate());
         returnItem.setCategory(item.getCategory());
@@ -101,7 +101,7 @@ public class ReadData {
 
             rs = psFindRecord.executeQuery();
             if (rs.next()) {
-                returnItem.setId(rs.getInt(DB.CAT_COL_ID_INDEX));
+                returnItem.setId(rs.getInt(DB.CAT_COL_ID));
                 returnItem.setType(rs.getInt(DB.CAT_COL_TYPE));
                 returnItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY));
 
@@ -113,7 +113,7 @@ public class ReadData {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error categoryFindRecord: " + e.getMessage());
-            return item;
+            return returnItem;
         }
     }
 

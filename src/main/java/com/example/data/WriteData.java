@@ -12,6 +12,8 @@ public class WriteData {
      * @return The LineItemCSV object with the generated ID set.
      */
     public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
+        LineItemCSV returnItem = new LineItemCSV();
+        returnItem.setId(-1);
         try {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.CAT_INSERT_CATEGORY,
                     PreparedStatement.RETURN_GENERATED_KEYS);
@@ -22,13 +24,16 @@ public class WriteData {
             insertRecord.executeUpdate();
             ResultSet rs = insertRecord.getGeneratedKeys();
             if (rs.next()) {
-                item.setId(rs.getInt(1));
+                returnItem.setId(rs.getInt(1));
+            }
+            else{
+                returnItem.setId(-1);
             }
             return item;
         } catch (Exception e) {
             System.out.println("Error categoryInsertRecord: " + e.getMessage());
         }
-        return item;
+        return returnItem;
     }
 
     /**
