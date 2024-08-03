@@ -127,9 +127,10 @@ public class PrimaryController {
                                 System.out.println("Error saving file path: " + e.getMessage());
                         }
 
-                        readActual(selectedFile, LocalDate.now());
+                        readActual(selectedFile, LocalDate.now()); //read CSV file
 
                         LocalDate inDate = LocalDate.now();
+                        // Read data from database to tableviews
                         getActuals(inDate);
                         getManditory(inDate);
                         getDiscretionary(inDate);
@@ -206,6 +207,11 @@ public class PrimaryController {
                 discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
+
+                LocalDate inDate = LocalDate.now();
+                getActuals(inDate);
+                getManditory(inDate);
+                getDiscretionary(inDate);
 
         }
 

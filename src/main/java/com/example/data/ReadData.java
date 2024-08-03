@@ -117,15 +117,13 @@ public class ReadData {
         }
     }
 
-    public static List<LineItem> getTableAmounts(int type, LocalDate date) {
-        List<LineItem> items = new ArrayList<>();
+    public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
+        ArrayList<LineItem> items = new ArrayList<LineItem>();
         try {
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
             ps.setInt(1, date.getMonthValue());
             ps.setInt(2, date.getYear());
             ps.setInt(3, type);
-
-            System.out.println(ps.toString());
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
