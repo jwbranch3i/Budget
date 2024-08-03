@@ -103,8 +103,13 @@ public class PrimaryController {
                         System.out.println("Error retrieving file path: " + e.getMessage());
                 }
 
+              File csvFilePath = new File(savedFilePath);
+                if (!csvFilePath.exists() || !csvFilePath.canRead()) {
+                    csvFilePath = new File("C:\\");
+                }
+             
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setInitialDirectory(new File(savedFilePath));
+                fileChooser.setInitialDirectory(new File(csvFilePath.getPath()));
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
 
                 File selectedFile = fileChooser.showOpenDialog(null);
@@ -122,7 +127,7 @@ public class PrimaryController {
                                 System.out.println("Error saving file path: " + e.getMessage());
                         }
 
-                        readActual(filePath, LocalDate.now());
+                        readActual(selectedFile, LocalDate.now());
 
                         LocalDate inDate = LocalDate.now();
                         getActuals(inDate);
@@ -204,7 +209,7 @@ public class PrimaryController {
 
         }
 
-        public static ArrayList<LineItemCSV> readActual(String file, LocalDate inDate) {
+        public static ArrayList<LineItemCSV> readActual(File file, LocalDate inDate) {
 
                 ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
 

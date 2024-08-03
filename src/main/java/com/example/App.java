@@ -22,8 +22,7 @@ public class App extends Application {
 			PrimaryController controller = loader.getController();
 
 	
-			// LocalDate inDate = LocalDate.of(2021, 1, 1);
-			// controller.getActuals(inDate);
+		//	controller.getActuals();
 
 			Scene scene = new Scene(root, 1420, 800);
 
