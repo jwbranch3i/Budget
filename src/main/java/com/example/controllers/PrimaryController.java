@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 import com.example.data.DB;
 import com.example.data.LineItem;
@@ -208,22 +207,18 @@ public class PrimaryController {
                 discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
-                LocalDate inDate = LocalDate.now();
-                getActuals(inDate);
-                getManditory(inDate);
-                getDiscretionary(inDate);
+                // LocalDate inDate = LocalDate.now();
+                // getActuals(inDate);
+                // getManditory(inDate);
+                // getDiscretionary(inDate);
 
         }
 
-        public static ArrayList<LineItemCSV> readActual(File file, LocalDate inDate) {
-
-                ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
-
+        public static void readActual(File file, LocalDate inDate) {
                 LineItemCSV newLineItem = new LineItemCSV();
                 LineItemCSV existingCategory = new LineItemCSV();
                 LineItemCSV existingActual = new LineItemCSV();
-                int existingCategoryId = 0;
-
+ 
                 String[] nextRecord;
                 String category = "";
                 String parent = "";
@@ -354,7 +349,6 @@ public class PrimaryController {
                 catch (Exception e) {
                         e.printStackTrace();
                 }
-                return items;
         }
 
         public void getActuals(LocalDate inDate) {

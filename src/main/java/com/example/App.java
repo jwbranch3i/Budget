@@ -20,7 +20,7 @@ public class App extends Application {
 			root = loader.load();
 
 			PrimaryController controller = loader.getController();
-
+	
 	
 		//	controller.getActuals();
 
