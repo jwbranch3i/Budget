@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import com.example.data.DB;
 import com.example.data.LineItem;
@@ -87,7 +88,7 @@ public class PrimaryController {
         private TableView<LineItem> tableView_Mandatory;
 
         @FXML
-        void readActual(ActionEvent event) {
+        void readButton(ActionEvent event) {
                 // routine to open dialog box to select file
                 String savedFilePath = "C:\\";
                 try {
@@ -102,11 +103,11 @@ public class PrimaryController {
                         System.out.println("Error retrieving file path: " + e.getMessage());
                 }
 
-              File csvFilePath = new File(savedFilePath);
+                File csvFilePath = new File(savedFilePath);
                 if (!csvFilePath.exists() || !csvFilePath.canRead()) {
-                    csvFilePath = new File("C:\\");
+                        csvFilePath = new File("C:\\");
                 }
-             
+
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setInitialDirectory(new File(csvFilePath.getPath()));
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
@@ -126,15 +127,20 @@ public class PrimaryController {
                                 System.out.println("Error saving file path: " + e.getMessage());
                         }
 
-                        readActual(selectedFile, LocalDate.now()); //read CSV file
+                        readActual(selectedFile, LocalDate.now()); // read CSV
+                                                                   // file
 
                         LocalDate inDate = LocalDate.now();
-                        // Read data from database to tableviews
-                        getActuals(inDate);
-                        getManditory(inDate);
-                        getDiscretionary(inDate);
 
-                }
+                        Task<Void> task = new Task<Void>() {
+                                @Override
+                                protected Void call() throws Exception {
+                                        getTableRows(inDate);
+                                        return null;
+                                }
+                        };
+                        new Thread(task).start();
+                 }
         }
 
         @FXML
@@ -207,10 +213,32 @@ public class PrimaryController {
                 discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
-                // LocalDate inDate = LocalDate.now();
+                LocalDate inDate = LocalDate.now();
+
+                //Create a task to run getTableRows in another thread
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                getTableRows(inDate);
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+        }
+
+        public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
-                // getManditory(inDate);
-                // getDiscretionary(inDate);
+                tableView_Income.setItems(
+                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
+
+                // get mandatory data
+                tableView_Mandatory.setItems(
+                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate)));
+
+                System.out.println();
+                // get discretionary data
+                tableView_Discretionary.setItems(
+                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
 
         }
 
@@ -218,7 +246,7 @@ public class PrimaryController {
                 LineItemCSV newLineItem = new LineItemCSV();
                 LineItemCSV existingCategory = new LineItemCSV();
                 LineItemCSV existingActual = new LineItemCSV();
- 
+
                 String[] nextRecord;
                 String category = "";
                 String parent = "";
@@ -351,24 +379,6 @@ public class PrimaryController {
                 }
         }
 
-        public void getActuals(LocalDate inDate) {
-                Task<ObservableList<LineItem>> task = new ReadActualAmount(inDate);
-                tableView_Income.itemsProperty().bind(task.valueProperty());
-                new Thread(task).start();
-        }
-
-        public void getManditory(LocalDate inDate) {
-                Task<ObservableList<LineItem>> task = new ReadManditoryAmount(inDate);
-                tableView_Mandatory.itemsProperty().bind(task.valueProperty());
-                new Thread(task).start();
-        }
-
-        public void getDiscretionary(LocalDate inDate) {
-                Task<ObservableList<LineItem>> task = new ReadDiscretionaryAmount(inDate);
-                tableView_Discretionary.itemsProperty().bind(task.valueProperty());
-                new Thread(task).start();
-        }
-
         public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
                 LineItem item = e.getRowValue();
                 item.setCategory(e.getNewValue());
@@ -429,40 +439,4 @@ public class PrimaryController {
                 item.setDiff(e.getNewValue());
         }
 
-}
-
-class ReadActualAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadActualAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate));
-        }
-}
-
-class ReadManditoryAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadManditoryAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate));
-        }
-}
-
-class ReadDiscretionaryAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadDiscretionaryAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate));
-        }
 }
