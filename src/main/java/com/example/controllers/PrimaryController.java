@@ -132,9 +132,15 @@ public class PrimaryController {
 
                         LocalDate inDate = LocalDate.now();
 
-                        getTableRows(inDate);
- 
-                }
+                        Task<Void> task = new Task<Void>() {
+                                @Override
+                                protected Void call() throws Exception {
+                                        getTableRows(inDate);
+                                        return null;
+                                }
+                        };
+                        new Thread(task).start();
+                 }
         }
 
         @FXML
@@ -208,8 +214,16 @@ public class PrimaryController {
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
                 LocalDate inDate = LocalDate.now();
-                getTableRows(inDate);
 
+                //Create a task to run getTableRows in another thread
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                getTableRows(inDate);
+                                return null;
+                        }
+                };
+                new Thread(task).start();
         }
 
         public void getTableRows(LocalDate inDate) {
