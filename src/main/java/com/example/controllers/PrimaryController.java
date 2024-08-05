@@ -131,11 +131,9 @@ public class PrimaryController {
                                                                    // file
 
                         LocalDate inDate = LocalDate.now();
-                        // Read data from database to tableviews
-                        // getActuals(inDate);
-                        getManditory(inDate);
-                        // getDiscretionary(inDate);
 
+                        getTableRows(inDate);
+ 
                 }
         }
 
@@ -210,10 +208,14 @@ public class PrimaryController {
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
                 LocalDate inDate = LocalDate.now();
+                getTableRows(inDate);
 
+        }
+
+        public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
                 tableView_Income.setItems(
-                        FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
+                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
 
                 // get mandatory data
                 tableView_Mandatory.setItems(
@@ -222,7 +224,7 @@ public class PrimaryController {
                 System.out.println();
                 // get discretionary data
                 tableView_Discretionary.setItems(
-                        FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
+                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
 
         }
 
@@ -363,25 +365,6 @@ public class PrimaryController {
                 }
         }
 
-        public void getActuals(LocalDate inDate) {
-                Task<ObservableList<LineItem>> task = new ReadActualAmount(inDate);
-                tableView_Income.itemsProperty().bind(task.valueProperty());
-                new Thread(task).start();
-        }
-
-        public ObservableList<LineItem> getManditory(LocalDate inDate) {
-
-                ObservableList<LineItem> items = FXCollections
-                                .observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate));
-                return items;
-        }
-
-        public void getDiscretionary(LocalDate inDate) {
-                Task<ObservableList<LineItem>> task = new ReadDiscretionaryAmount(inDate);
-                tableView_Discretionary.itemsProperty().bind(task.valueProperty());
-                new Thread(task).start();
-        }
-
         public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
                 LineItem item = e.getRowValue();
                 item.setCategory(e.getNewValue());
@@ -442,40 +425,4 @@ public class PrimaryController {
                 item.setDiff(e.getNewValue());
         }
 
-}
-
-class ReadActualAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadActualAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate));
-        }
-}
-
-class ReadManditoryAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadManditoryAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate));
-        }
-}
-
-class ReadDiscretionaryAmount extends Task<ObservableList<LineItem>> {
-        private LocalDate inDate;
-
-        public ReadDiscretionaryAmount(LocalDate inDate) {
-                this.inDate = inDate;
-        }
-
-        public ObservableList<LineItem> call() {
-                return FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate));
-        }
 }
