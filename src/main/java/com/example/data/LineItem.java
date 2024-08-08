@@ -121,12 +121,13 @@ public class LineItem {
         return this.diff;
     }
 
-    public void setDiff(Double diff) {
-        this.actual.set(diff);
-    }
-
+  
     public Double getDiff() {
         return this.diff.get();
+    }
+
+    public void setDiff(Double diff) {
+        this.diff.set(diff);
     }
 
 private Double calcDiff() {
