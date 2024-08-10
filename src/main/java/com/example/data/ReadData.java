@@ -25,7 +25,7 @@ public class ReadData {
 
         try {
             PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
-            findRecord.setInt(1, item.getId()); //category id in category table
+            findRecord.setInt(1, item.getId()); // category id in category table
             findRecord.setInt(2, item.getDate().getMonthValue());
             findRecord.setInt(3, item.getDate().getYear());
 
@@ -33,11 +33,13 @@ public class ReadData {
             if (rs.next()) {
                 returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID));
                 return returnItem;
-            } else {
+            }
+            else {
                 returnItem.setId(-1);
                 return returnItem;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Error actualFindCategory: " + e.getMessage());
             return item;
         }
@@ -64,11 +66,13 @@ public class ReadData {
             if (rs.next()) {
                 returnItem.setId(rs.getInt(DB.BUDGET_COL_ID));
                 return returnItem;
-            } else {
+            }
+            else {
                 returnItem.setId(-1);
                 return returnItem;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Error actualFindCategory: " + e.getMessage());
             return returnItem;
         }
@@ -105,11 +109,13 @@ public class ReadData {
                 returnItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY));
 
                 return returnItem;
-            } else {
+            }
+            else {
                 returnItem.setId(-1);
                 return returnItem;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error categoryFindRecord: " + e.getMessage());
             return returnItem;
@@ -133,10 +139,38 @@ public class ReadData {
 
                 items.add(newItem);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error getTableAmounts: " + e.getMessage());
         }
+
         return items;
     }
+
+    public static LineItem getTotals(int type, LocalDate date) {
+        LineItem newItem = new LineItem();
+        try {
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS);
+            ps.setInt(1, date.getMonthValue());
+            ps.setInt(2, date.getYear());
+            ps.setInt(3, type);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                newItem.setActual(rs.getDouble("ATOTAL"));
+                newItem.setBudget(rs.getDouble("BTOTAL"));
+                newItem.setCategory("TOTAL");
+                
+                return newItem;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getTotals: " + e.getMessage());
+        }
+
+        return newItem;
+    }
+
 }

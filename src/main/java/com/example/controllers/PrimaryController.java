@@ -187,11 +187,13 @@ public class PrimaryController {
         }
 
         /**
-         * Reads the headings when the "readHeadingsButton" is clicked.
-         * This method shows a progress indicator and sets its progress to indeterminate.
-         * It then hides the progress indicator after the headings are read.
+         * Reads the headings when the "readHeadingsButton" is clicked. This
+         * method shows a progress indicator and sets its progress to
+         * indeterminate. It then hides the progress indicator after the
+         * headings are read.
          *
-         * @param event the action event triggered by clicking the "readHeadingsButton"
+         * @param event the action event triggered by clicking the
+         *              "readHeadingsButton"
          */
         @FXML
         void readHeadingsButton(ActionEvent event) {
@@ -215,10 +217,9 @@ public class PrimaryController {
 
                 tableIncomeTotal.getStyleClass().add("total-table");
 
- 
-                //***************************************/
+                // ***************************************/
                 // Remove headers from totals tables
-                //***************************************/
+                // ***************************************/
                 tableIncomeTotal.skinProperty().addListener((a, b, newSkin) -> {
                         Pane header = (Pane) tableIncomeTotal.lookup("TableHeaderRow");
                         header.setMinHeight(0);
@@ -243,14 +244,14 @@ public class PrimaryController {
                         header.setVisible(false);
                 });
 
-            //***************************************/
+                // ***************************************/
                 // Add row to totals tables
-                //***************************************/
+                // ***************************************/
                 // add row to tableIncomeTotal
                 LineItem incomeTotal = new LineItem();
                 incomeTotal.setCategory("Total");
-                incomeTotal.setActual(0.0);
-                incomeTotal.setBudget(0.0);
+                incomeTotal.setActual(1.0);
+                incomeTotal.setBudget(1.0);
                 tableIncomeTotal.getItems().add(incomeTotal);
 
                 // add row to tableManditoryTotal
@@ -267,9 +268,9 @@ public class PrimaryController {
                 discretionaryTotal.setBudget(0.0);
                 tableDiscretionaryTotal.getItems().add(discretionaryTotal);
 
-                //***************************************/
+                // ***************************************/
                 // Set up table columns
-                //***************************************/
+                // ***************************************/
                 incomeTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 incomeTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
                 incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
@@ -299,32 +300,39 @@ public class PrimaryController {
                 incomeTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 incomeTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              /***********************************************************/
-              manditoryTotalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-              manditoryTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                /***********************************************************/
+                manditoryTotalTable_Category
+                                .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+                manditoryTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-              manditoryTotalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-              incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                manditoryTotalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              manditoryTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-              manditoryTotalTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                manditoryTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                manditoryTotalTable_Budget
+                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              manditoryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-              manditoryTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                manditoryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                manditoryTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              /***********************************************************/
-              discretionaryTotalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-              discretionaryTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                /***********************************************************/
+                discretionaryTotalTable_Category
+                                .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+                discretionaryTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-              discretionaryTotalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-              discretionaryTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                discretionaryTotalTable_Actual
+                                .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                discretionaryTotalTable_Actual
+                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              discretionaryTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-              discretionaryTotalTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                discretionaryTotalTable_Budget
+                                .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                discretionaryTotalTable_Budget
+                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-              discretionaryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-              discretionaryTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-
+                discretionaryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                discretionaryTotalTable_Diff
+                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
                 /***********************************************************/
                 mandatoryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -380,15 +388,20 @@ public class PrimaryController {
                 // getActuals(inDate);
                 tableView_Income.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
+              //  tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+              //  tableIncomeTotal.getItems().add(ReadData.getTotals(DB.DISCRETIONARY, inDate));
 
                 // get mandatory data
                 tableView_Mandatory.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate)));
+                tableManditoryTotal
+                                .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
-                System.out.println();
                 // get discretionary data
                 tableView_Discretionary.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
+                tableDiscretionaryTotal.setItems(
+                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
 
         }
 

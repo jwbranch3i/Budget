@@ -20,15 +20,15 @@ public class LineItem {
     public LineItem() {
     }
 
-    public LineItem(int type, LocalDate date, String parent, String category, double Actual, double Budget,
-            double Diff) {
+    public LineItem(int type, LocalDate date, String parent,
+             String category, double Actual, double Budget){
         this.type = type;
         this.date.set(date);
         this.parent.set(parent);
         this.category.set(category);
         this.actual.set(Actual);
         this.budget.set(Budget);
-        this.diff.set(Diff);
+        this.diff.set(calcDiff());
     }
 
     /********************** id **********************************/
@@ -61,7 +61,7 @@ public class LineItem {
 		this.date.set(newDate);
 	}
 
-    /********************* category ***********************************/
+    /********************* parent ***********************************/
     public StringProperty getParentProperty() {
         return this.parent;
     }
@@ -74,7 +74,7 @@ public class LineItem {
         this.parent.set(parent);
     }
 
-    /******************** parent ************************************/
+    /******************** category ************************************/
     public StringProperty getCategoryProperty() {
         return this.category;
     }
@@ -87,7 +87,7 @@ public class LineItem {
         this.category.set(category);
     }
 
-    /********************* Autual ***********************************/
+    /********************* Actual ***********************************/
 
     public SimpleDoubleProperty getActualProperty() {
         return this.actual;
@@ -108,7 +108,7 @@ public class LineItem {
     }
 
     public void setBudget(Double budget) {
-        this.actual.set(budget);
+        this.budget.set(budget);
         diff.set(calcDiff());
     }
 
@@ -139,8 +139,12 @@ private Double calcDiff() {
         return "{" +
                 " id='" + getId() + "'" +
                 ", type='" + getType() + "'" +
+                ", date='" + getDate() + "'" +
                 ", parent='" + getParent() + "'" +
                 ", category='" + getCategory() + "'" +
+                ", actual='" + getActual() + "'" +
+                ", budget='" + getBudget() + "'" +
+                ", diff='" + getDiff() + "'" +
                 "}";
     }
 

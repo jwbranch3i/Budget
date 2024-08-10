@@ -1,7 +1,7 @@
 
-.total-table{
-    -fx-background-color: lightblue;
-    background-color: lightblue;
+#totalTable{
+    -fx-background-color: lightgrey;
+    background-color: lightgrey;
 }
 
  {

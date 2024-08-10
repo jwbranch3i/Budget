@@ -58,7 +58,7 @@
                         <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
                     </columns>
                   </TableView>
-                  <TableView fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0" prefWidth="610.0">
                      <columns>
                         <TableColumn fx:id="incomeTotalTable_Category" editable="false" prefWidth="200.0" />
                         <TableColumn fx:id="incomeTotalTable_Actual" prefWidth="75.0" />
@@ -78,7 +78,7 @@
                         <TableColumn fx:id="mandatoryTable_Diff" prefWidth="75.0" text="Diff" />
                      </columns>
                   </TableView>
-                  <TableView fx:id="tableManditoryTotal" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableManditoryTotal" prefHeight="40.0" prefWidth="610.0">
                      <columns>
                         <TableColumn fx:id="manditoryTotalTable_Category" editable="false" prefWidth="200.0" />
                         <TableColumn fx:id="manditoryTotalTable_Actual" prefWidth="75.0" />
@@ -98,7 +98,7 @@
                         <TableColumn fx:id="discretionaryTable_Diff" prefWidth="75.0" text="Diff" />
                      </columns>
                   </TableView>
-                  <TableView fx:id="tableDiscretionaryTotal" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0" prefWidth="610.0">
                      <columns>
                         <TableColumn fx:id="discretionaryTotalTable_Category" editable="false" prefWidth="200.0" />
                         <TableColumn fx:id="discretionaryTotalTable_Actual" prefWidth="75.0" />
