@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import com.example.data.DB;
 import com.example.data.LineItem;
@@ -134,7 +135,7 @@ public class PrimaryController {
 
         @FXML
         private ComboBox<Integer> yearBox;
-        
+
         @FXML
         private ComboBox<String> monthBox;
 
@@ -231,13 +232,25 @@ public class PrimaryController {
                 ObservableList<String> monthChoices = FXCollections.observableArrayList("January", "February", "March",
                                 "April", "May", "June", "July", "August", "September", "October", "November",
                                 "December");
-                 monthBox.setItems(monthChoices);
+                monthBox.setItems(monthChoices);
                 monthBox.getSelectionModel().select(today.getMonthValue() - 1);
 
-                ObservableList<Integer> yearChoices = FXCollections.observableArrayList(ReadData.getYears());
-                yearBox.setItems(yearChoices);
-                yearBox.setEditable(true);
-                yearBox.getSelectionModel().selectFirst();
+                // Create a task to run getYears in another thread
+                Task<ArrayList<Integer>> task = new Task<ArrayList<Integer>>() {
+                        @Override
+                        protected ArrayList<Integer> call() throws Exception {
+                                return ReadData.getYears();
+                        }
+                };
+                new Thread(task).start();
+
+                task.setOnSucceeded(e -> {
+                        ArrayList<Integer> years = task.getValue();
+                        ObservableList<Integer> yearChoices = FXCollections.observableArrayList(years);
+                        yearBox.setItems(yearChoices);
+                        yearBox.setEditable(true);
+                        yearBox.getSelectionModel().selectFirst();
+                });
 
                 // ***************************************/
                 // Remove headers from totals tables
@@ -393,27 +406,22 @@ public class PrimaryController {
                 discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
-                LocalDate inDate = LocalDate.now();
-
                 // Create a task to run getTableRows in another thread
-                Task<Void> task = new Task<Void>() {
+                Task<Void> task2 = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                getTableRows(inDate);
+                                getTableRows(today);
                                 return null;
                         }
                 };
-                new Thread(task).start();
+                new Thread(task2).start();
         }
 
         public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
                 tableView_Income.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
-                // tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME,
-                // inDate)));
-                // tableIncomeTotal.getItems().add(ReadData.getTotals(DB.DISCRETIONARY,
-                // inDate));
+                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
                 // get mandatory data
                 tableView_Mandatory.setItems(
