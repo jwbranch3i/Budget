@@ -15,6 +15,7 @@ import com.example.data.WriteData;
 import com.opencsv.CSVReader;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +25,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -131,6 +133,12 @@ public class PrimaryController {
         private TableView<LineItem> tableView_Mandatory;
 
         @FXML
+        private ComboBox<Integer> yearBox;
+        
+        @FXML
+        private ComboBox<String> monthBox;
+
+        @FXML
         void readButton(ActionEvent event) {
                 // routine to open dialog box to select file
                 String savedFilePath = "C:\\";
@@ -214,8 +222,22 @@ public class PrimaryController {
 
         public void initialize() {
                 myAnchorPane.getStyleClass().add("catBox");
-
                 tableIncomeTotal.getStyleClass().add("total-table");
+
+                // * ***************************************/
+                // Set up choice boxes
+                // ***************************************/
+                LocalDate today = LocalDate.now();
+                ObservableList<String> monthChoices = FXCollections.observableArrayList("January", "February", "March",
+                                "April", "May", "June", "July", "August", "September", "October", "November",
+                                "December");
+                 monthBox.setItems(monthChoices);
+                monthBox.getSelectionModel().select(today.getMonthValue() - 1);
+
+                ObservableList<Integer> yearChoices = FXCollections.observableArrayList(ReadData.getYears());
+                yearBox.setItems(yearChoices);
+                yearBox.setEditable(true);
+                yearBox.getSelectionModel().selectFirst();
 
                 // ***************************************/
                 // Remove headers from totals tables
@@ -388,8 +410,10 @@ public class PrimaryController {
                 // getActuals(inDate);
                 tableView_Income.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
-              //  tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-              //  tableIncomeTotal.getItems().add(ReadData.getTotals(DB.DISCRETIONARY, inDate));
+                // tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME,
+                // inDate)));
+                // tableIncomeTotal.getItems().add(ReadData.getTotals(DB.DISCRETIONARY,
+                // inDate));
 
                 // get mandatory data
                 tableView_Mandatory.setItems(

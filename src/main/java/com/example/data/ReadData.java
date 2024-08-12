@@ -173,4 +173,24 @@ public class ReadData {
         return newItem;
     }
 
+
+    // method to create test data for year choicebox
+    public static ArrayList<Integer> getYears(){
+        ArrayList<Integer> years = new ArrayList<Integer>();
+
+        try {
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                years.add(rs.getInt("YEAR"));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getYears: " + e.getMessage());
+        }
+        return years;
+    }
+
+ 
 }

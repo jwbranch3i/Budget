@@ -78,10 +78,13 @@ public class DB {
         public static final String ACTUAL_UPDATE_AMOUNT = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_AMOUNT
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
-        public static final String GET_ACTUAL_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
+        public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_AMOUNT + " AS ACTUAL FROM " + CAT_TABLE
                         + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
                         + CAT_TABLE + "." + CAT_COL_ID + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+
+        public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT YEAR(" + ACTUAL_COL_DATE + ") AS YEAR FROM "
+                        + ACTUAL_TABLE + " ORDER BY YEAR(" + ACTUAL_COL_DATE + ") ASC";
 
         /*
          * SELECT category.category AS CATEGORY, actual.date AS DATE,
