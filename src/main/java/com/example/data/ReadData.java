@@ -184,6 +184,10 @@ public class ReadData {
             while (rs.next()) {
                 years.add(rs.getInt("YEAR"));
             }
+            
+            if (years.size() == 0) {
+                years.add(LocalDate.now().getYear());
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

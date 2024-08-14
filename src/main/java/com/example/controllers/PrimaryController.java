@@ -20,13 +20,15 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -140,59 +142,78 @@ public class PrimaryController {
         private ComboBox<String> monthBox;
 
         @FXML
+        private CheckBox chkBox;
+
+        @FXML
+        private Button btn_Update;
+
+        @FXML
         void readButton(ActionEvent event) {
-                // routine to open dialog box to select file
-                String savedFilePath = "C:\\";
-                try {
-                        // Retrieve the file path from disk
-                        FileReader fileReader = new FileReader("filePath.txt");
-                        BufferedReader bufferedReader = new BufferedReader(fileReader);
-                        savedFilePath = bufferedReader.readLine();
-                        bufferedReader.close();
-                        System.out.println("Retrieved file path from disk: " + savedFilePath);
+                LocalDate inDate = LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1,
+                                1);
+
+                if (chkBox.isSelected()) {
+                        readFromDatabase(inDate);
                 }
-                catch (IOException e) {
-                        System.out.println("Error retrieving file path: " + e.getMessage());
-                }
-
-                File csvFilePath = new File(savedFilePath);
-                if (!csvFilePath.exists() || !csvFilePath.canRead()) {
-                        csvFilePath = new File("C:\\");
-                }
-
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setInitialDirectory(new File(csvFilePath.getPath()));
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
-
-                File selectedFile = fileChooser.showOpenDialog(null);
-                if (selectedFile != null) {
-                        // Save the directory from selectedFile to filePath.txt
-                        String filePath = selectedFile.getParent();
-                        System.out.println("File Path****: " + filePath);
-
+                else {
+                        // routine to open dialog box to select file
+                        String savedFilePath = "C:\\";
                         try {
-                                FileWriter fileWriter = new FileWriter("filePath.txt");
-                                fileWriter.write(filePath);
-                                fileWriter.close();
+                                // Retrieve the file path from disk
+                                FileReader fileReader = new FileReader("filePath.txt");
+                                BufferedReader bufferedReader = new BufferedReader(fileReader);
+                                savedFilePath = bufferedReader.readLine();
+                                bufferedReader.close();
+                                System.out.println("Retrieved file path from disk: " + savedFilePath);
                         }
                         catch (IOException e) {
-                                System.out.println("Error saving file path: " + e.getMessage());
+                                System.out.println("Error retrieving file path: " + e.getMessage());
                         }
 
-                        readActual(selectedFile, LocalDate.now()); // read CSV
-                                                                   // file
+                        File csvFilePath = new File(savedFilePath);
+                        if (!csvFilePath.exists() || !csvFilePath.canRead()) {
+                                csvFilePath = new File("C:\\");
+                        }
 
-                        LocalDate inDate = LocalDate.now();
+                        FileChooser fileChooser = new FileChooser();
+                        fileChooser.setInitialDirectory(new File(csvFilePath.getPath()));
+                        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
 
-                        Task<Void> task = new Task<Void>() {
-                                @Override
-                                protected Void call() throws Exception {
-                                        getTableRows(inDate);
-                                        return null;
+                        File selectedFile = fileChooser.showOpenDialog(null);
+                        if (selectedFile != null) {
+                                // Save the directory from selectedFile to
+                                // filePath.txt
+                                String filePath = selectedFile.getParent();
+                                System.out.println("File Path****: " + filePath);
+
+                                try {
+                                        FileWriter fileWriter = new FileWriter("filePath.txt");
+                                        fileWriter.write(filePath);
+                                        fileWriter.close();
                                 }
-                        };
-                        new Thread(task).start();
+                                catch (IOException e) {
+                                        System.out.println("Error saving file path: " + e.getMessage());
+                                }
+
+                                readActual(selectedFile, LocalDate.now());
+
+                        }
+                        readFromDatabase(inDate);
+                        chkBox.setSelected(false);
+                        btn_Update.setDisable(true);
+        
                 }
+        }
+
+        public void readFromDatabase(LocalDate inDate) {
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                getTableRows(inDate);
+                                return null;
+                        }
+                };
+                new Thread(task).start();
         }
 
         /**
@@ -222,6 +243,12 @@ public class PrimaryController {
         }
 
         public void initialize() {
+                // set btn_Update to be disabled and uncheck chkBox
+                chkBox.setSelected(false);
+                btn_Update.setDisable(true);
+
+                // TODO: Update button is not disabled on startup
+
                 myAnchorPane.getStyleClass().add("catBox");
                 tableIncomeTotal.getStyleClass().add("total-table");
 
@@ -234,6 +261,9 @@ public class PrimaryController {
                                 "December");
                 monthBox.setItems(monthChoices);
                 monthBox.getSelectionModel().select(today.getMonthValue() - 1);
+                monthBox.setOnAction(e -> {
+                        btn_Update.setDisable(false);
+                });
 
                 // Create a task to run getYears in another thread
                 Task<ArrayList<Integer>> task = new Task<ArrayList<Integer>>() {
@@ -250,6 +280,9 @@ public class PrimaryController {
                         yearBox.setItems(yearChoices);
                         yearBox.setEditable(true);
                         yearBox.getSelectionModel().selectFirst();
+                });
+                yearBox.setOnAction(e -> {
+                        btn_Update.setDisable(false);
                 });
 
                 // ***************************************/
@@ -415,6 +448,11 @@ public class PrimaryController {
                         }
                 };
                 new Thread(task2).start();
+
+                // set btn_Update to be disabled and uncheck chkBox
+                chkBox.setSelected(false);
+                btn_Update.setDisable(true);
+
         }
 
         public void getTableRows(LocalDate inDate) {
