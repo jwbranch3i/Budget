@@ -152,7 +152,7 @@ public class PrimaryController {
                 LocalDate inDate = LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1,
                                 1);
 
-                if (chkBox.isSelected()) {
+                if (!chkBox.isSelected()) {
                         readFromDatabase(inDate);
                 }
                 else {
@@ -195,7 +195,7 @@ public class PrimaryController {
                                         System.out.println("Error saving file path: " + e.getMessage());
                                 }
 
-                                readActual(selectedFile, LocalDate.now());
+                                readActual(selectedFile, inDate);
 
                         }
                         readFromDatabase(inDate);
@@ -457,17 +457,20 @@ public class PrimaryController {
 
         public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
+                tableView_Income.getItems().clear();
                 tableView_Income.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
                 // get mandatory data
+                tableView_Mandatory.getItems().clear();
                 tableView_Mandatory.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate)));
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
                 // get discretionary data
+                tableView_Discretionary.getItems().clear();
                 tableView_Discretionary.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
                 tableDiscretionaryTotal.setItems(

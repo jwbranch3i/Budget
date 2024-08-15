@@ -29,7 +29,7 @@ public class WriteData {
             else{
                 returnItem.setId(-1);
             }
-            return item;
+            return returnItem;
         } catch (Exception e) {
             System.out.println("Error categoryInsertRecord: " + e.getMessage());
         }
