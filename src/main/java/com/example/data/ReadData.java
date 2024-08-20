@@ -29,6 +29,8 @@ public class ReadData {
             findRecord.setInt(2, item.getDate().getMonthValue());
             findRecord.setInt(3, item.getDate().getYear());
 
+            System.out.println(findRecord.toString());
+
             ResultSet rs = findRecord.executeQuery();
             if (rs.next()) {
                 returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID));
@@ -122,7 +124,9 @@ public class ReadData {
         }
     }
 
-    public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
+    public static ArrayList<LineItem> 
+    getTableAmounts(int type, LocalDate date) {
+
         ArrayList<LineItem> items = new ArrayList<LineItem>();
         try {
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
@@ -130,12 +134,16 @@ public class ReadData {
             ps.setInt(2, date.getYear());
             ps.setInt(3, type);
 
+            System.out.println(ps.toString());
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LineItem newItem = new LineItem();
                 newItem.setDate(rs.getDate("DATE").toLocalDate());
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
+
+                System.out.println(newItem);
 
                 items.add(newItem);
             }
@@ -161,7 +169,7 @@ public class ReadData {
                 newItem.setActual(rs.getDouble("ATOTAL"));
                 newItem.setBudget(rs.getDouble("BTOTAL"));
                 newItem.setCategory("TOTAL");
-                
+
                 return newItem;
             }
         }
@@ -173,9 +181,8 @@ public class ReadData {
         return newItem;
     }
 
-
     // method to create test data for year choicebox
-    public static ArrayList<Integer> getYears(){
+    public static ArrayList<Integer> getYears() {
         ArrayList<Integer> years = new ArrayList<Integer>();
 
         try {
@@ -184,7 +191,7 @@ public class ReadData {
             while (rs.next()) {
                 years.add(rs.getInt("YEAR"));
             }
-            
+
             if (years.size() == 0) {
                 years.add(LocalDate.now().getYear());
             }
@@ -196,5 +203,4 @@ public class ReadData {
         return years;
     }
 
- 
 }

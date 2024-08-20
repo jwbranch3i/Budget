@@ -16,18 +16,19 @@ CREATE TABLE budget.actual(
 	category INT NOT NULL,
 	date DATE NOT NULL,
 	amount DECIMAL(10,2) NOT NULL,
+	budget DECIMAL (10,2) NOT NULL,
 	FOREIGN KEY (category)
 		REFERENCES budget.category(id)
 		ON DELETE CASCADE		
 )
-
+ 
 CREATE TABLE budget.budget(
 	id INT auto_increment NOT NULL PRIMARY KEY,
-	category INT NOT NULL,
+	actual INT NOT NULL,
 	date DATE NOT NULL,
 	amount DECIMAL(10,2) NOT NULL,
-	FOREIGN KEY (category)
-		REFERENCES budget.category(id)
+	FOREIGN KEY (actual)
+		REFERENCES budget.actual(id)
 		ON DELETE CASCADE		
 )
 

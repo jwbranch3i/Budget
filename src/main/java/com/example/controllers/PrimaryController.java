@@ -255,12 +255,12 @@ public class PrimaryController {
                 // * ***************************************/
                 // Set up choice boxes
                 // ***************************************/
-                LocalDate today = LocalDate.now();
+                LocalDate indate = LocalDate.now();
                 ObservableList<String> monthChoices = FXCollections.observableArrayList("January", "February", "March",
                                 "April", "May", "June", "July", "August", "September", "October", "November",
                                 "December");
                 monthBox.setItems(monthChoices);
-                monthBox.getSelectionModel().select(today.getMonthValue() - 1);
+                monthBox.getSelectionModel().select(indate.getMonthValue() - 1);
                 monthBox.setOnAction(e -> {
                         btn_Update.setDisable(false);
                 });
@@ -443,7 +443,7 @@ public class PrimaryController {
                 Task<Void> task2 = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                getTableRows(today);
+                                getTableRows(indate);
                                 return null;
                         }
                 };
@@ -562,10 +562,10 @@ public class PrimaryController {
 
                                         // if the category is not in the budget
                                         // database, insert it
-                                        existingActual = ReadData.budgetFindCategory(existingCategory);
-                                        if (existingActual.getId() == -1) {
-                                                WriteData.budgetInsertRecord(existingActual, existingCategory);
-                                        }
+                                        // existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        // if (existingActual.getId() == -1) {
+                                        //         WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        // }
 
                                         break;
 
@@ -593,10 +593,10 @@ public class PrimaryController {
 
                                         // if the category is not in the budget
                                         // database, insert it
-                                        existingActual = ReadData.budgetFindCategory(existingCategory);
-                                        if (existingActual.getId() == -1) {
-                                                WriteData.budgetInsertRecord(existingActual, existingCategory);
-                                        }
+                                        // existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        // if (existingActual.getId() == -1) {
+                                        //         WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        // }
 
                                         break;
 

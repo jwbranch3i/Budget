@@ -13,6 +13,14 @@ public class WriteData {
      */
     public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
         LineItemCSV returnItem = new LineItemCSV();
+
+        //copy the item to returnItem
+        returnItem.setType(item.getType());
+        returnItem.setDate(item.getDate());
+        returnItem.setParent(item.getParent());
+        returnItem.setCategory(item.getCategory());
+        returnItem.setAmount(item.getAmount());
+
         returnItem.setId(-1);
         try {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.CAT_INSERT_CATEGORY,
