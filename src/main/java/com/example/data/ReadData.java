@@ -29,8 +29,6 @@ public class ReadData {
             findRecord.setInt(2, item.getDate().getMonthValue());
             findRecord.setInt(3, item.getDate().getYear());
 
-            System.out.println(findRecord.toString());
-
             ResultSet rs = findRecord.executeQuery();
             if (rs.next()) {
                 returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID));
@@ -75,7 +73,7 @@ public class ReadData {
             }
         }
         catch (Exception e) {
-            System.out.println("Error actualFindCategory: " + e.getMessage());
+            System.out.println("Error budgetFindCategory: " + e.getMessage());
             return returnItem;
         }
     }
@@ -124,8 +122,7 @@ public class ReadData {
         }
     }
 
-    public static ArrayList<LineItem> 
-    getTableAmounts(int type, LocalDate date) {
+    public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
 
         ArrayList<LineItem> items = new ArrayList<LineItem>();
         try {
@@ -134,24 +131,22 @@ public class ReadData {
             ps.setInt(2, date.getYear());
             ps.setInt(3, type);
 
-            System.out.println(ps.toString());
-
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LineItem newItem = new LineItem();
                 newItem.setDate(rs.getDate("DATE").toLocalDate());
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
-
-                System.out.println(newItem);
+                newItem.setBudget(rs.getDouble("BUDGET"));
 
                 items.add(newItem);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error getTableAmounts: " + e.getMessage());
+            System.out.println("Error*** getTableAmounts: " + e.getMessage());
         }
+
 
         return items;
     }
@@ -175,7 +170,7 @@ public class ReadData {
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error getTotals: " + e.getMessage());
+            System.out.println("Error*** getTotals: " + e.getMessage());
         }
 
         return newItem;

@@ -201,7 +201,7 @@ public class PrimaryController {
                         readFromDatabase(inDate);
                         chkBox.setSelected(false);
                         btn_Update.setDisable(true);
-        
+
                 }
         }
 
@@ -462,6 +462,12 @@ public class PrimaryController {
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
+                // get items from tableView_Income and print them
+                for (LineItem item : tableView_Income.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
+
                 // get mandatory data
                 tableView_Mandatory.getItems().clear();
                 tableView_Mandatory.setItems(
@@ -469,12 +475,24 @@ public class PrimaryController {
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
+                // get items from tableView_Mandatory and print them
+                for (LineItem item : tableView_Mandatory.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
+
                 // get discretionary data
                 tableView_Discretionary.getItems().clear();
                 tableView_Discretionary.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+
+                // // get items from tableView_Discretionary and print them
+                for (LineItem item : tableView_Discretionary.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
 
         }
 
@@ -562,9 +580,11 @@ public class PrimaryController {
 
                                         // if the category is not in the budget
                                         // database, insert it
-                                        // existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        // existingActual =
+                                        // ReadData.budgetFindCategory(existingCategory);
                                         // if (existingActual.getId() == -1) {
-                                        //         WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        // WriteData.budgetInsertRecord(existingActual,
+                                        // existingCategory);
                                         // }
 
                                         break;
@@ -593,9 +613,11 @@ public class PrimaryController {
 
                                         // if the category is not in the budget
                                         // database, insert it
-                                        // existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        // existingActual =
+                                        // ReadData.budgetFindCategory(existingCategory);
                                         // if (existingActual.getId() == -1) {
-                                        //         WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        // WriteData.budgetInsertRecord(existingActual,
+                                        // existingCategory);
                                         // }
 
                                         break;
