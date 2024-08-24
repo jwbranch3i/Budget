@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import com.example.Util;
 import com.example.data.DB;
 import com.example.data.LineItem;
 import com.example.data.LineItemCSV;
@@ -344,15 +345,15 @@ public class PrimaryController {
                 incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
 
                 incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                incomeTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 incomeTable_Actual.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
 
                 incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                incomeTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 incomeTable_Budget.setOnEditCommit(e -> incomeTableBudget_OnEditCommit(e));
 
                 incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                incomeTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 incomeTable_Diff.setOnEditCommit(e -> incomeTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
@@ -360,13 +361,13 @@ public class PrimaryController {
                 incomeTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
                 incomeTotalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 incomeTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                incomeTotalTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTotalTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 incomeTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                incomeTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 manditoryTotalTable_Category
@@ -374,14 +375,14 @@ public class PrimaryController {
                 manditoryTotalTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
                 manditoryTotalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                incomeTotalTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 manditoryTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 manditoryTotalTable_Budget
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 manditoryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                manditoryTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                manditoryTotalTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 discretionaryTotalTable_Category
@@ -391,16 +392,16 @@ public class PrimaryController {
                 discretionaryTotalTable_Actual
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 discretionaryTotalTable_Actual
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 discretionaryTotalTable_Budget
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 discretionaryTotalTable_Budget
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 discretionaryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 discretionaryTotalTable_Diff
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 mandatoryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -408,15 +409,15 @@ public class PrimaryController {
                 mandatoryTable_Category.setOnEditCommit(e -> mandatoryTableCategory_OnEditCommit(e));
 
                 mandatoryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                mandatoryTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                mandatoryTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 mandatoryTable_Actual.setOnEditCommit(e -> mandatoryTableActual_OnEditCommit(e));
 
                 mandatoryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                mandatoryTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                mandatoryTable_Budget.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 mandatoryTable_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
 
                 mandatoryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                mandatoryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                mandatoryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 mandatoryTable_Diff.setOnEditCommit(e -> mandatoryTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
@@ -427,16 +428,16 @@ public class PrimaryController {
 
                 discretionaryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 discretionaryTable_Actual
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 discretionaryTable_Actual.setOnEditCommit(e -> discretionaryTableActual_OnEditCommit(e));
 
                 discretionaryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 discretionaryTable_Budget
-                                .setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                                .setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 discretionaryTable_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
 
                 discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                discretionaryTable_Diff.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
                 // Create a task to run getTableRows in another thread
