@@ -1,0 +1,278 @@
+//***********************************************
+// making comboBox editable
+//********************************************
+package com.thecodinginterface.dropdowns;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.util.StringConverter;
+import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class App extends Application {
+
+    static ObservableList<String> jvmChoices = FXCollections.observableArrayList(
+        "Java",
+        "Kotlin",
+        "Groovy",
+        "Scala",
+        "Clojure"
+    );
+
+    static VBox contentVBox = new VBox();
+
+    public static void main(String[] args) {
+        launch();
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        var root = new BorderPane();
+        
+        // showJvmLangsChoiceBox();
+        // showInventorsChoiceBox();
+        // showInventorsChoiceBoxWithStringConverter();
+        // showJvmLangsComboBox();
+        // showInventorsComboBoxWithStringConverter();
+        
+        showEditableComboBox();
+
+        root.setCenter(contentVBox);
+        primaryStage.setScene(new Scene(root, 400, 100));
+        primaryStage.show();
+    }
+
+    static void showJvmLangsChoiceBox() {
+        // omitting for brevity    }
+
+    static void showInventorsChoiceBox() {
+        // omitting for brevity
+    }
+
+    static void showInventorsChoiceBoxWithStringConverter() {
+        // omitting for brevity    }
+
+    static void showJvmLangsComboBox() {
+        // omitting for brevity
+    }
+
+    static void showInventorsComboBoxWithStringConverter() {
+        // omitting for brevity
+    }
+
+    static void showEditableComboBox() {
+        contentVBox.getChildren().clear();
+
+        var jvmLangsEditableComboBox = new ComboBox<String>(jvmChoices);
+
+        // set to editable
+        jvmLangsEditableComboBox.setEditable(true);
+
+        // provide StringConverter
+        jvmLangsEditableComboBox.setConverter(new StringConverter<String>() {
+            @Override
+            public String toString(String obj) {
+                if (obj != null) {
+                    return obj;
+                }
+                return "";
+            }
+
+            @Override
+            public String fromString(String string) {
+                return string;
+            }
+        });
+
+        var valueLabel = new Label();
+        valueLabel.textProperty().bind(jvmLangsEditableComboBox.valueProperty().asString());
+
+        contentVBox.getChildren().add(
+            new HBox(10,
+                new Label("ComboBox<String> JVM Languages"),
+                jvmLangsEditableComboBox,
+                valueLabel
+            )
+        );
+    }
+}
+
+
+
+
+//********************************************
+//  Making ComboBox editable with auto adding of choices
+//**********************************************
+
+
+package com.thecodinginterface.dropdowns;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.util.StringConverter;
+import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+public class App extends Application {
+
+    static ObservableList<String> jvmChoices = FXCollections.observableArrayList(
+        "Java",
+        "Kotlin",
+        "Groovy",
+        "Scala",
+        "Clojure"
+    );
+
+    static VBox contentVBox = new VBox();
+
+    public static void main(String[] args) {
+        launch();
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        var root = new BorderPane();
+        
+        // showJvmLangsChoiceBox();
+        // showInventorsChoiceBox();
+        // showInventorsChoiceBoxWithStringConverter();
+        // showJvmLangsComboBox();
+        // showInventorsComboBoxWithStringConverter();
+        // showEditableComboBox();
+
+        showEditableComboBoxWithAutoAdd();
+
+        root.setCenter(contentVBox);
+        primaryStage.setScene(new Scene(root, 400, 100));
+        primaryStage.show();
+    }
+
+    static void showJvmLangsChoiceBox() {
+        // omitting for brevity
+    }
+
+    static void showInventorsChoiceBox() {
+        // omitting for brevity    
+    }
+
+    static void showInventorsChoiceBoxWithStringConverter() {
+        // omitting for brevity    
+    }
+
+    static void showJvmLangsComboBox() {
+        // omitting for brevity
+    }
+
+    static void showInventorsComboBoxWithStringConverter() {
+        // omitting for brevity
+    }
+
+    static void showEditableComboBox() {
+        // omitting for brevity
+    }
+
+    static void showEditableComboBoxWithAutoAdd() {
+        contentVBox.getChildren().clear();
+
+        var jvmLangsEditableComboBox = new ComboBox<String>(jvmChoices);
+
+        // set to editable
+        jvmLangsEditableComboBox.setEditable(true);
+
+        // provide StringConverter
+        jvmLangsEditableComboBox.setConverter(new StringConverter<String>() {
+            @Override
+            public String toString(String obj) {
+                if (obj != null) {
+                    return obj;
+                }
+                return "";
+            }
+
+            @Override
+            public String fromString(String string) {
+                if (!jvmChoices.contains(string)) {
+                    jvmChoices.add(string);
+                }
+                return string;
+            }
+        });
+
+        var valueLabel = new Label();
+        valueLabel.textProperty().bind(jvmLangsEditableComboBox.valueProperty().asString());
+
+        contentVBox.getChildren().add(
+            new HBox(10,
+                new Label("ComboBox<String> JVM Languages"),
+                jvmLangsEditableComboBox,
+                valueLabel
+            )
+        );
+    }
+}
+
+
+
+
+
+
+import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+public class ComboBoxEditable extends Application {
+   @Override
+   public void start(Stage stage) {
+      //Setting the label
+      Label label = new Label("Select Desired Course:");
+      Font font = Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 12);
+      label.setFont(font);
+      //Creating a combo box
+      ComboBox<String> combo = new ComboBox<String>();
+      //Getting the observable list of the combo box
+      ObservableList<String> list = combo.getItems();
+      //Adding items to the combo box
+      list.add("Java");
+      list.add("C++");
+      list.add("Python");
+      list.add("Big Data");
+      list.add("Machine Learning");
+     //Setting the combo box editable
+      combo.setEditable(true);
+      HBox hbox = new HBox(15);
+      //Setting the space between the nodes of a HBox pane
+      hbox.setPadding(new Insets(75, 150, 50, 60));
+      hbox.getChildren().addAll(label, combo);
+      //Creating a scene object
+      Scene scene = new Scene(new Group(hbox), 595, 280, Color.BEIGE);
+      stage.setTitle("Combo Box");
+      stage.setScene(scene);
+      stage.show();
+   }
+   public static void main(String args[]){
+      launch(args);
+   }
+}

@@ -345,7 +345,7 @@ public class PrimaryController {
                 incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
 
                 incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                incomeTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                incomeTable_Actual.setCellFactory(TextFieldTableCell.forTableColumn(Util.getCurrencyConverter()));
                 incomeTable_Actual.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
 
                 incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
@@ -378,7 +378,8 @@ public class PrimaryController {
                 incomeTotalTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 manditoryTotalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                manditoryTotalTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                manditoryTotalTable_Budget
+                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 manditoryTotalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 manditoryTotalTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -426,11 +427,13 @@ public class PrimaryController {
                 discretionaryTable_Category.setOnEditCommit(e -> discretionaryTableCategory_OnEditCommit(e));
 
                 discretionaryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                discretionaryTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                discretionaryTable_Actual
+                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
                 discretionaryTable_Actual.setOnEditCommit(e -> discretionaryTableActual_OnEditCommit(e));
 
                 discretionaryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                discretionaryTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                discretionaryTable_Budget
+                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
                 discretionaryTable_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
 
                 discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
@@ -460,6 +463,12 @@ public class PrimaryController {
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
+                // get items from tableView_Income and print them
+                for (LineItem item : tableView_Income.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
+
                 // get mandatory data
                 tableView_Mandatory.getItems().clear();
                 tableView_Mandatory.setItems(
@@ -467,12 +476,24 @@ public class PrimaryController {
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
+                // get items from tableView_Mandatory and print them
+                for (LineItem item : tableView_Mandatory.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
+
                 // get discretionary data
                 tableView_Discretionary.getItems().clear();
                 tableView_Discretionary.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+
+                // // get items from tableView_Discretionary and print them
+                for (LineItem item : tableView_Discretionary.getItems()) {
+                        System.out.println(item);
+                }
+                System.out.println("***********************************");
 
         }
 

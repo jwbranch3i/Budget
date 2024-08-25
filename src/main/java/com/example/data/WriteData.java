@@ -13,6 +13,14 @@ public class WriteData {
      */
     public static LineItemCSV categoryInsertRecord(LineItemCSV item) {
         LineItemCSV returnItem = new LineItemCSV();
+
+        //copy the item to returnItem
+        returnItem.setType(item.getType());
+        returnItem.setDate(item.getDate());
+        returnItem.setParent(item.getParent());
+        returnItem.setCategory(item.getCategory());
+        returnItem.setAmount(item.getAmount());
+
         returnItem.setId(-1);
         try {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.CAT_INSERT_CATEGORY,
@@ -29,7 +37,7 @@ public class WriteData {
             else{
                 returnItem.setId(-1);
             }
-            return item;
+            return returnItem;
         } catch (Exception e) {
             System.out.println("Error categoryInsertRecord: " + e.getMessage());
         }
@@ -73,13 +81,13 @@ public class WriteData {
         returnActual.setParent(newActual.getParent());
         returnActual.setType(newActual.getType());
 
-
         try {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD,
                     PreparedStatement.RETURN_GENERATED_KEYS);
             insertRecord.setInt(1, existingCategory.getId());
             insertRecord.setDate(2, Date.valueOf(newActual.getDate()));
             insertRecord.setDouble(3, newActual.getAmount());
+            insertRecord.setInt(4, 0);
 
             insertRecord.executeUpdate();
 

@@ -45,49 +45,49 @@ public class ReadDataTest {
             testItem_Cat.setId(-1);
         }
 
-        // Insert test data for actual
-        String insertAct = "INSERT INTO actual (category, date, amount) VALUES(?, ?, ?)";
-        stmt = DataSource.getConn().prepareStatement(insertAct, PreparedStatement.RETURN_GENERATED_KEYS);
-        stmt.setInt(1, testItem_Cat.getId());
-        stmt.setDate(2, Date.valueOf(testItem_Act.getDate()));
-        stmt.setDouble(3, testItem_Act.getAmount());
+        // // Insert test data for actual
+        // String insertAct = "INSERT INTO actual (category, date, amount) VALUES(?, ?, ?)";
+        // stmt = DataSource.getConn().prepareStatement(insertAct, PreparedStatement.RETURN_GENERATED_KEYS);
+        // stmt.setInt(1, testItem_Cat.getId());
+        // stmt.setDate(2, Date.valueOf(testItem_Act.getDate()));
+        // stmt.setDouble(3, testItem_Act.getAmount());
 
-        stmt.executeUpdate();
+        // stmt.executeUpdate();
 
-        rs = stmt.getGeneratedKeys();
-        if (rs.next()) {
-            testItem_Act.setId(rs.getInt(1));
-            testItem_Act.setType(testItem_Cat.getType());
-            testItem_Act.setParent(testItem_Cat.getParent());
-            testItem_Act.setCategory(testItem_Cat.getCategory());
-            testItem_Act.setAmount(testItem_Cat.getAmount());
-            testItem_Act.setDate(testItem_Cat.getDate());
-        }
-        else {
-            testItem_Act.setId(-1);
-        }
+        // rs = stmt.getGeneratedKeys();
+        // if (rs.next()) {
+        //     testItem_Act.setId(rs.getInt(1));
+        //     testItem_Act.setType(testItem_Cat.getType());
+        //     testItem_Act.setParent(testItem_Cat.getParent());
+        //     testItem_Act.setCategory(testItem_Cat.getCategory());
+        //     testItem_Act.setAmount(testItem_Cat.getAmount());
+        //     testItem_Act.setDate(testItem_Cat.getDate());
+        // }
+        // else {
+        //     testItem_Act.setId(-1);
+        // }
 
-        // Insert test data for budget
-        String insertBud = "INSERT INTO budget (category, date, amount) VALUES(?, ?, ?)";
-        stmt = DataSource.getConn().prepareStatement(insertBud, PreparedStatement.RETURN_GENERATED_KEYS);
-        stmt.setInt(1, testItem_Cat.getId());
-        stmt.setDate(2, Date.valueOf(testItem_Act.getDate()));
-        stmt.setDouble(3, testItem_Act.getAmount());
+        // // Insert test data for budget
+        // String insertBud = "INSERT INTO budget (category, date, amount) VALUES(?, ?, ?)";
+        // stmt = DataSource.getConn().prepareStatement(insertBud, PreparedStatement.RETURN_GENERATED_KEYS);
+        // stmt.setInt(1, testItem_Cat.getId());
+        // stmt.setDate(2, Date.valueOf(testItem_Act.getDate()));
+        // stmt.setDouble(3, testItem_Act.getAmount());
 
-        stmt.executeUpdate();
+        // stmt.executeUpdate();
 
-        rs = stmt.getGeneratedKeys();
-        if (rs.next()) {
-            testItem_Bud.setId(rs.getInt(1));
-            testItem_Bud.setType(testItem_Cat.getType());
-            testItem_Bud.setParent(testItem_Cat.getParent());
-            testItem_Bud.setCategory(testItem_Cat.getCategory());
-            testItem_Bud.setAmount(testItem_Cat.getAmount());
-            testItem_Bud.setDate(testItem_Cat.getDate());
-        }
-        else {
-            testItem_Act.setId(-1);
-        }
+        // rs = stmt.getGeneratedKeys();
+        // if (rs.next()) {
+        //     testItem_Bud.setId(rs.getInt(1));
+        //     testItem_Bud.setType(testItem_Cat.getType());
+        //     testItem_Bud.setParent(testItem_Cat.getParent());
+        //     testItem_Bud.setCategory(testItem_Cat.getCategory());
+        //     testItem_Bud.setAmount(testItem_Cat.getAmount());
+        //     testItem_Bud.setDate(testItem_Cat.getDate());
+        // }
+        // else {
+        //     testItem_Act.setId(-1);
+        // }
 
     }
 
@@ -104,10 +104,10 @@ public class ReadDataTest {
         stmt.setInt(1, testItem_Act.getId());
         stmt.executeUpdate();
 
-        String deleteBud = "DELETE FROM budget WHERE id = ?";
-        stmt = DataSource.getConn().prepareStatement(deleteBud);
-        stmt.setInt(1, testItem_Bud.getId());
-        stmt.executeUpdate();
+        // String deleteBud = "DELETE FROM budget WHERE id = ?";
+        // stmt = DataSource.getConn().prepareStatement(deleteBud);
+        // stmt.setInt(1, testItem_Bud.getId());
+        // stmt.executeUpdate();
 
         DataSource.getInstance().close();
     }
@@ -181,15 +181,24 @@ public class ReadDataTest {
 
     @Test
     public void testGetTableAmounts(){
-        int tableType = DB.DISCRETIONARY;
+        int tableType = 1;
+
+        // set date to 9-01-2024
+     //   LocalDate inDate = LocalDate.of(2024, 8, 1);
+        LocalDate inDate = LocalDate.of(2024, 9, 1);
+
 
         ArrayList<LineItem> result;
 
-        result = ReadData.getTableAmounts(tableType, LocalDate.now());
+        result = ReadData.getTableAmounts(tableType, inDate);
+
+        // print each item in result
+        for (LineItem item : result) {
+            System.out.println(item);
+        }
 
         // Assert the expected result
         assertNotNull(result);
-
  
    }
 
