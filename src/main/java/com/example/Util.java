@@ -1,5 +1,9 @@
 package com.example;
 
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -27,6 +31,13 @@ public class Util {
                     throw new RuntimeException(e);
                 }
             }
+        };
+    }
+    public static <T> Callback<TableColumn<T, Double>, TableCell<T, Double>> getRightAlignedCellFactory(StringConverter<Double> converter) {
+        return column -> {
+            TableCell<T, Double> cell = new TextFieldTableCell<>(converter);
+            cell.setStyle("-fx-alignment: CENTER-RIGHT;");
+            return cell;
         };
     }
 }
