@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
    <top>
@@ -44,7 +45,38 @@
                   </VBox>
                </children>
             </AnchorPane>
-            <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Button" />
+            <AnchorPane style="-fx-border-color: black;">
+               <children>
+                  <HBox spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <VBox spacing="10.0">
+                           <children>
+                              <Label />
+                              <Label layoutX="10.0" layoutY="10.0" text="Income" />
+                              <Label layoutX="10.0" layoutY="27.0" text="Manditory" />
+                              <Label layoutX="10.0" layoutY="44.0" text="Discretionary" />
+                              <Label layoutX="10.0" layoutY="61.0" text="Total" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label contentDisplay="CENTER" text="Actual" textAlignment="CENTER" />
+                           </children>
+                        </VBox>
+                        <VBox layoutX="110.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label contentDisplay="CENTER" text="Budget" textAlignment="CENTER" />
+                           </children>
+                        </VBox>
+                        <VBox layoutX="144.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label contentDisplay="CENTER" text="Diff" textAlignment="CENTER" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
          </children>
          <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -59,12 +91,17 @@
          <children>
             <VBox alignment="CENTER">
                <children>
+                  <Label text="INCOME">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
                   <TableView fx:id="tableView_Income" editable="true" prefWidth="610.0">
                     <columns>
-                      <TableColumn fx:id="incomeTable_Category" prefWidth="200.0" text="Category" />
-                      <TableColumn fx:id="incomeTable_Actual" prefWidth="75.0" text="Actual" />
+                      <TableColumn fx:id="incomeTable_Category" editable="false" prefWidth="200.0" text="Category" />
+                      <TableColumn fx:id="incomeTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="incomeTable_Diff" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="incomeTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
                     </columns>
                   </TableView>
                   <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0" prefWidth="610.0">
@@ -79,12 +116,17 @@
             </VBox>
             <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
                <children>
+                  <Label text="MANDITORY">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
                   <TableView fx:id="tableView_Mandatory" editable="true" prefWidth="610.0">
                      <columns>
-                        <TableColumn fx:id="mandatoryTable_Category" prefWidth="200.0" text="Category" />
-                        <TableColumn fx:id="mandatoryTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="mandatoryTable_Category" editable="false" prefWidth="200.0" text="Category" />
+                        <TableColumn fx:id="mandatoryTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="mandatoryTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="mandatoryTable_Diff" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="mandatoryTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
                      </columns>
                   </TableView>
                   <TableView id="totalTable" fx:id="tableManditoryTotal" prefHeight="40.0" prefWidth="610.0">
@@ -99,12 +141,17 @@
             </VBox>
             <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0" spacing="15.0">
                <children>
+                  <Label text="DISCRETIONARY">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
                   <TableView fx:id="tableView_Discretionary" editable="true" prefWidth="610.0">
                      <columns>
-                        <TableColumn fx:id="discretionaryTable_Category" prefWidth="200.0" text="Category" />
-                        <TableColumn fx:id="discretionaryTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="discretionaryTable_Category" editable="false" prefWidth="200.0" text="Category" />
+                        <TableColumn fx:id="discretionaryTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
                         <TableColumn fx:id="discretionaryTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="discretionaryTable_Diff" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="discretionaryTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
                      </columns>
                   </TableView>
                   <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0" prefWidth="610.0">
