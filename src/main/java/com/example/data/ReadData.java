@@ -134,6 +134,7 @@ public class ReadData {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LineItem newItem = new LineItem();
+                newItem.setId(rs.getInt("ID"));
                 newItem.setDate(rs.getDate("DATE").toLocalDate());
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));

@@ -78,7 +78,10 @@ public class DB {
                         + ", " + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + ", " + ACTUAL_COL_BUDGET
                         + ") VALUES(?, ?, ?, ?)";
 
-        public static final String ACTUAL_UPDATE_AMOUNT = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
+        public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
+                        + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
+
+        public static final String ACTUAL_UPDATE_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
         public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
@@ -106,12 +109,12 @@ public class DB {
                         + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
         /*
-         * SELECT category.category AS CATEGORY, actual.date AS DATE,
+         * SELECT actual.id AS ID, category.category AS CATEGORY, actual.date AS DATE,
          * actual.amount AS ACTUAL, actual.budget AS BUDGET FROM category INNER
          * JOIN actual ON actual.category = category.id WHERE MONTH(actual.date)
          * = ? AND YEAR(actual.date) = ? AND category.type = ?"
          */
-        public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
+        public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID + " AS ID, " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET
                         + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
@@ -123,14 +126,13 @@ public class DB {
          * SELECT SUM(ACTUAL.amount) AS ATOTAL, SUM(AMOUNT.BUDGET) AS BTOTAL
          * FROM category INNER JOIN actual ON actual.category = category.id
          * WHERE MONTH(actual.date) = ? AND YEAR(actual.date) = ? AND
-         * category.type = ?  
+         * category.type = ?
          */
         public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
                         + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL FROM " + CAT_TABLE
                         + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
-                        + CAT_TABLE + "." + CAT_COL_ID + " WHERE MONTH(" + ACTUAL_TABLE
-                        + "." + ACTUAL_COL_DATE + ") = ? AND YEAR(" + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+                        + CAT_TABLE + "." + CAT_COL_ID + " WHERE MONTH(" + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
+                        + ") = ? AND YEAR(" + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "."
+                        + CAT_COL_TYPE + " = ?";
 
 }
-       

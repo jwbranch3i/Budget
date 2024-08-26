@@ -53,12 +53,32 @@ public class WriteData {
      */
     public static boolean autualUpdateAmount(LineItemCSV item) {
         try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_ACTUAL);
             updateRecord.setDouble(1, item.getAmount());
             updateRecord.setInt(2, item.getId());
             updateRecord.executeUpdate();
         } catch (Exception e) {
             System.out.println("Error autualUpdateAmount: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Updates the budget amount for a specific line item.
+     * 
+     * @param item The LineItem object representing the line item to update.
+     * @return true if the budget amount was successfully updated, false otherwise.
+     */
+    public static boolean actualUpdateBudget(LineItem item) {
+        try {
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_BUDGET);
+            updateRecord.setDouble(1, item.getBudget());
+            updateRecord.setInt(2, item.getId());
+            updateRecord.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error budgetUpdateAmount: " + e.getMessage());
             return false;
         }
         return true;

@@ -630,6 +630,18 @@ public class PrimaryController {
         public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableIncomeTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+
         }
 
         public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -650,6 +662,17 @@ public class PrimaryController {
         public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableManditoryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
         }
 
         public void mandatoryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -670,6 +693,17 @@ public class PrimaryController {
         public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableDiscretionaryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
         }
 
         public void discretionaryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
