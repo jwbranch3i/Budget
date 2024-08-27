@@ -630,6 +630,11 @@ public class PrimaryController {
         public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                               
+                LineItem selectedItem = tableView_Income.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
+
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
@@ -662,6 +667,11 @@ public class PrimaryController {
         public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                               
+                LineItem selectedItem = tableView_Mandatory.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
+
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
@@ -693,6 +703,9 @@ public class PrimaryController {
         public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                LineItem selectedItem = tableView_Discretionary.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
