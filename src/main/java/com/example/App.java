@@ -1,7 +1,14 @@
+/**
+ * The App class is the main class of the application.
+ * It extends the Application class from the JavaFX library.
+ * The start() method is overridden to set up the primary stage and scene of the application.
+ * The init() method is overridden to initialize the data source and check the connection to the database.
+ * The stop() method is overridden to close the data source when the application is stopped.
+ * The main() method is the entry point of the application.
+ */
 package com.example;
 
 import com.example.data.DataSource;
-import com.example.controllers.PrimaryController;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,11 +25,6 @@ public class App extends Application {
 			Parent root;
 
 			root = loader.load();
-
-			PrimaryController controller = loader.getController();
-	
-	
-		//	controller.getActuals();
 
 			Scene scene = new Scene(root, 1420, 800);
 
