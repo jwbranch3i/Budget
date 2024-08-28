@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import com.example.Util;
 import com.example.data.LineItem;
 
 import javafx.scene.control.TableColumn;
@@ -29,10 +30,16 @@ public class PrimaryControllerExtend {
     private void initialize() {
 
         totalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+
         totalTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("Actual"));
+        totalTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
         totalTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("Budget"));
+        totalTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
         totalTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("Diff"));
+        totalTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
     }
-   
+
 }
