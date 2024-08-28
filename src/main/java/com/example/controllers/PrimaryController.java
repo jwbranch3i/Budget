@@ -13,6 +13,7 @@ import com.example.data.DB;
 import com.example.data.LineItem;
 import com.example.data.LineItemCSV;
 import com.example.data.ReadData;
+import com.example.data.UIData;
 import com.example.data.WriteData;
 import com.opencsv.CSVReader;
 
@@ -34,7 +35,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.util.converter.DoubleStringConverter;
 
 public class PrimaryController {
         @FXML
@@ -135,6 +135,21 @@ public class PrimaryController {
 
         @FXML
         private TableView<LineItem> tableView_Mandatory;
+
+        @FXML
+        private TableView<LineItem> tableView_Total;
+
+        @FXML
+        private TableColumn<LineItem, String> totalTable_Category;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Actual;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Budget;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Diff;
 
         @FXML
         private ComboBox<Integer> yearBox;
@@ -244,9 +259,37 @@ public class PrimaryController {
         }
 
         public void initialize() {
+
+                PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableView_Total,
+                                totalTable_Category, totalTable_Actual, totalTable_Budget, totalTable_Diff);
+
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
                 btn_Update.setDisable(true);
+
+                // ***************************************/
+                // Set up table listeners to update the table
+                // ***************************************/
+                ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+                tables.add(tableIncomeTotal);
+                tables.add(tableManditoryTotal);
+                tables.add(tableDiscretionaryTotal);
+                tables.add(tableView_Total);
+
+                tableView_Income.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        UIData.updateTable(tables);
+                                });
+
+                tableView_Mandatory.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        UIData.updateTable(tables);
+                                });
+
+                tableView_Discretionary.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        UIData.updateTable(tables);
+                                });
 
                 // TODO: Update button is not disabled on startup
 
@@ -442,10 +485,12 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 getTableRows(indate);
+                                UIData.updateTable(tables);
                                 return null;
                         }
                 };
                 new Thread(task2).start();
+
 
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
@@ -558,15 +603,6 @@ public class PrimaryController {
                                                 WriteData.autualUpdateAmount(existingActual);
                                         }
 
-                                        // if the category is not in the budget
-                                        // database, insert it
-                                        // existingActual =
-                                        // ReadData.budgetFindCategory(existingCategory);
-                                        // if (existingActual.getId() == -1) {
-                                        // WriteData.budgetInsertRecord(existingActual,
-                                        // existingCategory);
-                                        // }
-
                                         break;
 
                                 case 8:
@@ -590,15 +626,6 @@ public class PrimaryController {
                                         else {
                                                 WriteData.autualUpdateAmount(existingActual);
                                         }
-
-                                        // if the category is not in the budget
-                                        // database, insert it
-                                        // existingActual =
-                                        // ReadData.budgetFindCategory(existingCategory);
-                                        // if (existingActual.getId() == -1) {
-                                        // WriteData.budgetInsertRecord(existingActual,
-                                        // existingCategory);
-                                        // }
 
                                         break;
 
@@ -631,7 +658,6 @@ public class PrimaryController {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
 
-                               
                 LineItem selectedItem = tableView_Income.getSelectionModel().getSelectedItem();
                 selectedItem.setBudget(e.getNewValue());
 
@@ -668,7 +694,6 @@ public class PrimaryController {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
 
-                               
                 LineItem selectedItem = tableView_Mandatory.getSelectionModel().getSelectedItem();
                 selectedItem.setBudget(e.getNewValue());
 
@@ -710,8 +735,8 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdateBudget(item);
-                                tableDiscretionaryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+                                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                                ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
 
                                 return null;
                         }

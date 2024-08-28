@@ -47,34 +47,14 @@
             </AnchorPane>
             <AnchorPane style="-fx-border-color: black;">
                <children>
-                  <HBox spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
-                     <children>
-                        <VBox spacing="10.0">
-                           <children>
-                              <Label />
-                              <Label layoutX="10.0" layoutY="10.0" text="Income" />
-                              <Label layoutX="10.0" layoutY="27.0" text="Manditory" />
-                              <Label layoutX="10.0" layoutY="44.0" text="Discretionary" />
-                              <Label layoutX="10.0" layoutY="61.0" text="Total" />
-                           </children>
-                        </VBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label contentDisplay="CENTER" text="Actual" textAlignment="CENTER" />
-                           </children>
-                        </VBox>
-                        <VBox layoutX="110.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label contentDisplay="CENTER" text="Budget" textAlignment="CENTER" />
-                           </children>
-                        </VBox>
-                        <VBox layoutX="144.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label contentDisplay="CENTER" text="Diff" textAlignment="CENTER" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
+                  <TableView fx:id="tableView_Total" prefHeight="200.0">
+                    <columns>
+                      <TableColumn fx:id="totalTable_Category" prefWidth="200.0" />
+                      <TableColumn fx:id="totalTable_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="totalTable_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="totalTable_Diff" prefWidth="75.0" text="Diff" />
+                    </columns>
+                  </TableView>
                </children>
             </AnchorPane>
          </children>
