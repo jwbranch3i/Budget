@@ -221,6 +221,9 @@ public class PrimaryController {
                 }
         }
 
+        // Array of tables for UIDatat total table update
+        ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+
         public void readFromDatabase(LocalDate inDate) {
                 Task<Void> task = new Task<Void>() {
                         @Override
@@ -270,26 +273,10 @@ public class PrimaryController {
                 // ***************************************/
                 // Set up table listeners to update the table
                 // ***************************************/
-                ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
                 tables.add(tableIncomeTotal);
                 tables.add(tableManditoryTotal);
                 tables.add(tableDiscretionaryTotal);
                 tables.add(tableView_Total);
-
-                tableView_Income.getSelectionModel().selectedItemProperty()
-                                .addListener((obs, oldSelection, newSelection) -> {
-                                        UIData.updateTable(tables);
-                                });
-
-                tableView_Mandatory.getSelectionModel().selectedItemProperty()
-                                .addListener((obs, oldSelection, newSelection) -> {
-                                        UIData.updateTable(tables);
-                                });
-
-                tableView_Discretionary.getSelectionModel().selectedItemProperty()
-                                .addListener((obs, oldSelection, newSelection) -> {
-                                        UIData.updateTable(tables);
-                                });
 
                 // TODO: Update button is not disabled on startup
 
@@ -385,11 +372,13 @@ public class PrimaryController {
                 // ***************************************/
                 incomeTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 incomeTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-                incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
+                // incomeTable_Category.setOnEditCommit(e ->
+                // incomeTableCategory_OnEditCommit(e));
 
                 incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 incomeTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                incomeTable_Actual.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+                // incomeTable_Actual.setOnEditCommit(e ->
+                // incomeTableActual_OnEditCommit(e));
 
                 incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 incomeTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -397,7 +386,8 @@ public class PrimaryController {
 
                 incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 incomeTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                incomeTable_Diff.setOnEditCommit(e -> incomeTableDiff_OnEditCommit(e));
+                // incomeTable_Diff.setOnEditCommit(e ->
+                // incomeTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
                 incomeTotalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -490,7 +480,6 @@ public class PrimaryController {
                         }
                 };
                 new Thread(task2).start();
-
 
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
@@ -667,11 +656,15 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableIncomeTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
+                                UIData.updateTable(tables);
 
                                 return null;
                         }
                 };
                 new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Income.requestFocus();
 
         }
 
@@ -703,11 +696,15 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableManditoryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                UIData.updateTable(tables);
 
                                 return null;
                         }
                 };
                 new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Mandatory.requestFocus();
         }
 
         public void mandatoryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -737,11 +734,16 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                                 ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+                                UIData.updateTable(tables);
 
                                 return null;
                         }
                 };
                 new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Discretionary.requestFocus();
+
         }
 
         public void discretionaryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
