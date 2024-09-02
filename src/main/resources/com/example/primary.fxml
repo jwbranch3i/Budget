@@ -21,7 +21,7 @@
                <children>
                   <VBox fx:id="categoryBox" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <Button fx:id="btn_Update" disable="true" mnemonicParsing="false" onAction="#readButton" text="Update" />
+                        <Button fx:id="btn_Update" disable="true" mnemonicParsing="false" onAction="#button_UpdateCat" text="Update" />
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                            <children>
                               <VBox alignment="CENTER" prefHeight="200.0" spacing="5.0">
@@ -57,6 +57,7 @@
                   </TableView>
                </children>
             </AnchorPane>
+            <Button fx:id="btn_EditCat" alignment="CENTER" mnemonicParsing="false" onAction="#button_EditCat" text="Edit Categories" />
          </children>
          <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

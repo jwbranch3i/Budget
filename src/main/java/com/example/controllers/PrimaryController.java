@@ -22,6 +22,10 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -35,6 +39,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class PrimaryController {
         @FXML
@@ -178,7 +184,36 @@ public class PrimaryController {
         private Button btn_Update;
 
         @FXML
-        void readButton(ActionEvent event) {
+        private Button btn_EditCat;
+
+        @FXML
+        void button_EditCat(ActionEvent event) {
+                try {
+                        // Load the FXML file for the new window
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("secondary.fxml"));
+                        Parent root = fxmlLoader.load();
+
+                        // Create a new Stage
+                        Stage stage = new Stage();
+                        stage.setTitle("Edit Category");
+
+                        // Set the scene with the loaded FXML
+                        stage.setScene(new Scene(root));
+
+                        // Set the stage as a modal window
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.initOwner(((Node) event.getSource()).getScene().getWindow());
+
+                        // Show the modal window
+                        stage.showAndWait();
+                }
+                catch (IOException e) {
+                        e.printStackTrace();
+                }
+        }
+
+        @FXML
+        void button_UpdateCat(ActionEvent event) {
                 LocalDate inDate = LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1,
                                 1);
 
