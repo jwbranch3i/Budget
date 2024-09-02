@@ -13,6 +13,7 @@ import com.example.data.DB;
 import com.example.data.LineItem;
 import com.example.data.LineItemCSV;
 import com.example.data.ReadData;
+import com.example.data.UIData;
 import com.example.data.WriteData;
 import com.opencsv.CSVReader;
 
@@ -21,6 +22,10 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -34,11 +39,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.util.converter.DoubleStringConverter;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class PrimaryController {
         @FXML
-        private VBox categoryBox;
+        private TableView<LineItem> tableView_Discretionary;
 
         @FXML
         private TableColumn<LineItem, Double> discretionaryTable_Actual;
@@ -52,6 +58,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> discretionaryTable_Diff;
 
+        /************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableDiscretionaryTotal;
+
         @FXML
         private TableColumn<LineItem, Double> discretionaryTotalTable_Actual;
 
@@ -63,6 +74,11 @@ public class PrimaryController {
 
         @FXML
         private TableColumn<LineItem, Double> discretionaryTotalTable_Diff;
+
+        /************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableView_Income;
 
         @FXML
         private TableColumn<LineItem, Double> incomeTable_Actual;
@@ -76,6 +92,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> incomeTable_Diff;
 
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableIncomeTotal;
+
         @FXML
         private TableColumn<LineItem, Double> incomeTotalTable_Actual;
 
@@ -87,6 +108,11 @@ public class PrimaryController {
 
         @FXML
         private TableColumn<LineItem, Double> incomeTotalTable_Diff;
+
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableView_Mandatory;
 
         @FXML
         private TableColumn<LineItem, Double> mandatoryTable_Actual;
@@ -100,6 +126,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> mandatoryTable_Diff;
 
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableManditoryTotal;
+
         @FXML
         private TableColumn<LineItem, Double> manditoryTotalTable_Actual;
 
@@ -112,29 +143,33 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> manditoryTotalTable_Diff;
 
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableView_Total;
+
+        @FXML
+        private TableColumn<LineItem, String> totalTable_Category;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Actual;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Budget;
+
+        @FXML
+        private TableColumn<LineItem, Double> totalTable_Diff;
+
+        /*************************************************************************/
+
+        @FXML
+        private VBox categoryBox;
+
         @FXML
         private AnchorPane myAnchorPane;
 
         @FXML
         private ProgressIndicator progressIndicator;
-
-        @FXML
-        private TableView<LineItem> tableDiscretionaryTotal;
-
-        @FXML
-        private TableView<LineItem> tableIncomeTotal;
-
-        @FXML
-        private TableView<LineItem> tableManditoryTotal;
-
-        @FXML
-        private TableView<LineItem> tableView_Discretionary;
-
-        @FXML
-        private TableView<LineItem> tableView_Income;
-
-        @FXML
-        private TableView<LineItem> tableView_Mandatory;
 
         @FXML
         private ComboBox<Integer> yearBox;
@@ -149,7 +184,36 @@ public class PrimaryController {
         private Button btn_Update;
 
         @FXML
-        void readButton(ActionEvent event) {
+        private Button btn_EditCat;
+
+        @FXML
+        void button_EditCat(ActionEvent event) {
+                try {
+                        // Load the FXML file for the new window
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("secondary.fxml"));
+                        Parent root = fxmlLoader.load();
+
+                        // Create a new Stage
+                        Stage stage = new Stage();
+                        stage.setTitle("Edit Category");
+
+                        // Set the scene with the loaded FXML
+                        stage.setScene(new Scene(root));
+
+                        // Set the stage as a modal window
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.initOwner(((Node) event.getSource()).getScene().getWindow());
+
+                        // Show the modal window
+                        stage.showAndWait();
+                }
+                catch (IOException e) {
+                        e.printStackTrace();
+                }
+        }
+
+        @FXML
+        void button_UpdateCat(ActionEvent event) {
                 LocalDate inDate = LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1,
                                 1);
 
@@ -206,6 +270,9 @@ public class PrimaryController {
                 }
         }
 
+        // Array of tables for UIDatat total table update
+        ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+
         public void readFromDatabase(LocalDate inDate) {
                 Task<Void> task = new Task<Void>() {
                         @Override
@@ -244,9 +311,26 @@ public class PrimaryController {
         }
 
         public void initialize() {
+
+                PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableView_Total,
+                                totalTable_Category, totalTable_Actual, totalTable_Budget, totalTable_Diff);
+
+                // Apply the style class to the table
+                tableIncomeTotal.getStyleClass().add("table-view-total");
+                tableManditoryTotal.getStyleClass().add("table-view-total");
+                tableDiscretionaryTotal.getStyleClass().add("table-view-total");
+
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
                 btn_Update.setDisable(true);
+
+                // ***************************************/
+                // Set up table listeners to update the table
+                // ***************************************/
+                tables.add(tableIncomeTotal);
+                tables.add(tableManditoryTotal);
+                tables.add(tableDiscretionaryTotal);
+                tables.add(tableView_Total);
 
                 // TODO: Update button is not disabled on startup
 
@@ -342,11 +426,13 @@ public class PrimaryController {
                 // ***************************************/
                 incomeTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 incomeTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-                incomeTable_Category.setOnEditCommit(e -> incomeTableCategory_OnEditCommit(e));
+                // incomeTable_Category.setOnEditCommit(e ->
+                // incomeTableCategory_OnEditCommit(e));
 
                 incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 incomeTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                incomeTable_Actual.setOnEditCommit(e -> incomeTableActual_OnEditCommit(e));
+                // incomeTable_Actual.setOnEditCommit(e ->
+                // incomeTableActual_OnEditCommit(e));
 
                 incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 incomeTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -354,7 +440,8 @@ public class PrimaryController {
 
                 incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 incomeTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                incomeTable_Diff.setOnEditCommit(e -> incomeTableDiff_OnEditCommit(e));
+                // incomeTable_Diff.setOnEditCommit(e ->
+                // incomeTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
                 incomeTotalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -442,6 +529,7 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 getTableRows(indate);
+                                UIData.updateTable(tables);
                                 return null;
                         }
                 };
@@ -558,15 +646,6 @@ public class PrimaryController {
                                                 WriteData.autualUpdateAmount(existingActual);
                                         }
 
-                                        // if the category is not in the budget
-                                        // database, insert it
-                                        // existingActual =
-                                        // ReadData.budgetFindCategory(existingCategory);
-                                        // if (existingActual.getId() == -1) {
-                                        // WriteData.budgetInsertRecord(existingActual,
-                                        // existingCategory);
-                                        // }
-
                                         break;
 
                                 case 8:
@@ -590,15 +669,6 @@ public class PrimaryController {
                                         else {
                                                 WriteData.autualUpdateAmount(existingActual);
                                         }
-
-                                        // if the category is not in the budget
-                                        // database, insert it
-                                        // existingActual =
-                                        // ReadData.budgetFindCategory(existingCategory);
-                                        // if (existingActual.getId() == -1) {
-                                        // WriteData.budgetInsertRecord(existingActual,
-                                        // existingCategory);
-                                        // }
 
                                         break;
 
@@ -630,6 +700,26 @@ public class PrimaryController {
         public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                LineItem selectedItem = tableView_Income.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
+
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableIncomeTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
+                                UIData.updateTable(tables);
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Income.requestFocus();
+
         }
 
         public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -650,6 +740,25 @@ public class PrimaryController {
         public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                LineItem selectedItem = tableView_Mandatory.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
+
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableManditoryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                UIData.updateTable(tables);
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Mandatory.requestFocus();
         }
 
         public void mandatoryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -670,6 +779,25 @@ public class PrimaryController {
         public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
+
+                LineItem selectedItem = tableView_Discretionary.getSelectionModel().getSelectedItem();
+                selectedItem.setBudget(e.getNewValue());
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.actualUpdateBudget(item);
+                                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                                ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+                                UIData.updateTable(tables);
+
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+
+                // keep focus on the selected row
+                tableView_Discretionary.requestFocus();
+
         }
 
         public void discretionaryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {

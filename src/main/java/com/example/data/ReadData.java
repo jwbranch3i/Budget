@@ -23,11 +23,16 @@ public class ReadData {
         returnItem.setParent(item.getParent());
         returnItem.setType(item.getType());
 
+        System.out.println(DB.ACTUAL_FIND_CATEGORY);
+
         try {
+            String monthString = String.format("%02d", item.getDate().getMonthValue());
+            String yearString = String.format("%04d", item.getDate().getYear());
+
             PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
-            findRecord.setInt(1, item.getId()); // category id in category table
-            findRecord.setInt(2, item.getDate().getMonthValue());
-            findRecord.setInt(3, item.getDate().getYear());
+            findRecord.setInt(1, item.getId());
+            findRecord.setString(2, monthString);
+            findRecord.setString(3, yearString);
 
             ResultSet rs = findRecord.executeQuery();
             if (rs.next()) {
@@ -45,39 +50,6 @@ public class ReadData {
         }
     }
 
-    public static LineItemCSV budgetFindCategory(LineItemCSV item) {
-        LineItemCSV returnItem = new LineItemCSV();
-        returnItem.setId(-1);
-        // copy the item to returnItem
-        returnItem.setId(-1);
-        returnItem.setAmount(item.getAmount());
-        returnItem.setDate(item.getDate());
-        returnItem.setCategory(item.getCategory());
-        returnItem.setParent(item.getParent());
-        returnItem.setType(item.getType());
-
-        try {
-            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.BUDGET_FIND_CATEGORY);
-            findRecord.setInt(1, item.getId());
-            findRecord.setInt(2, item.getDate().getMonthValue());
-            findRecord.setInt(3, item.getDate().getYear());
-
-            ResultSet rs = findRecord.executeQuery();
-            if (rs.next()) {
-                returnItem.setId(rs.getInt(DB.BUDGET_COL_ID));
-                return returnItem;
-            }
-            else {
-                returnItem.setId(-1);
-                return returnItem;
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Error budgetFindCategory: " + e.getMessage());
-            return returnItem;
-        }
-    }
-
     /**
      * Finds the record index of a LineItemCSV in the category database table.
      * 
@@ -88,7 +60,6 @@ public class ReadData {
         LineItemCSV returnItem = new LineItemCSV();
         returnItem.setId(-1);
         // copy the item to returnItem
-        returnItem.setId(-1);
         returnItem.setAmount(item.getAmount());
         returnItem.setDate(item.getDate());
         returnItem.setCategory(item.getCategory());
@@ -101,6 +72,8 @@ public class ReadData {
             psFindRecord = DataSource.getConn().prepareStatement(DB.CAT_FIND_CATEGORY);
             psFindRecord.setString(1, item.getParent());
             psFindRecord.setString(2, item.getCategory());
+
+            System.out.println(psFindRecord.toString());
 
             rs = psFindRecord.executeQuery();
             if (rs.next()) {
@@ -126,15 +99,19 @@ public class ReadData {
 
         ArrayList<LineItem> items = new ArrayList<LineItem>();
         try {
+            String monthString = String.format("%02d", date.getMonthValue());
+            String yearString = String.format("%04d", date.getYear());
+
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
-            ps.setInt(1, date.getMonthValue());
-            ps.setInt(2, date.getYear());
+            ps.setString(1, monthString);
+            ps.setString(2, yearString);
             ps.setInt(3, type);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LineItem newItem = new LineItem();
-                newItem.setDate(rs.getDate("DATE").toLocalDate());
+                newItem.setId(rs.getInt("ID"));
+                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
                 newItem.setBudget(rs.getDouble("BUDGET"));
@@ -147,17 +124,20 @@ public class ReadData {
             System.out.println("Error*** getTableAmounts: " + e.getMessage());
         }
 
-
         return items;
     }
 
     public static LineItem getTotals(int type, LocalDate date) {
         LineItem newItem = new LineItem();
         try {
+            String monthString = String.format("%02d", date.getMonthValue());
+            String yearString = String.format("%04d", date.getYear());
+
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS);
-            ps.setInt(1, date.getMonthValue());
-            ps.setInt(2, date.getYear());
+            ps.setString(1, monthString);
+            ps.setString(2, yearString);
             ps.setInt(3, type);
+
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

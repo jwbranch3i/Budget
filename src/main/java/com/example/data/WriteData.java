@@ -53,12 +53,32 @@ public class WriteData {
      */
     public static boolean autualUpdateAmount(LineItemCSV item) {
         try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_AMOUNT);
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_ACTUAL);
             updateRecord.setDouble(1, item.getAmount());
             updateRecord.setInt(2, item.getId());
             updateRecord.executeUpdate();
         } catch (Exception e) {
             System.out.println("Error autualUpdateAmount: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Updates the budget amount for a specific line item.
+     * 
+     * @param item The LineItem object representing the line item to update.
+     * @return true if the budget amount was successfully updated, false otherwise.
+     */
+    public static boolean actualUpdateBudget(LineItem item) {
+        try {
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_BUDGET);
+            updateRecord.setDouble(1, item.getBudget());
+            updateRecord.setInt(2, item.getId());
+            updateRecord.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error budgetUpdateAmount: " + e.getMessage());
             return false;
         }
         return true;
@@ -85,7 +105,10 @@ public class WriteData {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD,
                     PreparedStatement.RETURN_GENERATED_KEYS);
             insertRecord.setInt(1, existingCategory.getId());
-            insertRecord.setDate(2, Date.valueOf(newActual.getDate()));
+
+            String dateString = newActual.getDate().toString();
+            insertRecord.setString(2, dateString);
+    
             insertRecord.setDouble(3, newActual.getAmount());
             insertRecord.setInt(4, 0);
 
@@ -105,36 +128,5 @@ public class WriteData {
     }
 
 
-    public static LineItemCSV budgetInsertRecord(LineItemCSV newActual, LineItemCSV existingCategory) {
-        LineItemCSV returnActual = new LineItemCSV();
-        //copy the item to returnItem
-        returnActual.setId(newActual.getId());
-        returnActual.setAmount(newActual.getAmount());
-        returnActual.setDate(newActual.getDate());
-        returnActual.setCategory(newActual.getCategory());
-        returnActual.setParent(newActual.getParent());
-        returnActual.setType(newActual.getType());
-
-
-        try {
-            PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.BUDGET_INSERT_RECORD,
-                    PreparedStatement.RETURN_GENERATED_KEYS);
-            insertRecord.setInt(1, existingCategory.getId());
-            insertRecord.setDate(2, Date.valueOf(newActual.getDate()));
-            insertRecord.setDouble(3, 0);
-
-            insertRecord.executeUpdate();
-
-            ResultSet rs = insertRecord.getGeneratedKeys();
-            if (rs.next()) {
-                returnActual.setId(rs.getInt(1));
-                return returnActual;
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error budgetInsertRecord: " + e.getMessage());
-        }
-
-        return newActual;
-    }
+   
 }
