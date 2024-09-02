@@ -1,11 +1,15 @@
-.border-pane {
-  -fx-background-color: lightgray;
-  background-color: lightgray;
+.root {
+  -fx-background-color: gray;
+  background-color: gray;
 }
 
 .table-view .column-header {
-  -fx-background-color: lightblue;
-  background-color: lightblue;
+  -fx-background-color: blue;
+  background-color: blue;
+}
+.table-view .column-header .label {
+  -fx-text-fill: white;
+  color: white;
 }
 
 /* top right corner of the header section above the scroll bars */
@@ -30,14 +34,17 @@
 }
 
 .table-row-cell:even {
-  -fx-background-color: white;
-  background-color: white;
+  -fx-background-color: lightblue;
+  background-color: lightblue;
   -fx-background-insets: 0, 0 0 1 0;
   -fx-padding: 0em;
   padding: 0em;
 }
 
-.table-view-total{
-  -fx-background-color: yellow;
-  background-color: yellow;
+.table-row-cell:selected {
+  -fx-background-color: red;
+  background-color: red;
+  -fx-background-insets: 0, 0 0 1 0;
+  -fx-padding: 0em;
+  padding: 0em;
 }
