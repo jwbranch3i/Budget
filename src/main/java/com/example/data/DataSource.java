@@ -8,21 +8,28 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DataSource {
-	static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://localhost/Budget";
+	// static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+	// static final String DB_URL = "jdbc:mysql://localhost/Budget";
 
-	static final String USER = "root";
-	static final String PASS = "utopia";
+	// static final String USER = "root";
+	// static final String PASS = "utopia";
+
+	public static final String DB_NAME = "Budget.db";
+	public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Dropbox\\JAVA\\budget\\" + DB_NAME;
 
 	private static Connection conn;
 
 	private static DataSource instance = new DataSource();
 
-	/************************ DataSource ****************************************/
+	/************************
+	 * DataSource
+	 ****************************************/
 	private DataSource() {
 	}
 
-	/*********************** getInstance *****************************************/
+	/***********************
+	 * getInstance
+	 *****************************************/
 	public static DataSource getInstance() {
 		return instance;
 	}
@@ -34,11 +41,15 @@ public class DataSource {
 	/*********************** open *******************************************/
 	public boolean open() {
 		try {
-			Class.forName(JDBC_DRIVER);
-			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			// Class.forName(JDBC_DRIVER);
+			// conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+			conn = DriverManager.getConnection(CONNECTION_STRING);
+	
 
 			return true;
-		} catch (SQLException | ClassNotFoundException e) {
+		}
+		catch (SQLException e) {
 			System.out.println("Could not connect to database: " + e.getMessage());
 			return false;
 		}
@@ -50,7 +61,8 @@ public class DataSource {
 			if (conn != null) {
 				conn.close();
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			System.out.println("Could not close connection" + e.getMessage());
 		}
 
@@ -86,13 +98,16 @@ public class DataSource {
 				lineItem.setParent(rs.getString(DB.CAT_COL_PARENT_INDEX));
 				lineItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY_INDEX));
 				return lineItem;
-			} else {
+			}
+			else {
 				return item;
 			}
 
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			System.out.println("Error searching for record: " + e.getMessage());
-		} finally {
+		}
+		finally {
 			try {
 				if (rs != null) {
 					rs.close();
@@ -100,7 +115,8 @@ public class DataSource {
 				if (psFindRecord != null) {
 					psFindRecord.close();
 				}
-			} catch (SQLException e) {
+			}
+			catch (SQLException e) {
 				System.out.println("Could not close statement: " + e.getMessage());
 			}
 		}
@@ -112,14 +128,17 @@ public class DataSource {
 		try {
 			statement = conn.createStatement();
 			statement.executeUpdate(DB.DELETE_ALL_CATEGORY);
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			System.out.println("Could not delete all records: " + e.getMessage());
-		} finally {
+		}
+		finally {
 			try {
 				if (statement != null) {
 					statement.close();
 				}
-			} catch (SQLException e) {
+			}
+			catch (SQLException e) {
 				System.out.println("Could not close statement: " + e.getMessage());
 			}
 		}

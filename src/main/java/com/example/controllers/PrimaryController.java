@@ -38,7 +38,7 @@ import javafx.stage.FileChooser;
 
 public class PrimaryController {
         @FXML
-        private VBox categoryBox;
+        private TableView<LineItem> tableView_Discretionary;
 
         @FXML
         private TableColumn<LineItem, Double> discretionaryTable_Actual;
@@ -52,6 +52,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> discretionaryTable_Diff;
 
+        /************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableDiscretionaryTotal;
+
         @FXML
         private TableColumn<LineItem, Double> discretionaryTotalTable_Actual;
 
@@ -63,6 +68,11 @@ public class PrimaryController {
 
         @FXML
         private TableColumn<LineItem, Double> discretionaryTotalTable_Diff;
+
+        /************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableView_Income;
 
         @FXML
         private TableColumn<LineItem, Double> incomeTable_Actual;
@@ -76,6 +86,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> incomeTable_Diff;
 
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableIncomeTotal;
+
         @FXML
         private TableColumn<LineItem, Double> incomeTotalTable_Actual;
 
@@ -87,6 +102,11 @@ public class PrimaryController {
 
         @FXML
         private TableColumn<LineItem, Double> incomeTotalTable_Diff;
+
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableView_Mandatory;
 
         @FXML
         private TableColumn<LineItem, Double> mandatoryTable_Actual;
@@ -100,6 +120,11 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> mandatoryTable_Diff;
 
+        /*************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableManditoryTotal;
+
         @FXML
         private TableColumn<LineItem, Double> manditoryTotalTable_Actual;
 
@@ -112,29 +137,7 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> manditoryTotalTable_Diff;
 
-        @FXML
-        private AnchorPane myAnchorPane;
-
-        @FXML
-        private ProgressIndicator progressIndicator;
-
-        @FXML
-        private TableView<LineItem> tableDiscretionaryTotal;
-
-        @FXML
-        private TableView<LineItem> tableIncomeTotal;
-
-        @FXML
-        private TableView<LineItem> tableManditoryTotal;
-
-        @FXML
-        private TableView<LineItem> tableView_Discretionary;
-
-        @FXML
-        private TableView<LineItem> tableView_Income;
-
-        @FXML
-        private TableView<LineItem> tableView_Mandatory;
+        /*************************************************************************/
 
         @FXML
         private TableView<LineItem> tableView_Total;
@@ -150,6 +153,17 @@ public class PrimaryController {
 
         @FXML
         private TableColumn<LineItem, Double> totalTable_Diff;
+
+        /*************************************************************************/
+
+        @FXML
+        private VBox categoryBox;
+
+        @FXML
+        private AnchorPane myAnchorPane;
+
+        @FXML
+        private ProgressIndicator progressIndicator;
 
         @FXML
         private ComboBox<Integer> yearBox;
@@ -265,6 +279,11 @@ public class PrimaryController {
 
                 PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableView_Total,
                                 totalTable_Category, totalTable_Actual, totalTable_Budget, totalTable_Diff);
+
+                // Apply the style class to the table
+                tableIncomeTotal.getStyleClass().add("table-view-total");
+                tableManditoryTotal.getStyleClass().add("table-view-total");
+                tableDiscretionaryTotal.getStyleClass().add("table-view-total");
 
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
