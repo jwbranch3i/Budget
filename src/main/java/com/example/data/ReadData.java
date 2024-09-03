@@ -178,4 +178,28 @@ public class ReadData {
         return years;
     }
 
+    // method to get categories from the database
+    public static ArrayList<LineItemCSV> getCategories() {
+        ArrayList<LineItemCSV> categories = new ArrayList<LineItemCSV>();
+
+        try {
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                LineItemCSV newItem = new LineItemCSV();
+                newItem.setId(rs.getInt("ID"));
+                newItem.setType(rs.getInt("TYPE"));
+                newItem.setParent(rs.getString("PARENT"));
+                newItem.setCategory(rs.getString("CATEGORY"));
+
+                categories.add(newItem);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getCategories: " + e.getMessage());
+        }
+        return categories;
+    }
+
 }

@@ -190,7 +190,7 @@ public class PrimaryController {
         void button_EditCat(ActionEvent event) {
                 try {
                         // Load the FXML file for the new window
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("secondary.fxml"));
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/secondary.fxml"));
                         Parent root = fxmlLoader.load();
 
                         // Create a new Stage
