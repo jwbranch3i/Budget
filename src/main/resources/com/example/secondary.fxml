@@ -5,13 +5,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.SecondaryController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.SecondaryController">
    <children>
-      <VBox prefHeight="200.0" prefWidth="100.0">
+      <VBox>
          <children>
-            <TableView fx:id="catTable" prefHeight="200.0" prefWidth="610.0">
+            <TableView fx:id="catTable">
               <columns>
-                <TableColumn fx:id="catColumnType" prefWidth="75.0" text="Type" />
+                <TableColumn fx:id="catColumnType" prefWidth="150.0" text="Type" />
                 <TableColumn fx:id="catColumnParent" prefWidth="75.0" text="Parent" />
                   <TableColumn fx:id="catColumnCategory" prefWidth="200.0" text="Category" />
               </columns>

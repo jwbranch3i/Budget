@@ -1,14 +1,14 @@
 package com.example.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList; // Add this import statement
 
 import com.example.data.Categories;
 import com.example.data.ReadData;
 
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -24,29 +24,74 @@ public class SecondaryController {
   private TableColumn<Categories, String> catColumnParent;
 
   @FXML
-  private TableColumn<Categories, List<String>> catColumnType;
+  private TableColumn<Categories, Integer> catColumnType;
 
   @FXML
   private TableView<Categories> catTable;
 
   public void initialize() {
 
-    catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, List<String>>("Type"));
-    catColumnType.setCellFactory(column -> new TableCell<Categories, List<String>>() {
+    catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
+    catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
+      // private final ComboBox<String> comboBox = new ComboBox<>();
 
-      private final ListView<String> listView = new ListView<String>();
+      // @Override
+      // protected void updateItem(Integer items, boolean empty) {
+      // super.updateItem(items, empty);
+
+      // if (empty || items == null) {
+      // setGraphic(null);
+      // }
+      // else {
+      // // Convert the Integer value to a list of strings
+      // List<String> stringList = convertIntegerToList(items);
+
+      // // Set the ComboBox value to the current item
+      // comboBox.setValue(stringList.get(0)); // Assuming the first item is the
+      // default value
+
+      // comboBox.setItems(FXCollections.observableArrayList(stringList));
+      // setGraphic(comboBox);
+      // }
+      // }
+
+      // // Helper method to convert Integer to List<String>
+      // private List<String> convertIntegerToList(Integer items) {
+      // // Example conversion logic
+      // List<String> stringList = new ArrayList<>();
+      // stringList.addAll(FXCollections.observableArrayList("Income",
+      // "Mandatory", "Discretionary"));
+      // return stringList;
+      // }
+      // });
+
+      private final ComboBox<String> comboBox = new ComboBox<>();
 
       @Override
-      protected void updateItem(List<String> items, boolean empty) {
+      protected void updateItem(Integer items, boolean empty) {
         super.updateItem(items, empty);
 
         if (empty || items == null) {
           setGraphic(null);
         }
         else {
-          listView.setItems(FXCollections.observableArrayList(items));
-          setGraphic(listView);
+          // Convert the Integer value to a list of strings
+          List<String> stringList = convertIntegerToList(items);
+          comboBox.setItems(FXCollections.observableArrayList(stringList));
+
+          // Set the ComboBox value to the current item in the row
+          Categories currentCategory = getTableView().getItems().get(getIndex());
+          comboBox.getSelectionModel().select(currentCategory.getType());
+          setGraphic(comboBox);
         }
+      }
+
+      // Helper method to convert Integer to List<String>
+      private List<String> convertIntegerToList(Integer items) {
+        // Example conversion logic
+        List<String> stringList = new ArrayList<>();
+        stringList.addAll(FXCollections.observableArrayList("Income", "Mandatory", "Discretionary"));
+        return stringList;
       }
     });
 
@@ -56,14 +101,21 @@ public class SecondaryController {
     catColumnCategory.setCellValueFactory(new PropertyValueFactory<Categories, String>("Category"));
     catColumnCategory.setCellFactory(TextFieldTableCell.forTableColumn());
 
-    Task<ArrayList<Categories>> task = new Task<ArrayList<Categories>>() {
-      @Override
-      protected ArrayList<Categories> call() throws Exception {
-        return ReadData.getCategories();
-      }
-    };
-    new Thread(task).start();
-
     catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
+
+    System.out.println("Categories loaded - " + catTable.getItems().size() + " items");
+
+    // Task<Void> task = new Task<Void>() {
+    // @Override
+    // protected Void call() throws Exception {
+    // catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
+
+    // System.out.println("Categories loaded - " + catTable.getItems().size() +
+    // " items");
+    // return null;
+    // }
+    // };
+    // new Thread(task).start();
+
   }
 }

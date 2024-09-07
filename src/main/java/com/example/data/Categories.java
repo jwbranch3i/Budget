@@ -10,7 +10,7 @@ public class Categories {
     int type = 0;
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
-    private List<String> items = new ArrayList<String>();
+    private static List<String> items = new ArrayList<String>();
 
     public Categories() {
     }
@@ -68,9 +68,25 @@ public class Categories {
     }
 
     /********************* items ***********************************/
-    public List<String> getItems() {
+    public static List<String> getItems() {
         return items;
     }
 
+    public String isShow() {
+        return show.toString();
+    }
+
+
+    @Override
+    public String toString() {
+        return "{" +
+            " id='" + getId() + "'" +
+            ", show='" + isShow() + "'" +
+            ", type='" + getType() + "'" +
+            ", parent='" + getParent() + "'" +
+            ", category='" + getCategory() + "'" +
+            ", items='" + getItems() + "'" +
+            "}";
+    }
 
 }
