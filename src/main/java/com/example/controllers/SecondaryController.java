@@ -2,6 +2,8 @@ package com.example.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.example.data.Categories;
 import com.example.data.ReadData;
@@ -9,7 +11,6 @@ import com.example.data.ReadData;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -29,41 +30,17 @@ public class SecondaryController {
   @FXML
   private TableView<Categories> catTable;
 
+  // Define the map to convert Integer to String
+  private final Map<Integer, String> typeMap = new HashMap<>();
+
   public void initialize() {
+    // Populate the map with Integer to String mappings
+    typeMap.put(1, "Income");
+    typeMap.put(2, "Mandatory");
+    typeMap.put(3, "Discretionary");
 
     catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
     catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
-      // private final ComboBox<String> comboBox = new ComboBox<>();
-
-      // @Override
-      // protected void updateItem(Integer items, boolean empty) {
-      // super.updateItem(items, empty);
-
-      // if (empty || items == null) {
-      // setGraphic(null);
-      // }
-      // else {
-      // // Convert the Integer value to a list of strings
-      // List<String> stringList = convertIntegerToList(items);
-
-      // // Set the ComboBox value to the current item
-      // comboBox.setValue(stringList.get(0)); // Assuming the first item is the
-      // default value
-
-      // comboBox.setItems(FXCollections.observableArrayList(stringList));
-      // setGraphic(comboBox);
-      // }
-      // }
-
-      // // Helper method to convert Integer to List<String>
-      // private List<String> convertIntegerToList(Integer items) {
-      // // Example conversion logic
-      // List<String> stringList = new ArrayList<>();
-      // stringList.addAll(FXCollections.observableArrayList("Income",
-      // "Mandatory", "Discretionary"));
-      // return stringList;
-      // }
-      // });
 
       private final ComboBox<String> comboBox = new ComboBox<>();
 
@@ -76,22 +53,52 @@ public class SecondaryController {
         }
         else {
           // Convert the Integer value to a list of strings
-          List<String> stringList = convertIntegerToList(items);
+          List<String> stringList = convertIntegerToList();
           comboBox.setItems(FXCollections.observableArrayList(stringList));
 
           // Set the ComboBox value to the current item in the row
           Categories currentCategory = getTableView().getItems().get(getIndex());
           comboBox.getSelectionModel().select(currentCategory.getType());
+
+          // Add listener to save changes to the database
+          comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+              // Update the category type
+              currentCategory.setType(getKeyByValue(typeMap, newValue));
+
+              // Save the updated category to the database
+              // saveCategoryToDatabase(currentCategory);
+              System.out.println("Category type updated to: " + newValue);
+            }
+          });
+
           setGraphic(comboBox);
         }
       }
 
       // Helper method to convert Integer to List<String>
-      private List<String> convertIntegerToList(Integer items) {
-        // Example conversion logic
+      // private List<String> convertIntegerToList(Integer items) {
+      //   // Example conversion logic
+      //   List<String> stringList = new ArrayList<>();
+      //   stringList.addAll(FXCollections.observableArrayList("Income", "Mandatory", "Discretionary"));
+      //   return stringList;
+      // }
+
+      // Helper method to convert Integer to List<String>
+      private List<String> convertIntegerToList() {
         List<String> stringList = new ArrayList<>();
-        stringList.addAll(FXCollections.observableArrayList("Income", "Mandatory", "Discretionary"));
+        stringList.addAll(typeMap.values());
         return stringList;
+      }
+
+      // Helper method to get key by value from the map
+      private Integer getKeyByValue(Map<Integer, String> map, String value) {
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+          if (entry.getValue().equals(value)) {
+            return entry.getKey();
+          }
+        }
+        return null;
       }
     });
 
@@ -101,21 +108,8 @@ public class SecondaryController {
     catColumnCategory.setCellValueFactory(new PropertyValueFactory<Categories, String>("Category"));
     catColumnCategory.setCellFactory(TextFieldTableCell.forTableColumn());
 
+    // Read categories from the database into edit categories tableview
     catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
-
-    System.out.println("Categories loaded - " + catTable.getItems().size() + " items");
-
-    // Task<Void> task = new Task<Void>() {
-    // @Override
-    // protected Void call() throws Exception {
-    // catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
-
-    // System.out.println("Categories loaded - " + catTable.getItems().size() +
-    // " items");
-    // return null;
-    // }
-    // };
-    // new Thread(task).start();
 
   }
 }
