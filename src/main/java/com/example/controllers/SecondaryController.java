@@ -35,9 +35,9 @@ public class SecondaryController {
 
   public void initialize() {
     // Populate the map with Integer to String mappings
-    typeMap.put(1, "Income");
-    typeMap.put(2, "Mandatory");
-    typeMap.put(3, "Discretionary");
+    typeMap.put(0, "Income");
+    typeMap.put(1, "Mandatory");
+    typeMap.put(2, "Discretionary");
 
     catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
     catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
@@ -68,7 +68,9 @@ public class SecondaryController {
 
               // Save the updated category to the database
               // saveCategoryToDatabase(currentCategory);
-              System.out.println("Category type updated to: " + newValue);
+              System.out.println(
+                  "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
+
             }
           });
 
@@ -77,17 +79,11 @@ public class SecondaryController {
       }
 
       // Helper method to convert Integer to List<String>
-      // private List<String> convertIntegerToList(Integer items) {
-      //   // Example conversion logic
-      //   List<String> stringList = new ArrayList<>();
-      //   stringList.addAll(FXCollections.observableArrayList("Income", "Mandatory", "Discretionary"));
-      //   return stringList;
-      // }
-
-      // Helper method to convert Integer to List<String>
       private List<String> convertIntegerToList() {
         List<String> stringList = new ArrayList<>();
-        stringList.addAll(typeMap.values());
+        for (int i = 0; i < typeMap.size(); i++) {
+          stringList.add(typeMap.get(i));
+        }
         return stringList;
       }
 
