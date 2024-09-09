@@ -14,6 +14,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 
@@ -32,6 +33,7 @@ public class SecondaryController {
 
   // Define the map to convert Integer to String
   private final Map<Integer, String> typeMap = new HashMap<>();
+  private final Map<String, Integer> reverseTypeMap = new HashMap<>();
 
   public void initialize() {
     // Populate the map with Integer to String mappings
@@ -39,73 +41,45 @@ public class SecondaryController {
     typeMap.put(1, "Mandatory");
     typeMap.put(2, "Discretionary");
 
-    catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
-    catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
+   // Populate the reverse map with String to Integer mappings
+   reverseTypeMap.put("Income", 0);
+   reverseTypeMap.put("Mandatory", 1);
+   reverseTypeMap.put("Discretionary", 2);
 
-      private final ComboBox<String> comboBox = new ComboBox<>();
+   catColumnType.setCellValueFactory(new PropertyValueFactory<>("Type"));
+   catColumnType.setCellFactory(reverseTypeMap.get(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList("Income", "Mandatory", "Discretionary"))));
 
-      @Override
-      protected void updateItem(Integer items, boolean empty) {
-        super.updateItem(items, empty);
+   catColumnType.setOnEditCommit(event -> {
+       Categories category = event.getRowValue();
+       String newValue = event.getNewValue();
+       category.setType(reverseTypeMap.get(newValue));
+       saveCategoryToDatabase(category);
+   });
 
-        if (empty || items == null) {
-          setGraphic(null);
-        }
-        else {
-          // Convert the Integer value to a list of strings
-          List<String> stringList = convertIntegerToList();
-          comboBox.setItems(FXCollections.observableArrayList(stringList));
+  // Helper method to convert Integer to List<String>
+  // private List<String> convertIntegerToList() {
+  //   List<String> stringList = new ArrayList<>();
+  //   for (int i = 0; i < typeMap.size(); i++) {
+  //     stringList.add(typeMap.get(i));
+  //   }
+  //   return stringList;
+  // }
 
-          // Set the ComboBox value to the current item in the row
-          Categories currentCategory = getTableView().getItems().get(getIndex());
-          comboBox.getSelectionModel().select(currentCategory.getType());
+  // Helper method to get key by value from the map
+  // private Integer getKeyByValue(Map<Integer, String> map, String value) {
+  //   for (Map.Entry<Integer, String> entry : map.entrySet()) {
+  //     if (entry.getValue().equals(value)) {
+  //       return entry.getKey();
+  //     }
+  //   }
+  //   return null;
+  // }
 
-          // Add listener to save changes to the database
-          comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-              // Update the category type
-              currentCategory.setType(getKeyByValue(typeMap, newValue));
 
-              // Save the updated category to the database
-              // saveCategoryToDatabase(currentCategory);
-              System.out.println(
-                  "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
+catColumnParent.setCellValueFactory(new PropertyValueFactory<Categories,String>("Parent"))
+catColumnParent.setCellFactory(TextFieldTableCell.forTableColumn());
 
-            }
-          });
+catColumnCategory.setCellValueFactory(new PropertyValueFactory<Categories,String>("Category"));
+catColumnCategory.setCellFactory(TextFieldTableCell.forTableColumn());
 
-          setGraphic(comboBox);
-        }
-      }
-
-      // Helper method to convert Integer to List<String>
-      private List<String> convertIntegerToList() {
-        List<String> stringList = new ArrayList<>();
-        for (int i = 0; i < typeMap.size(); i++) {
-          stringList.add(typeMap.get(i));
-        }
-        return stringList;
-      }
-
-      // Helper method to get key by value from the map
-      private Integer getKeyByValue(Map<Integer, String> map, String value) {
-        for (Map.Entry<Integer, String> entry : map.entrySet()) {
-          if (entry.getValue().equals(value)) {
-            return entry.getKey();
-          }
-        }
-        return null;
-      }
-    });
-
-    catColumnParent.setCellValueFactory(new PropertyValueFactory<Categories, String>("Parent"));
-    catColumnParent.setCellFactory(TextFieldTableCell.forTableColumn());
-
-    catColumnCategory.setCellValueFactory(new PropertyValueFactory<Categories, String>("Category"));
-    catColumnCategory.setCellFactory(TextFieldTableCell.forTableColumn());
-
-    // Read categories from the database into edit categories tableview
-    catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
-
-  }
 }
