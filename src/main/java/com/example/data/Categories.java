@@ -1,8 +1,11 @@
 package com.example.data;
 
-import javafx.beans.property.SimpleStringProperty;
-import java.util.List; // Add this import statement
 import java.util.ArrayList; // Add this import statement
+import java.util.List; // Add this import statement
+
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.ComboBox;
 
 public class Categories {
     int id = 0;
@@ -11,8 +14,17 @@ public class Categories {
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
     private static List<String> items = new ArrayList<String>();
+    private ComboBox<String> comboBox = new ComboBox<String>();
+    private SimpleObjectProperty<ComboBox<String>> comboBoxProperty = new SimpleObjectProperty<ComboBox<String>>();
 
     public Categories() {
+        items.add("Income");
+        items.add("Mandatory");
+        items.add("Discretionary");
+        comboBox.getItems().addAll(items);
+
+        comboBoxProperty.set(comboBox);
+
     }
 
     public Categories(int type, String parent, String category){
@@ -23,6 +35,9 @@ public class Categories {
         items.add("Income");
         items.add("Manditory");
         items.add("Discretionary");
+
+        comboBox.getItems().addAll(items);
+        comboBoxProperty.set(comboBox);
     }
 
     /********************** id **********************************/
@@ -72,6 +87,16 @@ public class Categories {
         return items;
     }
 
+    /********************* comboBox ***********************************/
+    public ComboBox<String> getComboBox() {
+        return comboBox;
+    }
+
+    public SimpleObjectProperty<ComboBox<String>> getComboBoxProperty() {
+        return comboBoxProperty;
+    }
+
+    /********************* show ***********************************/
     public String isShow() {
         return show.toString();
     }
