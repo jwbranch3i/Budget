@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import com.example.data.Categories;
 import com.example.data.ReadData;
+import com.example.data.WriteData;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -67,6 +68,7 @@ public class SecondaryController {
                 // Update the category type
                 if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
                   currentCategory.setType(getKeyByValue(typeMap, newValue));
+                  WriteData.categoryUpdateType(currentCategory);
                   System.out.println(
                       "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
                 }
