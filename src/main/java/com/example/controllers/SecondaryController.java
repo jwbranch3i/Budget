@@ -62,18 +62,17 @@ public class SecondaryController {
 
           // Add listener to save changes to the database
           comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-              // Update the category type
-              currentCategory.setType(getKeyByValue(typeMap, newValue));
-
-              // Save the updated category to the database
-              // saveCategoryToDatabase(currentCategory);
-              System.out.println(
-                  "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
-
+            if (oldValue != null) {
+              if (newValue != null) {
+                // Update the category type
+                if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
+                  currentCategory.setType(getKeyByValue(typeMap, newValue));
+                  System.out.println(
+                      "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
+                }
+              }
             }
           });
-
           setGraphic(comboBox);
         }
       }
