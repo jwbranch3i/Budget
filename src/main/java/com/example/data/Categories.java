@@ -1,10 +1,13 @@
 package com.example.data;
 
-import java.util.ArrayList; // Add this import statement
+import java.util.HashMap;
 import java.util.List; // Add this import statement
+import java.util.Map;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 
 public class Categories {
@@ -13,30 +16,36 @@ public class Categories {
     int type = 0;
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
-    private static List<String> items = new ArrayList<String>();
-    private ComboBox<String> comboBox = new ComboBox<String>();
+    // private static List<String> items = new ArrayList<String>();
+    private static ObservableList<String> items = FXCollections.observableArrayList("Income", "Mandatory",
+            "Discretionary");
+    private ComboBox<String> comboBox;
     private SimpleObjectProperty<ComboBox<String>> comboBoxProperty = new SimpleObjectProperty<ComboBox<String>>();
+    private final Map<Integer, String> typeMap = new HashMap<>();
 
     public Categories() {
-        items.add("Income");
-        items.add("Mandatory");
-        items.add("Discretionary");
-        comboBox.getItems().addAll(items);
+        typeMap.put(0, "Income");
+        typeMap.put(1, "Mandatory");
+        typeMap.put(2, "Discretionary");
+
+        comboBox = new ComboBox<String>(items);
+
+        int temp = getTableView().getItems().get(getIndex())
+        comboBox.setValue(typeMap.get(type));
 
         comboBoxProperty.set(comboBox);
 
     }
 
-    public Categories(int type, String parent, String category){
-        this.type = type;
-        this.parent.set(parent);
-        this.category.set(category);
+    public Categories(int type, String parent, String category) {
 
-        items.add("Income");
-        items.add("Manditory");
-        items.add("Discretionary");
+        typeMap.put(0, "Income");
+        typeMap.put(1, "Mandatory");
+        typeMap.put(2, "Discretionary");
 
-        comboBox.getItems().addAll(items);
+        comboBox = new ComboBox<String>(items);
+        comboBox.setValue(typeMap.get(type));
+
         comboBoxProperty.set(comboBox);
     }
 
@@ -62,6 +71,7 @@ public class Categories {
     public SimpleStringProperty getParentProperty() {
         return this.parent;
     }
+
     public String getParent() {
         return parent.get();
     }
@@ -74,6 +84,7 @@ public class Categories {
     public SimpleStringProperty getCategoryProperty() {
         return this.category;
     }
+
     public String getCategory() {
         return category.get();
     }
@@ -101,17 +112,10 @@ public class Categories {
         return show.toString();
     }
 
-
     @Override
     public String toString() {
-        return "{" +
-            " id='" + getId() + "'" +
-            ", show='" + isShow() + "'" +
-            ", type='" + getType() + "'" +
-            ", parent='" + getParent() + "'" +
-            ", category='" + getCategory() + "'" +
-            ", items='" + getItems() + "'" +
-            "}";
+        return "{" + " id='" + getId() + "'" + ", show='" + isShow() + "'" + ", type='" + getType() + "'" + ", parent='"
+                + getParent() + "'" + ", category='" + getCategory() + "'" + ", items='" + getItems() + "'" + "}";
     }
 
 }
