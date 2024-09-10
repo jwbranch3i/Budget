@@ -43,7 +43,7 @@ public class SecondaryController {
     catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
     catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
 
-      private final ComboBox<String> comboBox = new ComboBox<>();
+     // private final ComboBox<String> comboBox = new ComboBox<>();
 
       @Override
       protected void updateItem(Integer items, boolean empty) {
@@ -53,6 +53,9 @@ public class SecondaryController {
           setGraphic(null);
         }
         else {
+          // Create a new ComboBox instance for each row
+          ComboBox<String> comboBox = new ComboBox<>();
+
           // Convert the Integer value to a list of strings
           List<String> stringList = convertIntegerToList();
           comboBox.setItems(FXCollections.observableArrayList(stringList));
@@ -77,9 +80,10 @@ public class SecondaryController {
           });
           setGraphic(comboBox);
         }
+
       }
 
-      // Helper method to convert Integer to List<String>
+      // // Helper method to convert Integer to List<String>
       private List<String> convertIntegerToList() {
         List<String> stringList = new ArrayList<>();
         for (int i = 0; i < typeMap.size(); i++) {
@@ -98,6 +102,7 @@ public class SecondaryController {
         return null;
       }
     });
+    catColumnType.setOnEditCommit(e -> catColumnType_OnEditCommit(e));
 
     catColumnParent.setCellValueFactory(new PropertyValueFactory<Categories, String>("Parent"));
     catColumnParent.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -108,5 +113,11 @@ public class SecondaryController {
     // Read categories from the database into edit categories tableview
     catTable.setItems(FXCollections.observableArrayList(ReadData.getCategories()));
 
+  }
+
+  public void catColumnType_OnEditCommit(TableColumn.CellEditEvent<Categories, Integer> e) {
+    Categories category = e.getRowValue();
+    category.setType(e.getNewValue());
+    WriteData.categoryUpdateType(category);
   }
 }
