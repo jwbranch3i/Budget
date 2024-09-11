@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
+<BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
@@ -120,7 +120,7 @@
                   </TableView>
                </children>
             </VBox>
-            <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0" spacing="15.0">
+            <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0">
                <children>
                   <Label text="DISCRETIONARY">
                      <font>

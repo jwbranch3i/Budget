@@ -9,14 +9,18 @@ import com.example.data.Categories;
 import com.example.data.ReadData;
 import com.example.data.WriteData;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
 
 public class SecondaryController {
   @FXML
@@ -31,10 +35,30 @@ public class SecondaryController {
   @FXML
   private TableView<Categories> catTable;
 
+  @FXML
+  private Button btn_finishEdit;
+
+  @FXML
+  void button_finishEdit(ActionEvent event) {
+    // Close the window
+    Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
+    stage.close();
+  }
+
   // Define the map to convert Integer to String
   private final Map<Integer, String> typeMap = new HashMap<>();
 
   public void initialize() {
+
+    // Get the stage from the current scene
+    Platform.runLater(() -> {
+      Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
+      stage.setOnCloseRequest(event -> {
+        // Call the button_finishEdit method
+        button_finishEdit(new ActionEvent());
+      });
+    });
+
     // Populate the map with Integer to String mappings
     typeMap.put(0, "Income");
     typeMap.put(1, "Mandatory");
@@ -43,7 +67,7 @@ public class SecondaryController {
     catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
     catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
 
-     // private final ComboBox<String> comboBox = new ComboBox<>();
+      // private final ComboBox<String> comboBox = new ComboBox<>();
 
       @Override
       protected void updateItem(Integer items, boolean empty) {
@@ -66,15 +90,13 @@ public class SecondaryController {
 
           // Add listener to save changes to the database
           comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != null) {
-              if (newValue != null) {
-                // Update the category type
-                if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
-                  currentCategory.setType(getKeyByValue(typeMap, newValue));
-                  WriteData.categoryUpdateType(currentCategory);
-                  System.out.println(
-                      "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
-                }
+            if (newValue != null) {
+              // Update the category type
+              if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
+                currentCategory.setType(getKeyByValue(typeMap, newValue));
+                WriteData.categoryUpdateType(currentCategory);
+                System.out.println(
+                    "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
               }
             }
           });
