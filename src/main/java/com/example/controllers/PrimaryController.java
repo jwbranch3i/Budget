@@ -206,6 +206,19 @@ public class PrimaryController {
 
                         // Show the modal window
                         stage.showAndWait();
+
+                        LocalDate inDate = LocalDate.of(yearBox.getValue(),
+                                        monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
+
+                        tableIncomeTotal.setItems(FXCollections
+                                        .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                        tableManditoryTotal.setItems(FXCollections
+                                        .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                        tableDiscretionaryTotal.setItems(FXCollections
+                                        .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                        getTableRows(inDate);
+                        UIData.updateTable(tables);
+
                 }
                 catch (IOException e) {
                         e.printStackTrace();
@@ -270,20 +283,6 @@ public class PrimaryController {
                 }
         }
 
-        // Array of tables for UIDatat total table update
-        ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
-
-        public void readFromDatabase(LocalDate inDate) {
-                Task<Void> task = new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                                getTableRows(inDate);
-                                return null;
-                        }
-                };
-                new Thread(task).start();
-        }
-
         /**
          * Reads the headings when the "readHeadingsButton" is clicked. This
          * method shows a progress indicator and sets its progress to
@@ -310,6 +309,20 @@ public class PrimaryController {
                 // App.setRoot("secondary");
         }
 
+        public void readFromDatabase(LocalDate inDate) {
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                getTableRows(inDate);
+                                return null;
+                        }
+                };
+                new Thread(task).start();
+        }
+
+        // Array of tables for UIDatat total table update
+        ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+
         public void initialize() {
 
                 PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableView_Total,
@@ -325,7 +338,7 @@ public class PrimaryController {
                 btn_Update.setDisable(true);
 
                 // ***************************************/
-                // Set up table listeners to update the table
+                // Set up table refrence to update totals table
                 // ***************************************/
                 tables.add(tableIncomeTotal);
                 tables.add(tableManditoryTotal);

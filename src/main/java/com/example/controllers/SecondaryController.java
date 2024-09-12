@@ -40,6 +40,7 @@ public class SecondaryController {
 
   @FXML
   void button_finishEdit(ActionEvent event) {
+    
     // Close the window
     Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
     stage.close();
@@ -58,6 +59,12 @@ public class SecondaryController {
         button_finishEdit(new ActionEvent());
       });
     });
+
+
+
+
+
+
 
     // Populate the map with Integer to String mappings
     typeMap.put(0, "Income");

@@ -12,7 +12,6 @@ public class UIData {
         tables.get(3).getItems().clear(); // clear totals tableview
 
         List<LineItem> incomeItems = tables.get(0).getItems();
-
         List<LineItem> mandatoryItems = tables.get(1).getItems();
         List<LineItem> discretionaryItems = tables.get(2).getItems();
 
