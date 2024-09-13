@@ -185,4 +185,20 @@ public class ReadDataTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void testgetCategories(){
+
+        ArrayList<Categories> result;
+
+        result = ReadData.getCategories();
+
+        // print each item in result
+        for (Categories item : result) {
+            System.out.println(item);
+        }
+
+        // Assert the expected result
+        assertNotNull(result);
+    }
+
 }

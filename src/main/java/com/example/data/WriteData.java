@@ -127,6 +127,17 @@ public class WriteData {
         return newActual;
     }
 
-
+public static Boolean categoryUpdateType(Categories item){
+    try {
+        PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_TYPE);
+        updateRecord.setInt(1, item.getType());
+        updateRecord.setInt(2, item.getId());
+        updateRecord.executeUpdate();
+    } catch (Exception e) {
+        System.out.println("Error categoryUpdateType: " + e.getMessage());
+        return false;
+    }
+    return true;
+}
    
 }

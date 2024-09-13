@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+
 public class ReadData {
 
     /**
@@ -156,7 +157,7 @@ public class ReadData {
         return newItem;
     }
 
-    // method to create test data for year choicebox
+    // method to available years in database
     public static ArrayList<Integer> getYears() {
         ArrayList<Integer> years = new ArrayList<Integer>();
 
@@ -176,6 +177,30 @@ public class ReadData {
             System.out.println("Error getYears: " + e.getMessage());
         }
         return years;
+    }
+
+    // method to get categories from the database
+    public static  ArrayList<Categories> getCategories() {
+        ArrayList<Categories> categories = new ArrayList<Categories>();
+
+        try {
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Categories newItem = new Categories();
+                newItem.setId(rs.getInt("ID"));
+                newItem.setType(rs.getInt("TYPE"));
+                newItem.setParent(rs.getString("PARENT"));
+                newItem.setCategory(rs.getString("CATEGORY"));
+
+                categories.add(newItem);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getCategories: " + e.getMessage());
+        }
+        return categories;
     }
 
 }
