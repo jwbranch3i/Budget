@@ -102,9 +102,7 @@ public class SecondaryController {
               if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
                 currentCategory.setType(getKeyByValue(typeMap, newValue));
                 WriteData.categoryUpdateType(currentCategory);
-                System.out.println(
-                    "Category " + oldValue + " type updated to: " + newValue + "**" + currentCategory.toString());
-              }
+             }
             }
           });
           setGraphic(comboBox);
