@@ -1,8 +1,14 @@
+
+.root {
+  -fx-background-color: lightgrey;
+  background-color: lightgrey;
+}
+
 /* Tableview selector - region */
 .table-view {
-  -fx-background-color: lightyellow;
+  -fx-background-color: transparent;
 
-  background-color: lightyellow;
+  background-color: transparent;
 }
 
 /* Tableview top right corner of the header section above the scroll bars */
@@ -23,12 +29,12 @@
 
 /* Tableview global header section - region */
 .table-view .column-header-background {
-  -fx-background-color: linear-gradient(to bottom, #0084FF, #00EEFF);
+  -fx-background-color: linear-gradient(to bottom, #0084ff, #00eeff);
   -fx-background-radius: 7px 7px 0px 0px;
   -fx-background-insets: 0 11px 0 0;
   -fx-padding: 0 0 5px 0;
 
-  background-color: linear-gradient(to bottom, #0084FF, #00EEFF);
+  background-color: linear-gradient(to bottom, #0084ff, #00eeff);
   padding: 0 0 5px 0;
 }
 
@@ -41,10 +47,11 @@
 
 /* Tableview column header text */
 .table-view .column-header .label {
-   -fx-text-fill: white;
+  -fx-text-fill: white;
 
-   color: white;
+  color: white;
 }
+
 
 /* Tableview cell and rows */
 .table-view .table-cell {
@@ -54,12 +61,23 @@
   border-color: transparent;
   padding: 2 0 2 10px;
 }
-.table-row-cell:hover {
+
+/* Tableview selected row */
+.table-row-cell:selected {
+  -fx-background-color: red;
+  background-color: red;
+  -fx-background-insets: 0, 0 0 1 0;
+  -fx-padding: 0em;
+  padding: 0em;
+}
+
+/* .table-row-cell:hover {
   -fx-background-color: #93f9b911;
   -fx-text-background-color: red;
 
   background-color: #93f9b911;
-}
+} 
+
 .table-row-cell:odd {
   -fx-background-color: #93f9b911;
   -fx-background-insets: 0, 0 0 1 0;
@@ -75,7 +93,7 @@
 
   background-color: #1dbbdd11;
   padding: 0em;
-}
+} */
 
 /* Tableview scrollbars */
 .table-view .virtual-flow .scroll-bar:vertical,
@@ -86,28 +104,28 @@
 .table-view .virtual-flow .scroll-bar:horizontal .track-background {
   -fx-background-color: transparent;
 
-   background-color: transparent;
+  background-color: transparent;
 }
 
 /* Tableview scrollbars arrows */
 /* they can be customized using the -fx-shape attribute */
 .table-view .virtual-flow .scroll-bar .increment-button,
 .table-view .virtual-flow .scroll-bar .decrement-button {
-    -fx-opacity: 0;
-    -fx-padding: 2;
+  -fx-opacity: 0;
+  -fx-padding: 2;
 
-      opacity: 0;
-      padding: 2;
+  opacity: 0;
+  padding: 2;
 }
 
 /* Tableview scrollbars thumb */
-.table-view .virtual-flow .scroll-bar:vertical .thumb{
-   -fx-background-color:  lightblue;
+.table-view .virtual-flow .scroll-bar:vertical .thumb {
+  -fx-background-color: lightblue;
 
-   background-color: lightblue;
+  background-color: lightblue;
 }
 .table-view .virtual-flow .scroll-bar:horizontal .thumb {
-   -fx-background-color:  lightblue;
+  -fx-background-color: lightblue;
 
-   background-color: lightblue;
+  background-color: lightblue;
 }
