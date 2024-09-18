@@ -18,14 +18,16 @@ public class DB {
         /* table - catogery */
         public static final String CAT_TABLE = "category";
         public static final String CAT_COL_ID = "id";
+        public static final String CAT_COL_HIDE = "hide";
         public static final String CAT_COL_TYPE = "type";
         public static final String CAT_COL_PARENT = "parent";
         public static final String CAT_COL_CATEGORY = "category";
 
         public static final int CAT_COL_ID_INDEX = 1;
-        public static final int CAT_COL_TYPE_INDEX = 2;
-        public static final int CAT_COL_PARENT_INDEX = 3;
-        public static final int CAT_COL_CATEGORY_INDEX = 4;
+        public static final int CAT_COL_HIDE_INDEX = 2;
+        public static final int CAT_COL_TYPE_INDEX = 3;
+        public static final int CAT_COL_PARENT_INDEX = 4;
+        public static final int CAT_COL_CATEGORY_INDEX = 5;
 
         /* table - category */
         public static final String CAT_INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + " (" + CAT_COL_TYPE + ", "
@@ -37,12 +39,16 @@ public class DB {
                         + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_PARENT
                         + " = ? AND " + CAT_COL_CATEGORY + " = ?";
 
-        /* SELECT ID, TYPE, PARENT, CATEGORY FROM CATEGORY */
-        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
+        /* SELECT ID, HIDE, TYPE, PARENT, CATEGORY FROM CATEGORY */
+        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", "
                         + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE;
 
         /* UPDATE category SET type = ? WHERE id = ? */
         public static final String CAT_UPDATE_TYPE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ? WHERE "
+                        + CAT_COL_ID + " = ?";
+
+        /* UPDATE category SET hide = ? WHERE id = ? */
+        public static final String CAT_UPDATE_HIDE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_HIDE + " = ? WHERE "
                         + CAT_COL_ID + " = ?";
 
         /* table - budget */
@@ -111,14 +117,14 @@ public class DB {
                         + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
         /*
-         * SELECT actual.id AS ID, category.category AS CATEGORY, actual.date AS
+         * SELECT actual.id AS ID, category.hide AS HIDE, category.category AS CATEGORY, actual.date AS
          * DATE, actual.amount AS ACTUAL, actual.budget AS BUDGET FROM category
          * INNER JOIN actual ON actual.category = category.id WHERE
          * STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y', actual.date) = ?
          * AND category.type = ?"
          */
         public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
-                        + " AS ID, " + CAT_TABLE + "." + CAT_COL_CATEGORY + " AS CATEGORY, " + ACTUAL_TABLE + "."
+                        + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "." + CAT_COL_CATEGORY + " AS CATEGORY, " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL, "
                         + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN "
                         + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "."

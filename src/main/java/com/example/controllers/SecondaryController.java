@@ -13,8 +13,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,6 +26,9 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 
 public class SecondaryController {
+  @FXML
+  private TableColumn<Categories, Boolean> catColumnHide;
+
   @FXML
   private TableColumn<Categories, String> catColumnCategory;
 
@@ -40,7 +46,7 @@ public class SecondaryController {
 
   @FXML
   void button_finishEdit(ActionEvent event) {
-    
+
     // Close the window
     Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
     stage.close();
@@ -60,21 +66,52 @@ public class SecondaryController {
       });
     });
 
-
-
-
-
-
-
     // Populate the map with Integer to String mappings
     typeMap.put(0, "Income");
     typeMap.put(1, "Mandatory");
     typeMap.put(2, "Discretionary");
 
+    /****************************
+     * column setup
+     **********************************************/
+    catColumnHide.setCellValueFactory(new PropertyValueFactory<Categories, Boolean>("Hide"));
+    catColumnHide.setCellFactory(column -> new TableCell<Categories, Boolean>() {
+      @Override
+      protected void updateItem(Boolean item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (empty || item == null) {
+          setGraphic(null);
+        }
+        else {
+          // Create a new CheckBox instance for each row
+          CheckBox isHidden = new CheckBox();
+          isHidden.setSelected(item);
+
+          // Set the CheckBox value to the current item in the row
+          Categories currentCategory = getTableView().getItems().get(getIndex());
+          isHidden.setSelected(currentCategory.getHide());
+
+          // Add listener to save changes to the database
+          isHidden.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+              // Update the category hide status
+              if (currentCategory.getHide() != newValue) {
+                currentCategory.setHide(newValue);
+                WriteData.categoryUpdateHide(currentCategory);
+              }
+            }
+          });
+          setGraphic(isHidden);
+          setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+          setAlignment(Pos.CENTER); // Center the CheckBox
+
+        }
+      }
+    });
+
     catColumnType.setCellValueFactory(new PropertyValueFactory<Categories, Integer>("Type"));
     catColumnType.setCellFactory(column -> new TableCell<Categories, Integer>() {
-
-      // private final ComboBox<String> comboBox = new ComboBox<>();
 
       @Override
       protected void updateItem(Integer items, boolean empty) {
@@ -102,7 +139,7 @@ public class SecondaryController {
               if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
                 currentCategory.setType(getKeyByValue(typeMap, newValue));
                 WriteData.categoryUpdateType(currentCategory);
-             }
+              }
             }
           });
           setGraphic(comboBox);
@@ -129,7 +166,7 @@ public class SecondaryController {
         return null;
       }
     });
-    catColumnType.setOnEditCommit(e -> catColumnType_OnEditCommit(e));
+   // catColumnType.setOnEditCommit(e -> catColumnType_OnEditCommit(e));
 
     catColumnParent.setCellValueFactory(new PropertyValueFactory<Categories, String>("Parent"));
     catColumnParent.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -142,9 +179,9 @@ public class SecondaryController {
 
   }
 
-  public void catColumnType_OnEditCommit(TableColumn.CellEditEvent<Categories, Integer> e) {
-    Categories category = e.getRowValue();
-    category.setType(e.getNewValue());
-    WriteData.categoryUpdateType(category);
-  }
+  // public void catColumnType_OnEditCommit(TableColumn.CellEditEvent<Categories, Integer> e) {
+  //   Categories category = e.getRowValue();
+  //   category.setType(e.getNewValue());
+  //   WriteData.categoryUpdateType(category);
+  // }
 }

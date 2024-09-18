@@ -10,6 +10,7 @@ import javafx.beans.property.StringProperty;
 public class LineItem {
     int id = 0;
     int type = 0;
+    Boolean hide = false;
     private SimpleObjectProperty<LocalDate> date = new SimpleObjectProperty<LocalDate>(LocalDate.now());
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
@@ -39,6 +40,16 @@ public class LineItem {
     public void setId(int id) {
         this.id = id;
     }
+
+    /********************* hide ***********************************/
+    public Boolean getHide() {
+        return this.hide;
+    }
+
+    public void setHide(Boolean hide) {
+        this.hide = hide;
+    }
+
 
     /********************* type ***********************************/
     public int getType() {

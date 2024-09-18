@@ -4,7 +4,13 @@
   background-color: lightgrey;
 }
 
-/* Tableview selector - region */
+
+/****************************************************************************************
+ * 
+ *  Tableview cell and rows
+ * 
+ ****************************************************************************************/
+ /* Tableview selector - region */
 .table-view {
   -fx-background-color: transparent;
 
@@ -64,8 +70,8 @@
 
 /* Tableview selected row */
 .table-row-cell:selected {
-  -fx-background-color: red;
-  background-color: red;
+  -fx-background-color: lightblue;
+  background-color: lightblue;
   -fx-background-insets: 0, 0 0 1 0;
   -fx-padding: 0em;
   padding: 0em;
@@ -128,4 +134,17 @@
   -fx-background-color: lightblue;
 
   background-color: lightblue;
+}
+
+/****************************************************************************************
+ * 
+ *  Top left anchor Pane
+ * 
+ ****************************************************************************************/
+#myAnchorPane {
+  -fx-border-color: black;
+  -fx-background-color: white;
+
+  border-color: black;
+  background-color: white;
 }

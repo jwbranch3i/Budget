@@ -3,7 +3,6 @@ package com.example.data;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
@@ -51,7 +50,7 @@ public class ReadDataTest {
 
         String dateString = testItem_Act.getDate().toString();
         System.out.println(dateString);
-        
+
         stmt.setString(2, dateString);
         stmt.setDouble(3, testItem_Act.getAmount());
 
@@ -71,7 +70,6 @@ public class ReadDataTest {
         else {
             testItem_Act.setId(-1);
         }
-
 
     }
 
@@ -119,7 +117,7 @@ public class ReadDataTest {
 
     }
 
-   @Test
+    @Test
     public void testCategoryFindRecord() {
         // Create a test LineItemCSV object
         LineItemCSV item = new LineItemCSV();
@@ -165,7 +163,7 @@ public class ReadDataTest {
     }
 
     @Test
-    public void testGetTotals(){
+    public void testGetTotals() {
         int tableType = 1;
 
         // set date to 9-01-2024
@@ -186,7 +184,7 @@ public class ReadDataTest {
     }
 
     @Test
-    public void testgetCategories(){
+    public void testgetCategories() {
 
         ArrayList<Categories> result;
 

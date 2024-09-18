@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-
 public class ReadData {
 
     /**
@@ -23,8 +22,6 @@ public class ReadData {
         returnItem.setCategory(item.getCategory());
         returnItem.setParent(item.getParent());
         returnItem.setType(item.getType());
-
-        System.out.println(DB.ACTUAL_FIND_CATEGORY);
 
         try {
             String monthString = String.format("%02d", item.getDate().getMonthValue());
@@ -74,8 +71,6 @@ public class ReadData {
             psFindRecord.setString(1, item.getParent());
             psFindRecord.setString(2, item.getCategory());
 
-            System.out.println(psFindRecord.toString());
-
             rs = psFindRecord.executeQuery();
             if (rs.next()) {
                 returnItem.setId(rs.getInt(DB.CAT_COL_ID));
@@ -112,12 +107,15 @@ public class ReadData {
             while (rs.next()) {
                 LineItem newItem = new LineItem();
                 newItem.setId(rs.getInt("ID"));
+                newItem.setHide(rs.getBoolean("HIDE"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
                 newItem.setBudget(rs.getDouble("BUDGET"));
 
-                items.add(newItem);
+                if (newItem.getHide() == false) {
+                    items.add(newItem);
+                }
             }
         }
         catch (Exception e) {
@@ -138,7 +136,6 @@ public class ReadData {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
             ps.setInt(3, type);
-
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -180,7 +177,7 @@ public class ReadData {
     }
 
     // method to get categories from the database
-    public static  ArrayList<Categories> getCategories() {
+    public static ArrayList<Categories> getCategories() {
         ArrayList<Categories> categories = new ArrayList<Categories>();
 
         try {
@@ -189,6 +186,7 @@ public class ReadData {
             while (rs.next()) {
                 Categories newItem = new Categories();
                 newItem.setId(rs.getInt("ID"));
+                newItem.setHide(rs.getBoolean("HIDE"));
                 newItem.setType(rs.getInt("TYPE"));
                 newItem.setParent(rs.getString("PARENT"));
                 newItem.setCategory(rs.getString("CATEGORY"));

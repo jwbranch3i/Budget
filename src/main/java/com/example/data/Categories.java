@@ -1,13 +1,15 @@
 package com.example.data;
 
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import java.util.List; // Add this import statement
 import java.util.ArrayList; // Add this import statement
 
 public class Categories {
     int id = 0;
-    Boolean show = true;
-    int type = 0;
+  private final SimpleBooleanProperty hide = new SimpleBooleanProperty(false);
+    private SimpleIntegerProperty type = new SimpleIntegerProperty(0);
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
     private static List<String> items = new ArrayList<String>();
@@ -15,8 +17,8 @@ public class Categories {
     public Categories() {
     }
 
-    public Categories(int type, String parent, String category){
-        this.type = type;
+    public Categories(Integer type, String parent, String category){
+        this.type.set(type);
         this.parent.set(parent);
         this.category.set(category);
 
@@ -34,13 +36,26 @@ public class Categories {
         this.id = id;
     }
 
+    /********************* hide ***********************************/
+    public SimpleBooleanProperty hideProperty() {
+        return this.hide;
+    }
+
+    public Boolean getHide() {
+        return hide.get();
+    }
+
+    public void setHide(boolean newHide) {
+        this.hide.set(newHide);
+    }
+
     /********************* type ***********************************/
     public int getType() {
-        return this.type;
+        return this.type.get();
     }
 
     public void setType(int type) {
-        this.type = type;
+        this.type.set(type);
     }
 
     /********************* parent ***********************************/
@@ -72,16 +87,14 @@ public class Categories {
         return items;
     }
 
-    public String isShow() {
-        return show.toString();
-    }
+
 
 
     @Override
     public String toString() {
         return "{" +
             " id='" + getId() + "'" +
-            ", show='" + isShow() + "'" +
+            ", show='" + getHide().toString() + "'" +
             ", type='" + getType() + "'" +
             ", parent='" + getParent() + "'" +
             ", category='" + getCategory() + "'" +
