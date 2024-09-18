@@ -242,7 +242,6 @@ public class PrimaryController {
                                 BufferedReader bufferedReader = new BufferedReader(fileReader);
                                 savedFilePath = bufferedReader.readLine();
                                 bufferedReader.close();
-                                System.out.println("Retrieved file path from disk: " + savedFilePath);
                         }
                         catch (IOException e) {
                                 System.out.println("Error retrieving file path: " + e.getMessage());
@@ -262,7 +261,6 @@ public class PrimaryController {
                                 // Save the directory from selectedFile to
                                 // filePath.txt
                                 String filePath = selectedFile.getParent();
-                                System.out.println("File Path****: " + filePath);
 
                                 try {
                                         FileWriter fileWriter = new FileWriter("filePath.txt");
@@ -325,6 +323,7 @@ public class PrimaryController {
 
         public void initialize() {
 
+                @SuppressWarnings("unused")
                 PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableView_Total,
                                 totalTable_Category, totalTable_Actual, totalTable_Budget, totalTable_Diff);
 

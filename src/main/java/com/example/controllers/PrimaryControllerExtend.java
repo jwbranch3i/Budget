@@ -9,6 +9,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class PrimaryControllerExtend {
 
+    @SuppressWarnings("unused")
     private TableView<LineItem> tableView_Total;
     private TableColumn<LineItem, String> totalTable_Category;
     private TableColumn<LineItem, Double> totalTable_Actual;

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class LineItemCSV {
     private int id = 0;
+    private Boolean hide = false;
     private int type = 0;
     private LocalDate date = LocalDate.now();
     private String parent = "";
@@ -29,6 +30,14 @@ public class LineItemCSV {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Boolean getHide() {
+        return this.hide;
+    }
+
+    public void setHide(Boolean hide) {
+        this.hide = hide;
     }
 
     public int getType() {
