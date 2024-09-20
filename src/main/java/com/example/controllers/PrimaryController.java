@@ -427,13 +427,9 @@ public class PrimaryController {
                 // ***************************************/
                 incomeTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 incomeTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-                // incomeTable_Category.setOnEditCommit(e ->
-                // incomeTableCategory_OnEditCommit(e));
 
                 incomeTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 incomeTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                // incomeTable_Actual.setOnEditCommit(e ->
-                // incomeTableActual_OnEditCommit(e));
 
                 incomeTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 incomeTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -441,8 +437,6 @@ public class PrimaryController {
 
                 incomeTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 incomeTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                // incomeTable_Diff.setOnEditCommit(e ->
-                // incomeTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
                 incomeTotalTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -493,11 +487,9 @@ public class PrimaryController {
                 /***********************************************************/
                 mandatoryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 mandatoryTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-                mandatoryTable_Category.setOnEditCommit(e -> mandatoryTableCategory_OnEditCommit(e));
 
                 mandatoryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 mandatoryTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                mandatoryTable_Actual.setOnEditCommit(e -> mandatoryTableActual_OnEditCommit(e));
 
                 mandatoryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 mandatoryTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -505,17 +497,14 @@ public class PrimaryController {
 
                 mandatoryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 mandatoryTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                mandatoryTable_Diff.setOnEditCommit(e -> mandatoryTableDiff_OnEditCommit(e));
 
                 /***********************************************************/
 
                 discretionaryTable_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 discretionaryTable_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-                discretionaryTable_Category.setOnEditCommit(e -> discretionaryTableCategory_OnEditCommit(e));
 
                 discretionaryTable_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 discretionaryTable_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                discretionaryTable_Actual.setOnEditCommit(e -> discretionaryTableActual_OnEditCommit(e));
 
                 discretionaryTable_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
                 discretionaryTable_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
@@ -523,7 +512,6 @@ public class PrimaryController {
 
                 discretionaryTable_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 discretionaryTable_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                discretionaryTable_Diff.setOnEditCommit(e -> discretionaryTableDiff_OnEditCommit(e));
 
                 // Create a task to run getTableRows in another thread
                 Task<Void> task2 = new Task<Void>() {
@@ -700,16 +688,6 @@ public class PrimaryController {
                 }
         }
 
-        public void incomeTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
-                LineItem item = e.getRowValue();
-                item.setCategory(e.getNewValue());
-        }
-
-        public void incomeTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setActual(e.getNewValue());
-        }
-
         public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getRowValue();
                 item.setBudget(e.getNewValue());
@@ -727,27 +705,28 @@ public class PrimaryController {
 
                                 return null;
                         }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table view to reflect the changes
+                                tableView_Income.refresh();
+                        }
+
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the
+                                // task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
                 };
                 new Thread(task).start();
 
                 // keep focus on the selected row
                 tableView_Income.requestFocus();
 
-        }
-
-        public void incomeTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setDiff(e.getNewValue());
-        }
-
-        public void mandatoryTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
-                LineItem item = e.getRowValue();
-                item.setCategory(e.getNewValue());
-        }
-
-        public void mandatoryTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setActual(e.getNewValue());
         }
 
         public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -767,26 +746,27 @@ public class PrimaryController {
 
                                 return null;
                         }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table view to reflect the changes
+                                tableView_Income.refresh();
+                        }
+
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the
+                                // task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
                 };
                 new Thread(task).start();
 
                 // keep focus on the selected row
                 tableView_Mandatory.requestFocus();
-        }
-
-        public void mandatoryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setDiff(e.getNewValue());
-        }
-
-        public void discretionaryTableCategory_OnEditCommit(TableColumn.CellEditEvent<LineItem, String> e) {
-                LineItem item = e.getRowValue();
-                item.setCategory(e.getNewValue());
-        }
-
-        public void discretionaryTableActual_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setActual(e.getNewValue());
         }
 
         public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
@@ -805,6 +785,22 @@ public class PrimaryController {
 
                                 return null;
                         }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table view to reflect the changes
+                                tableView_Income.refresh();
+                        }
+
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the
+                                // task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
                 };
                 new Thread(task).start();
 
@@ -812,10 +808,4 @@ public class PrimaryController {
                 tableView_Discretionary.requestFocus();
 
         }
-
-        public void discretionaryTableDiff_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setDiff(e.getNewValue());
-        }
-
 }

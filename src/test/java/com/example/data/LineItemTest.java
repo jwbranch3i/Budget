@@ -11,6 +11,7 @@ public class LineItemTest {
     @Test
     public void testLineItemConstructor() {
         int type = 1;
+        Boolean hide = false;
         LocalDate date = LocalDate.of(2022, 1, 1);
         String parent = "Parent";
         String category = "Category";
@@ -22,6 +23,7 @@ public class LineItemTest {
         System.out.println(lineItem);
 
         assertEquals(type, lineItem.getType());
+        assertEquals(hide, lineItem.getHide());
         assertEquals(date, lineItem.getDate());
         assertEquals(parent, lineItem.getParent());
         assertEquals(category, lineItem.getCategory());
@@ -37,6 +39,10 @@ public class LineItemTest {
         int id = 1;
         lineItem.setId(id);
         assertEquals(id, lineItem.getId());
+
+        Boolean hide = true;
+        lineItem.setHide(hide);
+        assertEquals(hide, lineItem.getHide());
 
         int type = 2;
         lineItem.setType(type);

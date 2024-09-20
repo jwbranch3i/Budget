@@ -149,6 +149,7 @@ private Double calcDiff() {
     public String toString() {
         return "{" +
                 " id='" + getId() + "'" +
+                ", hide='" + getHide() + "'" +
                 ", type='" + getType() + "'" +
                 ", date='" + getDate() + "'" +
                 ", parent='" + getParent() + "'" +
