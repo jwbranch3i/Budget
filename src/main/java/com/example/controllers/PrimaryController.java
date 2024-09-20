@@ -751,7 +751,7 @@ public class PrimaryController {
                         protected void succeeded() {
                                 super.succeeded();
                                 // Refresh the table view to reflect the changes
-                                tableView_Income.refresh();
+                                tableView_Mandatory.refresh();
                         }
 
                         @Override
@@ -790,7 +790,7 @@ public class PrimaryController {
                         protected void succeeded() {
                                 super.succeeded();
                                 // Refresh the table view to reflect the changes
-                                tableView_Income.refresh();
+                                tableView_Discretionary.refresh();
                         }
 
                         @Override
