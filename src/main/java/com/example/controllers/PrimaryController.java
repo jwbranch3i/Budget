@@ -210,14 +210,14 @@ public class PrimaryController {
                         LocalDate inDate = LocalDate.of(yearBox.getValue(),
                                         monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
 
-                        tableIncomeTotal.setItems(FXCollections
-                                        .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                        tableManditoryTotal.setItems(FXCollections
-                                        .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                        tableIncomeTotal.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                        tableManditoryTotal.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
                         tableDiscretionaryTotal.setItems(FXCollections
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                         getTableRows(inDate);
-                        UIData.updateTable(tables);
+                        UIData.updateTableTotal(tables);
 
                 }
                 catch (IOException e) {
@@ -305,17 +305,6 @@ public class PrimaryController {
         @FXML
         private void switchToSecondary() throws IOException {
                 // App.setRoot("secondary");
-        }
-
-        public void readFromDatabase(LocalDate inDate) {
-                Task<Void> task = new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                                getTableRows(inDate);
-                                return null;
-                        }
-                };
-                new Thread(task).start();
         }
 
         // Array of tables for UIDatat total table update
@@ -541,7 +530,7 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 getTableRows(indate);
-                                UIData.updateTable(tables);
+                                UIData.updateTableTotal(tables);
                                 return null;
                         }
                 };
@@ -551,6 +540,18 @@ public class PrimaryController {
                 chkBox.setSelected(false);
                 btn_Update.setDisable(true);
 
+        }
+
+        public void readFromDatabase(LocalDate inDate) {
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                getTableRows(inDate);
+                                UIData.updateTableTotal(tables);
+                                return null;
+                        }
+                };
+                new Thread(task).start();
         }
 
         public void getTableRows(LocalDate inDate) {
@@ -722,7 +723,7 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableIncomeTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
-                                UIData.updateTable(tables);
+                                UIData.updateTableTotal(tables);
 
                                 return null;
                         }
@@ -762,7 +763,7 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableManditoryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
-                                UIData.updateTable(tables);
+                                UIData.updateTableTotal(tables);
 
                                 return null;
                         }
@@ -800,7 +801,7 @@ public class PrimaryController {
                                 WriteData.actualUpdateBudget(item);
                                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                                 ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
-                                UIData.updateTable(tables);
+                                UIData.updateTableTotal(tables);
 
                                 return null;
                         }

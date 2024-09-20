@@ -7,7 +7,7 @@ import javafx.scene.control.TableView;
 
 public class UIData {
 
-    public static void updateTable(ArrayList<TableView<LineItem>> tables) {
+    public static void updateTableTotal(ArrayList<TableView<LineItem>> tables) {
 
         tables.get(3).getItems().clear(); // clear totals tableview
 

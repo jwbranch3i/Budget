@@ -136,13 +136,13 @@ public class DB {
          * SELECT SUM(ACTUAL.amount) AS ATOTAL, SUM(AMOUNT.BUDGET) AS BTOTAL
          * FROM category INNER JOIN actual ON actual.category = category.id
          * WHERE STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y', actual.date)
-         * = ? AND category.type = ?
+         * = ? AND category.type = ? AND category.hide = 0
          */
         public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
                         + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL FROM " + CAT_TABLE
                         + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
                         + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
                         + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
-                        + "." + CAT_COL_TYPE + " = ?";
+                        + "." + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
 }
