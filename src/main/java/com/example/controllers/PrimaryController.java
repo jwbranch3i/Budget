@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import com.example.Util;
@@ -29,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
@@ -187,6 +189,9 @@ public class PrimaryController {
         private Button btn_EditCat;
 
         @FXML
+        private Label mainDateLabel;
+
+        @FXML
         void button_EditCat(ActionEvent event) {
                 try {
                         // Load the FXML file for the new window
@@ -218,8 +223,7 @@ public class PrimaryController {
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                         getTableRows(inDate);
                         UIData.updateTableTotal(tables);
-
-                }
+                 }
                 catch (IOException e) {
                         e.printStackTrace();
                 }
@@ -279,6 +283,9 @@ public class PrimaryController {
                         btn_Update.setDisable(true);
 
                 }
+                // Display indate as text
+                mainDateLabel.setText(inDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+
         }
 
         /**
@@ -341,12 +348,12 @@ public class PrimaryController {
                 // * ***************************************/
                 // Set up choice boxes
                 // ***************************************/
-                LocalDate indate = LocalDate.now();
+                LocalDate inDate = LocalDate.now();
                 ObservableList<String> monthChoices = FXCollections.observableArrayList("January", "February", "March",
                                 "April", "May", "June", "July", "August", "September", "October", "November",
                                 "December");
                 monthBox.setItems(monthChoices);
-                monthBox.getSelectionModel().select(indate.getMonthValue() - 1);
+                monthBox.getSelectionModel().select(inDate.getMonthValue() - 1);
                 monthBox.setOnAction(e -> {
                         btn_Update.setDisable(false);
                 });
@@ -517,7 +524,7 @@ public class PrimaryController {
                 Task<Void> task2 = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                getTableRows(indate);
+                                getTableRows(inDate);
                                 UIData.updateTableTotal(tables);
                                 return null;
                         }
@@ -527,6 +534,8 @@ public class PrimaryController {
                 // set btn_Update to be disabled and uncheck chkBox
                 chkBox.setSelected(false);
                 btn_Update.setDisable(true);
+                // Display indate as text
+                mainDateLabel.setText(inDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
 
         }
 

@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
+<BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
@@ -65,7 +65,14 @@
       </HBox>
    </top>
    <bottom>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="mainDateLabel" contentDisplay="CENTER" text="September 2024" textAlignment="CENTER">
+               <font>
+                  <Font size="52.0" />
+               </font>
+            </Label>
+         </children></HBox>
    </bottom>
    <center>
       <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
