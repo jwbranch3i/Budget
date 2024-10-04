@@ -20,9 +20,9 @@
 /* Tableview top right corner of the header section above the scroll bars */
 /* region */
 .table-view .column-header-background .filler {
-  -fx-background-color: transparent;
+  -fx-background-color: blue;
 
-  background-color: transparent;
+  background-color: blue;
 }
 
 /* Tableview bottom right corner between the scrollbar */
@@ -35,12 +35,13 @@
 
 /* Tableview global header section - region */
 .table-view .column-header-background {
-  -fx-background-color: linear-gradient(to bottom, #0084ff, #00eeff);
+ /* -fx-background-color: linear-gradient(to bottom, #0084ff, #00eeff); */
+  -fx-background-color: blue;
   -fx-background-radius: 7px 7px 0px 0px;
   -fx-background-insets: 0 11px 0 0;
   -fx-padding: 0 0 5px 0;
 
-  background-color: linear-gradient(to bottom, #0084ff, #00eeff);
+  background-color: blue;
   padding: 0 0 5px 0;
 }
 
@@ -68,13 +69,13 @@
   padding: 2 0 2 10px;
 }
 
-/* Tableview selected row */
 .table-row-cell:selected {
-  -fx-background-color: lightblue;
-  background-color: lightblue;
-  -fx-background-insets: 0, 0 0 1 0;
-  -fx-padding: 0em;
-  padding: 0em;
+  -fx-background-color: #93f9b9;
+  -fx-text-background-color: black;
+
+  background-color: #93f9b9;
+
+
 }
 
 /* .table-row-cell:hover {

@@ -21,8 +21,7 @@ public class LineItem {
     public LineItem() {
     }
 
-    public LineItem(int type, LocalDate date, String parent,
-             String category, double Actual, double Budget){
+    public LineItem(int type, LocalDate date, String parent, String category, double Actual, double Budget) {
         this.type = type;
         this.date.set(date);
         this.parent.set(parent);
@@ -50,7 +49,6 @@ public class LineItem {
         this.hide = hide;
     }
 
-
     /********************* type ***********************************/
     public int getType() {
         return this.type;
@@ -64,13 +62,14 @@ public class LineItem {
     public SimpleObjectProperty<LocalDate> getDateProperty() {
         return this.date;
     }
-	public LocalDate getDate() {
-		return date.get();
-	}
 
-	public void setDate(LocalDate newDate) {
-		this.date.set(newDate);
-	}
+    public LocalDate getDate() {
+        return date.get();
+    }
+
+    public void setDate(LocalDate newDate) {
+        this.date.set(newDate);
+    }
 
     /********************* parent ***********************************/
     public StringProperty getParentProperty() {
@@ -109,7 +108,7 @@ public class LineItem {
         diff.set(calcDiff());
     }
 
-    public Double getActual(){
+    public Double getActual() {
         return this.actual.get();
     }
 
@@ -132,7 +131,6 @@ public class LineItem {
         return this.diff;
     }
 
-  
     public Double getDiff() {
         return this.diff.get();
     }
@@ -141,23 +139,21 @@ public class LineItem {
         this.diff.set(diff);
     }
 
-private Double calcDiff() {
-        return this.budget.get() - this.actual.get();
+    private Double calcDiff() {
+        if (getType() == 0) {
+            return (getBudget() - getActual());
+        }
+        else {
+            return (getActual() - getBudget());
+        }
     }
 
     @Override
     public String toString() {
-        return "{" +
-                " id='" + getId() + "'" +
-                ", hide='" + getHide() + "'" +
-                ", type='" + getType() + "'" +
-                ", date='" + getDate() + "'" +
-                ", parent='" + getParent() + "'" +
-                ", category='" + getCategory() + "'" +
-                ", actual='" + getActual() + "'" +
-                ", budget='" + getBudget() + "'" +
-                ", diff='" + getDiff() + "'" +
-                "}";
+        return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
+                + getDate() + "'" + ", parent='" + getParent() + "'" + ", category='" + getCategory() + "'"
+                + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
+                + "}";
     }
 
 }
