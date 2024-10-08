@@ -1,10 +1,3 @@
-CREATE TABLE category (
-	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	"type" INTEGER NOT NULL,
-	parent TEXT,
-	category TEXT NOT NULL
-);
-
 CREATE TABLE actual (
 	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	category INTEGER NOT NULL,
@@ -14,3 +7,17 @@ CREATE TABLE actual (
 	CONSTRAINT actual_category_FK FOREIGN KEY (category) REFERENCES category(id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE category (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"type" INTEGER NOT NULL,
+	parent TEXT,
+	category TEXT NOT NULL
+, hide INTEGER DEFAULT (0) NOT NULL, acct INTEGER DEFAULT (0) NOT NULL, balance REAL DEFAULT (0) NOT NULL);
+
+
+-- SELECT * 
+SELECT * 
+FROM category 
+WHERE id NOT IN (SELECT category FROM actual WHERE strftime('%m', date) = '10'
+);

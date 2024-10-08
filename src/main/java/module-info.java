@@ -7,6 +7,7 @@ module com.example {
     requires transitive javafx.base;
     requires transitive javafx.graphics;
     requires transitive java.sql;
+    requires org.slf4j;
 
     opens com.example to javafx.fxml;
     opens com.example.controllers to javafx.fxml;

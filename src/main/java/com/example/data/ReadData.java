@@ -126,6 +126,48 @@ public class ReadData {
         return items;
     }
 
+    // find catagories not in actual table for a given month
+    // and add to the actual table and return list of added categories
+    public static ArrayList<LineItem> findMissingCategories(int type, LocalDate date) {
+        ArrayList<LineItem> items = new ArrayList<LineItem>();
+        try {
+            String monthString = String.format("%02d", date.getMonthValue());
+            String yearString = String.format("%04d", date.getYear());
+
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES);
+            ps.setInt(1, type);
+            ps.setString(2, monthString);
+            ps.setString(3, yearString);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                LineItem newItem = new LineItem();
+                newItem.setId(rs.getInt("ID"));
+                newItem.setHide(rs.getBoolean("HIDE"));
+                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
+                newItem.setCategory(rs.getString("CATEGORY"));
+                newItem.setActual(rs.getDouble("ACTUAL"));
+                newItem.setBudget(rs.getDouble("BUDGET"));
+
+                LineItemCSV newItemCSV = newItem.toLineItemCSV();
+                LineItemCSV existingCat = new LineItemCSV();
+                existingCat.setId(newItemCSV.getId());
+
+                newItemCSV = WriteData.actualInsertRecord(newItemCSV, existingCat);
+                if (newItem.getHide() == false) {
+                    items.add(newItem);
+                }
+
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error*** findMissingCategories: " + e.getMessage());
+        }
+
+        return items;
+    }
+
     public static LineItem getTotals(int type, LocalDate date) {
         LineItem newItem = new LineItem();
         try {

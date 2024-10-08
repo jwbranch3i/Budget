@@ -8,6 +8,9 @@
  */
 package com.example;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.data.DataSource;
 
 import javafx.application.Application;
@@ -18,6 +21,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -27,14 +32,15 @@ public class App extends Application {
 			root = loader.load();
 
 			Scene scene = new Scene(root, 1420, 800);
- 
+  
 			scene.getStylesheets().add(getClass().getResource("testfile.css").toExternalForm());
 
 			primaryStage.setScene(scene);
 
 			primaryStage.show();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error loading FXML", e);
+			//e.printStackTrace();
 		}
 	}
 

@@ -10,17 +10,28 @@ public class LineItemTest {
 
     @Test
     public void testLineItemConstructor() {
-        int type = 1;
+        int type = 0;
         Boolean hide = false;
         LocalDate date = LocalDate.of(2022, 1, 1);
         String parent = "Parent";
         String category = "Category";
         double actual = 100.0;
         double budget = 200.0;
-        double diff = budget - actual;
+        double diff = 0.0;
+        if (type != 0) {
+            diff = actual - budget;
+        }
+        else {
+            diff = budget - actual;
+        }
 
         LineItem lineItem = new LineItem(type, date, parent, category, actual, budget);
         System.out.println(lineItem);
+
+        System.out.println(lineItem.getType());
+        System.out.println(lineItem.getActual());
+        System.out.println(lineItem.getBudget());
+        System.out.println(lineItem.getDiff());
 
         assertEquals(type, lineItem.getType());
         assertEquals(hide, lineItem.getHide());
@@ -30,6 +41,32 @@ public class LineItemTest {
         assertEquals(actual, lineItem.getActual(), 0.01);
         assertEquals(budget, lineItem.getBudget(), 0.01);
         assertEquals(diff, lineItem.getDiff(), 0.01);
+
+        type = 1;
+        if (type != 0) {
+            diff = actual - budget;
+        }
+        else {
+            diff = budget - actual;
+        }
+
+        LineItem lineItem2 = new LineItem(type, date, parent, category, actual, budget);
+        System.out.println(lineItem);
+
+        System.out.println(lineItem2.getType());
+        System.out.println(lineItem2.getActual());
+        System.out.println(lineItem2.getBudget());
+        System.out.println(lineItem2.getDiff());
+
+        assertEquals(type, lineItem2.getType());
+        assertEquals(hide, lineItem2.getHide());
+        assertEquals(date, lineItem2.getDate());
+        assertEquals(parent, lineItem2.getParent());
+        assertEquals(category, lineItem2.getCategory());
+        assertEquals(actual, lineItem2.getActual(), 0.01);
+        assertEquals(budget, lineItem2.getBudget(), 0.01);
+        assertEquals(diff, lineItem2.getDiff(), 0.01);
+
     }
 
     @Test

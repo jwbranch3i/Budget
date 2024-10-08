@@ -223,7 +223,7 @@ public class PrimaryController {
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                         getTableRows(inDate);
                         UIData.updateTableTotal(tables);
-                 }
+                }
                 catch (IOException e) {
                         e.printStackTrace();
                 }
@@ -428,6 +428,34 @@ public class PrimaryController {
                 discretionaryTotal.setActual(0.0);
                 discretionaryTotal.setBudget(0.0);
                 tableDiscretionaryTotal.getItems().add(discretionaryTotal);
+
+                // ****************************************************/
+                // Add listener to tables to clear other tableview selection */
+                // when tableview is selected */
+                // ****************************************************/
+                tableView_Income.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        if (newSelection != null) {
+                                                tableView_Mandatory.getSelectionModel().clearSelection();
+                                                tableView_Discretionary.getSelectionModel().clearSelection();
+                                        }
+                                });
+
+                tableView_Mandatory.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        if (newSelection != null) {
+                                                tableView_Income.getSelectionModel().clearSelection();
+                                                tableView_Discretionary.getSelectionModel().clearSelection();
+                                        }
+                                });
+
+                tableView_Discretionary.getSelectionModel().selectedItemProperty()
+                                .addListener((obs, oldSelection, newSelection) -> {
+                                        if (newSelection != null) {
+                                                tableView_Income.getSelectionModel().clearSelection();
+                                                tableView_Mandatory.getSelectionModel().clearSelection();
+                                        }
+                                });
 
                 // ***************************************/
                 // Set up table columns
