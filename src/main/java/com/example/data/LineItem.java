@@ -156,4 +156,16 @@ public class LineItem {
                 + "}";
     }
 
+
+    // convert the LineItem object to LineItemCSV object
+    public LineItemCSV toLineItemCSV() {
+        LineItemCSV item = new LineItemCSV();
+        item.setId(0);
+        item.setType(this.getType());
+        item.setDate(this.getDate());
+        item.setParent(this.getParent());
+        item.setCategory(this.getCategory());
+        item.setAmount(this.getActual());
+        return item;
+    }
 }
