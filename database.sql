@@ -21,3 +21,10 @@ SELECT *
 FROM category 
 WHERE id NOT IN (SELECT category FROM actual WHERE strftime('%m', date) = '10'
 );
+
+
+SELECT id, type, parent, category 
+FROM category 
+WHERE id NOT IN (SELECT category FROM actual WHERE strftime('%m', date) = '10' AND STRFTIME('%Y', actual.date) = '2024'
+);
+

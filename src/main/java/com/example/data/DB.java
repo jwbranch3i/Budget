@@ -76,7 +76,7 @@ public class DB {
 
         public static final String ACTUAL_INSERT_RECORD = "INSERT INTO " + ACTUAL_TABLE + " (" + ACTUAL_COL_CATEGORY
                         + ", " + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + ", " + ACTUAL_COL_BUDGET
-                        + ") VALUES(?, ?, ?, ?)";
+                        + ") VALUES(?, ?, ?, 0)";
 
         public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
@@ -108,24 +108,17 @@ public class DB {
                         + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', "
                         + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
+ 
         /*
-         * SELECT actual.id AS ID, category.hide AS HIDE, category.category AS
-         * CATEGORY, actual.date AS DATE, actual.actual AS ACTUAL, actual.budget
-         * AS BUDGET FROM category INNER JOIN actual ON actual.category =
-         * category.id WHERE category.type = ? AND category.id NOT IN ( SELECT
-         * actual.category FROM actual WHERE strftime('%m', actual.date) = ? AND
-         * strftime('%Y', actual.date) = ? );
+         * SELECT id, type, parent, category 
+         * FROM category 
+         * WHERE id NOT IN (SELECT category FROM actual 
+         * WHERE strftime('%m', date) = ? AND STRFTIME('%Y', actual.date) = ?);
          */
-        public static final String FIND_MISSING_CATEGORIES = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID + " AS ID, "
-                        + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "." + CAT_COL_CATEGORY
-                        + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET
-                        + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + CAT_TABLE + "."
-                        + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "." + CAT_COL_ID + " NOT IN ( SELECT "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " WHERE STRFTIME('%m', "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_DATE + ") = ? )";
+        public static final String FIND_MISSING_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
+                        + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_ID
+                        + " NOT IN (SELECT " + ACTUAL_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " WHERE STRFTIME('%m', "
+                        + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_COL_DATE + ") = ?)";
 
         /*
          * SELECT SUM(ACTUAL.amount) AS ATOTAL, SUM(AMOUNT.BUDGET) AS BTOTAL

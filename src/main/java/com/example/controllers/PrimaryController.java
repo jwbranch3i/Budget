@@ -678,7 +678,7 @@ public class PrimaryController {
                                         // database, insert it
                                         existingActual = ReadData.actualFindCategory(existingCategory);
                                         if (existingActual.getId() == -1) {
-                                                WriteData.actualInsertRecord(existingActual, existingCategory);
+                                                WriteData.actualInsertRecord(existingCategory);
                                         }
                                         else {
                                                 WriteData.autualUpdateAmount(existingActual);
@@ -702,7 +702,7 @@ public class PrimaryController {
                                         // database, insert it
                                         existingActual = ReadData.actualFindCategory(existingCategory);
                                         if (existingActual.getId() == -1) {
-                                                WriteData.actualInsertRecord(existingActual, existingCategory);
+                                                WriteData.actualInsertRecord(existingCategory);
                                         }
                                         else {
                                                 WriteData.autualUpdateAmount(existingActual);
@@ -723,6 +723,8 @@ public class PrimaryController {
                 catch (Exception e) {
                         e.printStackTrace();
                 }
+
+                ReadData.findMissingCategories(inDate);
         }
 
         public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {

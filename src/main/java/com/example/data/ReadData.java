@@ -128,32 +128,27 @@ public class ReadData {
 
     // find catagories not in actual table for a given month
     // and add to the actual table and return list of added categories
-    public static ArrayList<LineItem> findMissingCategories(int type, LocalDate date) {
-        ArrayList<LineItem> items = new ArrayList<LineItem>();
+    public static ArrayList<LineItemCSV> findMissingCategories(LocalDate date) {
+        ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
         try {
             String monthString = String.format("%02d", date.getMonthValue());
             String yearString = String.format("%04d", date.getYear());
 
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES);
-            ps.setInt(1, type);
-            ps.setString(2, monthString);
-            ps.setString(3, yearString);
+            ps.setString(1, monthString);
+            ps.setString(2, yearString);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                LineItem newItem = new LineItem();
+                LineItemCSV newItem = new LineItemCSV();
                 newItem.setId(rs.getInt("ID"));
-                newItem.setHide(rs.getBoolean("HIDE"));
-                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
+                newItem.setDate(date);
+                newItem.setType(rs.getInt("TYPE"));
+                newItem.setParent(rs.getString("PARENT"));
                 newItem.setCategory(rs.getString("CATEGORY"));
-                newItem.setActual(rs.getDouble("ACTUAL"));
-                newItem.setBudget(rs.getDouble("BUDGET"));
 
-                LineItemCSV newItemCSV = newItem.toLineItemCSV();
-                LineItemCSV existingCat = new LineItemCSV();
-                existingCat.setId(newItemCSV.getId());
-
-                newItemCSV = WriteData.actualInsertRecord(newItemCSV, existingCat);
+      
+                newItem = WriteData.actualInsertRecord(newItem);
                 if (newItem.getHide() == false) {
                     items.add(newItem);
                 }

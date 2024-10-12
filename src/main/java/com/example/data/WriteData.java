@@ -29,6 +29,8 @@ public class WriteData {
             insertRecord.setString(2, item.getParent());
             insertRecord.setString(3, item.getCategory());
 
+
+            
             insertRecord.executeUpdate();
             ResultSet rs = insertRecord.getGeneratedKeys();
             if (rs.next()) {
@@ -94,27 +96,24 @@ public class WriteData {
      *                  inserted.
      * @return The LineItemCSV object with the generated ID set.
      */
-    public static LineItemCSV actualInsertRecord(LineItemCSV newActual, LineItemCSV existingCategory) {
+    public static LineItemCSV actualInsertRecord(LineItemCSV existingCategory) {
         LineItemCSV returnActual = new LineItemCSV();
         // copy the item to returnItem
-        returnActual.setId(newActual.getId());
-        returnActual.setAmount(newActual.getAmount());
-        returnActual.setDate(newActual.getDate());
-        returnActual.setCategory(newActual.getCategory());
-        returnActual.setParent(newActual.getParent());
-        returnActual.setType(newActual.getType());
+        returnActual.setId(existingCategory.getId());
+        returnActual.setDate(existingCategory.getDate());
+        returnActual.setAmount(existingCategory.getAmount());
 
         try {
             PreparedStatement insertRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_INSERT_RECORD,
                     PreparedStatement.RETURN_GENERATED_KEYS);
             insertRecord.setInt(1, existingCategory.getId());
 
-            String dateString = newActual.getDate().toString();
+            String dateString = existingCategory.getDate().toString();
             insertRecord.setString(2, dateString);
 
-            insertRecord.setDouble(3, newActual.getAmount());
-            insertRecord.setInt(4, 0);
-
+            insertRecord.setDouble(3, existingCategory.getAmount());
+  
+ 
             insertRecord.executeUpdate();
 
             ResultSet rs = insertRecord.getGeneratedKeys();
@@ -128,7 +127,7 @@ public class WriteData {
             System.out.println("Error actualInsertRecord: " + e.getMessage());
         }
 
-        return newActual;
+        return returnActual;
     }
 
     public static Boolean categoryUpdateType(Categories item) {
