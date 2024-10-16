@@ -27,8 +27,7 @@ public class PrimaryControllerTest {
 
     @Test
     public void testReadActual() {
- 
-        File csvfile = new File("G:\\budget\\budgetPrint.csv");
+        File csvfile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\Oct2024.csv");
 
         PrimaryController.readActual(csvfile, LocalDate.now());
     }
@@ -37,12 +36,11 @@ public class PrimaryControllerTest {
     public void testGetTableRows() {
 
         LocalDate inDate = LocalDate.of(2024, 8, 1);
-     //LocalDate inDate = LocalDate.of(2024, 9, 1);
+        // LocalDate inDate = LocalDate.of(2024, 9, 1);
 
         PrimaryController controller = new PrimaryController();
         controller.initialize();
 
         controller.getTableRows(inDate);
     }
-    
 }

@@ -662,10 +662,12 @@ public class PrimaryController {
                                 case 4: // if the line is a category
 
                                         newRecordType = type;
-                                        parent = "";
+                                        // parent = "";
+                                        parent = category;
                                         workingType = category;
-                                        newLineItem = new LineItemCSV(newRecordType, inDate, parent, category, amount);
-
+                                        newLineItem = new LineItemCSV(newRecordType, inDate, category, category,
+                                                        amount);
+                                        newLineItem.setIsMainCat(true);
                                         // if the category is not in the
                                         // category database, insert
                                         // it
@@ -689,7 +691,8 @@ public class PrimaryController {
                                 case 8:
                                         parent = workingType;
                                         newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
-
+                                        newLineItem.setIsMainCat(false);
+                                  
                                         // if the category is not in the
                                         // category database, insert
                                         // it

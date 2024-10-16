@@ -27,7 +27,8 @@ public class WriteData {
                     PreparedStatement.RETURN_GENERATED_KEYS);
             insertRecord.setInt(1, item.getType());
             insertRecord.setString(2, item.getParent());
-            insertRecord.setString(3, item.getCategory());
+            insertRecord.setBoolean(3, item.isMainCat());
+            insertRecord.setString(4, item.getCategory());
 
 
             

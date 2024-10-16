@@ -109,6 +109,7 @@ public class ReadData {
                 newItem.setId(rs.getInt("ID"));
                 newItem.setHide(rs.getBoolean("HIDE"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
+                newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
                 newItem.setBudget(rs.getDouble("BUDGET"));

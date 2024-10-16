@@ -92,9 +92,11 @@ public class LineItemTest {
         String parent = "Parent";
         lineItem.setParent(parent);
         assertEquals(parent, lineItem.getParent());
-
+/***************************************************************************** */
         String category = "Category";
         lineItem.setCategory(category);
+        lineItem.setIsCategory(false);
+        System.out.println("Category: " + lineItem.getCategory());
         assertEquals(category, lineItem.getCategory());
 
         double actual = 300.0;
