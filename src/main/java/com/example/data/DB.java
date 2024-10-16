@@ -18,24 +18,27 @@ public class DB {
         /* table - catogery */
         public static final String CAT_TABLE = "category";
         public static final String CAT_COL_ID = "id";
-        public static final String CAT_COL_ACCT = "acct";
         public static final String CAT_COL_HIDE = "hide";
         public static final String CAT_COL_TYPE = "type";
         public static final String CAT_COL_PARENT = "parent";
+        public static final String CAT_COL_MAIN_CATEGORY = "main_category";
         public static final String CAT_COL_CATEGORY = "category";
+        public static final String CAT_COL_ACCT = "acct";
         public static final String CAT_COL_BALANCE = "balance";
 
         public static final int CAT_COL_ID_INDEX = 1;
-        public static final int CAT_COL_ACCT_INDEX = 2;
-        public static final int CAT_COL_HIDE_INDEX = 3;
-        public static final int CAT_COL_TYPE_INDEX = 4;
-        public static final int CAT_COL_PARENT_INDEX = 5;
+        public static final int CAT_COL_HIDE_INDEX = 2;
+        public static final int CAT_COL_TYPE_INDEX = 3;
+        public static final int CAT_COL_PARENT_INDEX = 4;
+        public static final int CAT_COL_MAIN_CATEGORY_INDEX = 5;
         public static final int CAT_COL_CATEGORY_INDEX = 6;
-        public static final int CAT_COL_BALANCE_INDEX = 7;
+        public static final int CAT_COL_ACCT_INDEX = 7;
+        public static final int CAT_COL_BALANCE_INDEX = 8;
 
         /* table - category */
+        /* INSERT INTO category (type, parent, main_category, category) VALUES(?, ?, ?, ?) */
         public static final String CAT_INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + " (" + CAT_COL_TYPE + ", "
-                        + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + ") VALUES(?, ?, ?)";
+                        + CAT_COL_PARENT + ", " + CAT_COL_MAIN_CATEGORY + ", " + CAT_COL_CATEGORY + ") VALUES(?, ?, ?, ?)";
 
         public static final String DELETE_ALL_CATEGORY = "DELETE FROM " + CAT_TABLE;
 

@@ -9,8 +9,9 @@ import javafx.beans.property.StringProperty;
 
 public class LineItem {
     int id = 0;
-    int type = 0;
     Boolean hide = false;
+    int type = 0;
+    Boolean isCategory = false;
     private SimpleObjectProperty<LocalDate> date = new SimpleObjectProperty<LocalDate>(LocalDate.now());
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
@@ -47,6 +48,15 @@ public class LineItem {
 
     public void setHide(Boolean hide) {
         this.hide = hide;
+    }
+
+    /********************* isCategory ***********************************/
+    public Boolean isCategory() {
+        return this.isCategory;
+    }
+
+    public void setIsCategory(Boolean isCategory) {
+        this.isCategory = isCategory;
     }
 
     /********************* type ***********************************/
@@ -90,7 +100,12 @@ public class LineItem {
     }
 
     public String getCategory() {
-        return this.category.get();
+        if (isCategory) {
+            return "x".repeat(4) + category.get();
+        }
+        else {
+            return "*".repeat(4) + category.get();
+        }
     }
 
     public void setCategory(String category) {
@@ -155,7 +170,6 @@ public class LineItem {
                 + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
                 + "}";
     }
-
 
     // convert the LineItem object to LineItemCSV object
     public LineItemCSV toLineItemCSV() {

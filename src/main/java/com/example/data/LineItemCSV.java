@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class LineItemCSV {
     private int id = 0;
     private Boolean hide = false;
+    private Boolean isMainCat = true;
     private int type = 0;
     private LocalDate date = LocalDate.now();
     private String parent = "";
@@ -14,15 +15,13 @@ public class LineItemCSV {
     public LineItemCSV() {
     }
 
-
-    public LineItemCSV(int type, LocalDate date, String parent, String category, Double amount ) {
+    public LineItemCSV(int type, LocalDate date, String parent, String category, Double amount) {
         this.type = type;
         this.date = date;
         this.parent = parent;
         this.category = category;
         this.amount = amount;
     }
-
 
     public int getId() {
         return this.id;
@@ -40,6 +39,15 @@ public class LineItemCSV {
         this.hide = hide;
     }
 
+    /********************* isCategory ***********************************/
+    public Boolean isMainCat() {
+        return this.isMainCat;
+    }
+
+    public void setIsMainCat(Boolean isCategory) {
+        this.isMainCat = isCategory;
+    }
+
     public int getType() {
         return this.type;
     }
@@ -48,7 +56,6 @@ public class LineItemCSV {
         this.type = type;
     }
 
-
     public LocalDate getDate() {
         return this.date;
     }
@@ -56,7 +63,7 @@ public class LineItemCSV {
     public void setDate(LocalDate date) {
         this.date = date;
     }
-    
+
     public String getParent() {
         return this.parent;
     }
@@ -79,16 +86,11 @@ public class LineItemCSV {
 
     public void setAmount(Double amount) {
         this.amount = amount;
-    }   
+    }
 
     @Override
     public String toString() {
-        return "{" +
-            " id='" + getId() + "'" +
-            ", type='" + getType() + "'" +
-            ", parent='" + getParent() + "'" +
-            ", category='" + getCategory() + "'" +
-            ", amount='" + getAmount() + "'" +
-            "}";
+        return "{" + " id='" + getId() + "'" + ", type='" + getType() + "'" + ", parent='" + getParent() + "'"
+                + ", category='" + getCategory() + "'" + ", amount='" + getAmount() + "'" + "}";
     }
 }
