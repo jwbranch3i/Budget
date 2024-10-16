@@ -36,9 +36,13 @@ public class DB {
         public static final int CAT_COL_BALANCE_INDEX = 8;
 
         /* table - category */
-        /* INSERT INTO category (type, parent, main_category, category) VALUES(?, ?, ?, ?) */
+        /*
+         * INSERT INTO category (type, parent, main_category, category)
+         * VALUES(?, ?, ?, ?)
+         */
         public static final String CAT_INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + " (" + CAT_COL_TYPE + ", "
-                        + CAT_COL_PARENT + ", " + CAT_COL_MAIN_CATEGORY + ", " + CAT_COL_CATEGORY + ") VALUES(?, ?, ?, ?)";
+                        + CAT_COL_PARENT + ", " + CAT_COL_MAIN_CATEGORY + ", " + CAT_COL_CATEGORY
+                        + ") VALUES(?, ?, ?, ?)";
 
         public static final String DELETE_ALL_CATEGORY = "DELETE FROM " + CAT_TABLE;
 
@@ -95,28 +99,29 @@ public class DB {
         public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT STRFTIME('%Y', " + ACTUAL_COL_DATE
                         + ") AS YEAR FROM " + ACTUAL_TABLE + " ORDER BY " + ACTUAL_COL_DATE + " ASC";
 
+
         /*
-         * SELECT actual.id AS ID, category.hide AS HIDE, category.category AS
-         * CATEGORY, actual.date AS DATE, actual.amount AS ACTUAL, actual.budget
-         * AS BUDGET FROM category INNER JOIN actual ON actual.category =
-         * category.id WHERE STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y',
-         * actual.date) = ? AND category.type = ?"
+         * SELECT actual.id AS ID, category.hide AS HIDE, category.main_category
+         * AS MAIN_CATEGORY, category.category AS CATEGORY, actual.date AS DATE,
+         * actual.actual AS ACTUAL, actual.budget AS BUDGET FROM category INNER
+         * JOIN actual ON actual.category = category.id WHERE STRFTIME('%m',
+         * actual.date) = ? AND STRFTIME('%Y', actual.date) = ? AND
+         * category.type = ?
          */
         public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
                         + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
-                        + CAT_COL_CATEGORY + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_BUDGET + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID
-                        + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+                        + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY
+                        + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET FROM "
+                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
+                        + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
+                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
- 
         /*
-         * SELECT id, type, parent, category 
-         * FROM category 
-         * WHERE id NOT IN (SELECT category FROM actual 
-         * WHERE strftime('%m', date) = ? AND STRFTIME('%Y', actual.date) = ?);
+         * SELECT id, type, parent, category FROM category WHERE id NOT IN
+         * (SELECT category FROM actual WHERE strftime('%m', date) = ? AND
+         * STRFTIME('%Y', actual.date) = ?);
          */
         public static final String FIND_MISSING_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
                         + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_ID

@@ -101,10 +101,10 @@ public class LineItem {
 
     public String getCategory() {
         if (isCategory) {
-            return "x".repeat(4) + category.get();
+            return category.get();
         }
         else {
-            return "*".repeat(4) + category.get();
+            return " ".repeat(6) + category.get();
         }
     }
 
