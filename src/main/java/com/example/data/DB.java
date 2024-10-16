@@ -106,7 +106,7 @@ public class DB {
          * actual.actual AS ACTUAL, actual.budget AS BUDGET FROM category INNER
          * JOIN actual ON actual.category = category.id WHERE STRFTIME('%m',
          * actual.date) = ? AND STRFTIME('%Y', actual.date) = ? AND
-         * category.type = ?
+         * category.type = ? ORDER BY PARENT, MAIN_CATEGORY DESC, CATEGORY
          */
         public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
                         + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
@@ -116,7 +116,9 @@ public class DB {
                         + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
                         + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "."
+                        + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "."
+                        + CAT_COL_CATEGORY;
 
         /*
          * SELECT id, type, parent, category FROM category WHERE id NOT IN
