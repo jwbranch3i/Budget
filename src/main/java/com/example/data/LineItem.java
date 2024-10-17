@@ -17,7 +17,6 @@ public class LineItem {
     private SimpleStringProperty category = new SimpleStringProperty("");
     private SimpleDoubleProperty actual = new SimpleDoubleProperty(0.0);
     private SimpleDoubleProperty budget = new SimpleDoubleProperty(0.0);
-    private SimpleDoubleProperty diff = new SimpleDoubleProperty(0.0);
 
     public LineItem() {
     }
@@ -29,7 +28,6 @@ public class LineItem {
         this.category.set(category);
         this.actual.set(Actual);
         this.budget.set(Budget);
-        this.diff.set(calcDiff());
     }
 
     /********************** id **********************************/
@@ -120,7 +118,6 @@ public class LineItem {
 
     public void setActual(Double Actual) {
         this.actual.set(Actual);
-        diff.set(calcDiff());
     }
 
     public Double getActual() {
@@ -134,7 +131,6 @@ public class LineItem {
 
     public void setBudget(Double budget) {
         this.budget.set(budget);
-        diff.set(calcDiff());
     }
 
     public Double getBudget() {
@@ -142,25 +138,15 @@ public class LineItem {
     }
 
     /********************* Diff ***********************************/
-    public SimpleDoubleProperty getdiffProperty() {
-        return this.diff;
-    }
-
+ 
     public Double getDiff() {
-        return this.diff.get();
-    }
-
-    public void setDiff(Double diff) {
-        this.diff.set(diff);
-    }
-
-    private Double calcDiff() {
         if (getType() == 0) {
-            return (getBudget() - getActual());
+            return getActual() - getBudget();
         }
         else {
-            return (getActual() - getBudget());
+            return getBudget() - getActual();
         }
+ 
     }
 
     @Override

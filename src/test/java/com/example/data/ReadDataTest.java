@@ -146,7 +146,7 @@ public class ReadDataTest {
 
         // set date to 9-01-2024
         // LocalDate inDate = LocalDate.of(2024, 8, 1);
-        LocalDate inDate = LocalDate.of(2024, 9, 1);
+        LocalDate inDate = LocalDate.of(2024, 10, 1);
 
         ArrayList<LineItem> result;
 

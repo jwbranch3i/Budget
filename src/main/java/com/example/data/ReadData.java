@@ -107,6 +107,7 @@ public class ReadData {
             while (rs.next()) {
                 LineItem newItem = new LineItem();
                 newItem.setId(rs.getInt("ID"));
+                newItem.setType(type);
                 newItem.setHide(rs.getBoolean("HIDE"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
