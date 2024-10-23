@@ -181,6 +181,7 @@ public class ReadData {
                 newItem.setActual(rs.getDouble("ATOTAL"));
                 newItem.setBudget(rs.getDouble("BTOTAL"));
                 newItem.setCategory("TOTAL");
+                newItem.setType(type);
 
                 return newItem;
             }

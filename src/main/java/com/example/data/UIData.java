@@ -20,6 +20,9 @@ public class UIData {
             incomeTotal.setCategory("Total Income");
             incomeTotal.setActual(incomeItems.get(0).getActual());
             incomeTotal.setBudget(incomeItems.get(0).getBudget());
+            incomeTotal.setType(0);
+            System.out.println();
+            System.out.println(incomeTotal);
         }
 
         LineItem mandatoryTotal = new LineItem();
@@ -27,6 +30,7 @@ public class UIData {
             mandatoryTotal.setCategory("Total Mandatory");
             mandatoryTotal.setActual(mandatoryItems.get(0).getActual());
             mandatoryTotal.setBudget(mandatoryItems.get(0).getBudget());
+            mandatoryTotal.setType(1);
         }
 
         LineItem discretionaryTotal = new LineItem();
@@ -34,12 +38,15 @@ public class UIData {
             discretionaryTotal.setCategory("Total Discretionary");
             discretionaryTotal.setActual(discretionaryItems.get(0).getActual());
             discretionaryTotal.setBudget(discretionaryItems.get(0).getBudget());
+            discretionaryTotal.setType(2);
         }
 
         LineItem itemTotal = new LineItem();
         itemTotal.setCategory("Total");
         itemTotal.setActual(incomeTotal.getActual() - (mandatoryTotal.getActual() + discretionaryTotal.getActual()));
         itemTotal.setBudget(incomeTotal.getBudget() - (mandatoryTotal.getBudget() + discretionaryTotal.getBudget()));
+        itemTotal.setType(0);
+      
 
         tables.get(3).getItems().add(incomeTotal);
         tables.get(3).getItems().add(mandatoryTotal);

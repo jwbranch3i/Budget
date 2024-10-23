@@ -316,6 +316,9 @@ public class PrimaryController {
 
         // Array of tables for UIDatat total table update
         ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+        public ArrayList<TableView<LineItem>> getTables() {
+                return tables;
+        }
 
         public void initialize() {
 
