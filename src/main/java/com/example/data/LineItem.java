@@ -17,6 +17,7 @@ public class LineItem {
     private SimpleStringProperty category = new SimpleStringProperty("");
     private SimpleDoubleProperty actual = new SimpleDoubleProperty(0.0);
     private SimpleDoubleProperty budget = new SimpleDoubleProperty(0.0);
+    private SimpleDoubleProperty balance = new SimpleDoubleProperty(0.0);
 
     public LineItem() {
     }
@@ -146,8 +147,22 @@ public class LineItem {
         else {
             return getBudget() - getActual();
         }
- 
     }
+
+    /********************* Balance ***********************************/
+    public SimpleDoubleProperty getBalanceProperty() {
+        return this.balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance.set(balance);
+    }
+
+    public Double getBalance() {
+        return this.balance.get();
+    }
+
+        
 
     @Override
     public String toString() {
