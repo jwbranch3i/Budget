@@ -162,14 +162,12 @@ public class LineItem {
         return this.balance.get();
     }
 
-        
-
     @Override
     public String toString() {
         return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
                 + getDate() + "'" + ", parent='" + getParent() + "'" + ", category='" + getCategory() + "'"
                 + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
-                + "}";
+                + ", balance='" + getBalance() + "'" + "}";
     }
 
     // convert the LineItem object to LineItemCSV object

@@ -13,9 +13,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1420.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
+<BorderPane prefHeight="800.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controllers.PrimaryController">
    <top>
-      <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+      <HBox prefHeight="100.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <AnchorPane fx:id="myAnchorPane" style="-fx-border-color: black;">
                <children>
@@ -47,12 +47,12 @@
             </AnchorPane>
             <AnchorPane style="-fx-border-color: black;">
                <children>
-                  <TableView fx:id="tableView_Total" prefHeight="200.0">
+                  <TableView fx:id="tableTotal" prefHeight="200.0">
                     <columns>
-                      <TableColumn fx:id="totalTable_Category" prefWidth="200.0" />
-                      <TableColumn fx:id="totalTable_Actual" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="totalTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="totalTable_Diff" prefWidth="75.0" text="Diff" />
+                      <TableColumn fx:id="tableTotal_Category" prefWidth="200.0" />
+                      <TableColumn fx:id="tableTotal_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="tableTotal_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="tableTotal_Diff" prefWidth="75.0" text="Diff" />
                     </columns>
                   </TableView>
                </children>
@@ -84,20 +84,20 @@
                         <Font name="System Bold Italic" size="24.0" />
                      </font>
                   </Label>
-                  <TableView fx:id="tableView_Income" editable="true" prefWidth="610.0">
+                  <TableView fx:id="tableIncome" editable="true">
                     <columns>
-                      <TableColumn fx:id="incomeTable_Category" editable="false" prefWidth="200.0" text="Category" />
-                      <TableColumn fx:id="incomeTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="incomeTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="incomeTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
+                      <TableColumn fx:id="tableIncome_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" sortable="false" text="Category" />
+                      <TableColumn fx:id="tableIncome_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableIncome_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableIncome_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Diff" />
                     </columns>
                   </TableView>
-                  <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0">
                      <columns>
-                        <TableColumn fx:id="incomeTotalTable_Category" editable="false" prefWidth="200.0" />
-                        <TableColumn fx:id="incomeTotalTable_Actual" prefWidth="75.0" />
-                        <TableColumn fx:id="incomeTotalTable_Budget" prefWidth="75.0" />
-                        <TableColumn fx:id="incomeTotalTable_Diff" prefWidth="75.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Category" editable="false" maxWidth="200.0" minWidth="199.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                      </columns>
                   </TableView>
                </children>
@@ -109,20 +109,22 @@
                         <Font name="System Bold Italic" size="24.0" />
                      </font>
                   </Label>
-                  <TableView fx:id="tableView_Mandatory" editable="true" prefWidth="610.0">
+                  <TableView fx:id="tableMandatory" editable="true">
                      <columns>
-                        <TableColumn fx:id="mandatoryTable_Category" editable="false" prefWidth="200.0" text="Category" />
-                        <TableColumn fx:id="mandatoryTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="mandatoryTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="mandatoryTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="tableMandatory_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" text="Category" />
+                        <TableColumn fx:id="tableMandatory_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableMandatory_Budget" maxWidth="75.0" minWidth="73.0" prefWidth="75.0" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableMandatory_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Diff" />
+                        <TableColumn fx:id="tableMandatory_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Balance" />
                      </columns>
                   </TableView>
-                  <TableView id="totalTable" fx:id="tableManditoryTotal" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableManditoryTotal" prefHeight="40.0">
                      <columns>
-                        <TableColumn fx:id="manditoryTotalTable_Category" editable="false" prefWidth="200.0" />
-                        <TableColumn fx:id="manditoryTotalTable_Actual" prefWidth="75.0" />
-                        <TableColumn fx:id="manditoryTotalTable_Budget" prefWidth="75.0" />
-                        <TableColumn fx:id="manditoryTotalTable_Diff" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" />
                      </columns>
                   </TableView>
                </children>
@@ -134,20 +136,22 @@
                         <Font name="System Bold Italic" size="24.0" />
                      </font>
                   </Label>
-                  <TableView fx:id="tableView_Discretionary" editable="true" prefWidth="610.0">
+                  <TableView fx:id="tableDiscretionary" editable="true">
                      <columns>
-                        <TableColumn fx:id="discretionaryTable_Category" editable="false" prefWidth="200.0" text="Category" />
-                        <TableColumn fx:id="discretionaryTable_Actual" editable="false" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="discretionaryTable_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="discretionaryTable_Diff" editable="false" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="tableDiscretionary_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" sortable="false" text="Category" />
+                        <TableColumn fx:id="tableDiscretionary_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableDiscretionary_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableDiscretionary_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" text="Diff" />
+                        <TableColumn fx:id="tableDiscretionary_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Balance" />
                      </columns>
                   </TableView>
-                  <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0" prefWidth="610.0">
+                  <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0">
                      <columns>
-                        <TableColumn fx:id="discretionaryTotalTable_Category" editable="false" prefWidth="200.0" />
-                        <TableColumn fx:id="discretionaryTotalTable_Actual" prefWidth="75.0" />
-                        <TableColumn fx:id="discretionaryTotalTable_Budget" prefWidth="75.0" />
-                        <TableColumn fx:id="discretionaryTotalTable_Diff" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Balance" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                      </columns>
                   </TableView>
                </children>

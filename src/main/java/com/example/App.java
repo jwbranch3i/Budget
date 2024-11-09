@@ -31,7 +31,7 @@ public class App extends Application {
 
 			root = loader.load();
 
-			Scene scene = new Scene(root, 1420, 800);
+			Scene scene = new Scene(root);
   
 			scene.getStylesheets().add(getClass().getResource("testfile.css").toExternalForm());
 
@@ -40,7 +40,6 @@ public class App extends Application {
 			primaryStage.show();
 		} catch (Exception e) {
 			logger.error("Error loading FXML", e);
-			//e.printStackTrace();
 		}
 	}
 
