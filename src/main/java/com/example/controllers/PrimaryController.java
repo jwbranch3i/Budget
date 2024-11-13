@@ -204,6 +204,9 @@ public class PrimaryController {
         private Button btn_EditCat;
 
         @FXML
+        private Button btn_UpdateBudget;
+
+        @FXML
         private Label mainDateLabel;
 
         @FXML
@@ -303,6 +306,50 @@ public class PrimaryController {
 
         }
 
+        @FXML
+        // TODO : complete update budget routine
+        void button_GetLastBudget(ActionEvent event) {
+                LineItem firstItem = tableMandatory.getItems().get(0);
+                LocalDate inDate = firstItem.getDate();
+
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                // Implement the budget update routine here
+                                // For example, you might call a method to
+                                // update the budget
+                                WriteData.getLastBudget(inDate);
+                                return null;
+                        }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table view to reflect the changes
+                                tableIncomeTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                                tableManditoryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                                tableDiscretionaryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                                getTableRows(inDate);
+                                UIData.updateTableTotal(tables);
+                                tableIncome.refresh();
+
+                        }
+
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the
+                                // task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
+                };
+                new Thread(task).start();
+        }
+
         /**
          * Reads the headings when the "readHeadingsButton" is clicked. This
          * method shows a progress indicator and sets its progress to
@@ -331,6 +378,7 @@ public class PrimaryController {
 
         // Array of tables for UIDatat total table update
         ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
+
         public ArrayList<TableView<LineItem>> getTables() {
                 return tables;
         }
@@ -338,8 +386,8 @@ public class PrimaryController {
         public void initialize() {
 
                 @SuppressWarnings("unused")
-                PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal,
-                                tableTotal_Category, tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
+                PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal, tableTotal_Category,
+                                tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
 
                 // Apply the style class to the table
                 tableIncomeTotal.getStyleClass().add("table-view-total");
@@ -519,7 +567,8 @@ public class PrimaryController {
                 tableManditoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 tableManditoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableManditoryTotal_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableManditoryTotal_Balance
+                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 tableDiscretionaryTotal_Category
@@ -603,8 +652,7 @@ public class PrimaryController {
         public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
                 tableIncome.getItems().clear();
-                tableIncome.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
+                tableIncome.setItems(FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
                 // get mandatory data
@@ -713,7 +761,7 @@ public class PrimaryController {
                                         parent = workingType;
                                         newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
                                         newLineItem.setIsMainCat(false);
-                                  
+
                                         // if the category is not in the
                                         // category database, insert
                                         // it

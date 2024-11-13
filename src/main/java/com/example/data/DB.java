@@ -99,7 +99,6 @@ public class DB {
         public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT STRFTIME('%Y', " + ACTUAL_COL_DATE
                         + ") AS YEAR FROM " + ACTUAL_TABLE + " ORDER BY " + ACTUAL_COL_DATE + " ASC";
 
-
         /*
          * SELECT actual.id AS ID, category.hide AS HIDE, category.main_category
          * AS MAIN_CATEGORY, category.category AS CATEGORY, actual.date AS DATE,
@@ -112,13 +111,13 @@ public class DB {
                         + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
                         + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
-                        + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "."
-                        + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "."
-                        + CAT_COL_CATEGORY;
+                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET
+                        + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', "
+                        + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE
+                        + "." + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE
+                        + "." + CAT_COL_CATEGORY;
 
         /*
          * SELECT id, type, parent, category FROM category WHERE id NOT IN
@@ -143,4 +142,13 @@ public class DB {
                         + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
                         + "." + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
+        /*
+         * UPDATE actual SET budget = COALESCE(( SELECT budget FROM actual AS a
+         * WHERE a.category = actual.category AND strftime('%Y-%m', a.date) = ?
+         * ), 0) WHERE strftime('%Y-%m', actual.date) = ?;
+         */
+        public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
+                        + " = COALESCE(( SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a WHERE a."
+                        + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a."
+                        + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', " + ACTUAL_COL_DATE + ") = ?";
 }

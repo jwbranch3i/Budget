@@ -31,3 +31,30 @@ FROM category
 WHERE id NOT IN (SELECT category FROM actual WHERE strftime('%m', date) = '10' AND STRFTIME('%Y', actual.date) = '2024'
 );
 
+
+UPDATE category
+SET budget = (
+	SELECT budget
+	FROM actual
+	WHERE category.id = actual.category
+	AND strftime('%Y-%m', actual.date) = '2023-10'
+)
+WHERE EXISTS (
+	SELECT 1
+	FROM actual
+	WHERE category.id = actual.category
+	AND strftime('%Y-%m', actual.date) = '2023-10'
+);
+
+
+
+
+
+UPDATE actual
+SET budget = COALESCE((
+    SELECT budget
+    FROM actual AS a
+    WHERE a.category = actual.category
+	AND strftime('%Y-%m', a.date) = ?
+), 0)
+WHERE strftime('%Y-%m', actual.date) = ?;

@@ -2,6 +2,8 @@ package com.example.data;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class WriteData {
     /**
@@ -157,6 +159,23 @@ public class WriteData {
             return false;
         }
         return true;
+    }
+
+
+    public static void getLastBudget(LocalDate indate) {
+        try {
+            String currentDate = indate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String lastMonthDate = indate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+            PreparedStatement getLastBudget = DataSource.getConn().prepareStatement(DB.UPDATE_TO_LAST_MONTH_BUDGET);
+            getLastBudget.setString(1, lastMonthDate);
+            getLastBudget.setString(2, currentDate);
+            getLastBudget.executeUpdate();
+             
+        }
+        catch (Exception e) {
+            System.out.println("Error getLastBudget: " + e.getMessage());
+        }
     }
 
 }

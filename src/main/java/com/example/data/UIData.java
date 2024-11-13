@@ -21,8 +21,6 @@ public class UIData {
             incomeTotal.setActual(incomeItems.get(0).getActual());
             incomeTotal.setBudget(incomeItems.get(0).getBudget());
             incomeTotal.setType(0);
-            System.out.println();
-            System.out.println(incomeTotal);
         }
 
         LineItem mandatoryTotal = new LineItem();
