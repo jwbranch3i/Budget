@@ -241,8 +241,7 @@ public class PrimaryController {
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                         getTableRows(inDate);
                         UIData.updateTableTotal(tables);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                         e.printStackTrace();
                 }
         }
@@ -254,8 +253,7 @@ public class PrimaryController {
 
                 if (!chkBox.isSelected()) {
                         readFromDatabase(inDate);
-                }
-                else {
+                } else {
                         // routine to open dialog box to select file
                         String savedFilePath = "C:\\";
                         try {
@@ -264,8 +262,7 @@ public class PrimaryController {
                                 BufferedReader bufferedReader = new BufferedReader(fileReader);
                                 savedFilePath = bufferedReader.readLine();
                                 bufferedReader.close();
-                        }
-                        catch (IOException e) {
+                        } catch (IOException e) {
                                 System.out.println("Error retrieving file path: " + e.getMessage());
                         }
 
@@ -288,8 +285,7 @@ public class PrimaryController {
                                         FileWriter fileWriter = new FileWriter("filePath.txt");
                                         fileWriter.write(filePath);
                                         fileWriter.close();
-                                }
-                                catch (IOException e) {
+                                } catch (IOException e) {
                                         System.out.println("Error saving file path: " + e.getMessage());
                                 }
 
@@ -553,6 +549,23 @@ public class PrimaryController {
                 tableIncomeTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
+                tableMandatory_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+                tableMandatory_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+
+                tableMandatory_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                tableMandatory_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableMandatory_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                tableMandatory_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableMandatory_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
+
+                tableMandatory_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                tableMandatory_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableMandatory_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
+                tableMandatory_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                /***********************************************************/
                 tableManditoryTotal_Category
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
                 tableManditoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -569,6 +582,24 @@ public class PrimaryController {
                 tableManditoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
                 tableManditoryTotal_Balance
                                 .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                /***********************************************************/
+
+                tableDiscretionary_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
+                tableDiscretionary_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+
+                tableDiscretionary_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                tableDiscretionary_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableDiscretionary_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                tableDiscretionary_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableDiscretionary_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
+
+                tableDiscretionary_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                tableDiscretionary_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableDiscretionary_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
+                tableDiscretionary_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 tableDiscretionaryTotal_Category
@@ -588,35 +619,6 @@ public class PrimaryController {
                 tableDiscretionaryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 tableDiscretionaryTotal_Diff
                                 .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                /***********************************************************/
-                tableMandatory_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableMandatory_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableMandatory_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableMandatory_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatory_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableMandatory_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableMandatory_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
-
-                tableMandatory_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableMandatory_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                /***********************************************************/
-
-                tableDiscretionary_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableDiscretionary_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableDiscretionary_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableDiscretionary_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionary_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableDiscretionary_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableDiscretionary_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
-
-                tableDiscretionary_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableDiscretionary_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 // Create a task to run getTableRows in another thread
                 Task<Void> task2 = new Task<Void>() {
@@ -703,8 +705,7 @@ public class PrimaryController {
                                 if (nextRecord[1].trim().equals("INFLOWS")) {
                                         type = DB.INCOME;
                                         continue;
-                                }
-                                else if (nextRecord[1].trim().equals("OUTFLOWS")) {
+                                } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
                                         type = DB.MANDITORY;
                                         continue;
                                 }
@@ -722,77 +723,73 @@ public class PrimaryController {
 
                                 try {
                                         amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
-                                }
-                                catch (NumberFormatException e) {
+                                } catch (NumberFormatException e) {
                                         amount = 0.0;
                                 }
 
                                 switch (leadingSpaces) {
-                                case 4: // if the line is a category
+                                        case 4: // if the line is a category
 
-                                        newRecordType = type;
-                                        // parent = "";
-                                        parent = category;
-                                        workingType = category;
-                                        newLineItem = new LineItemCSV(newRecordType, inDate, category, category,
-                                                        amount);
-                                        newLineItem.setIsMainCat(true);
-                                        // if the category is not in the
-                                        // category database, insert
-                                        // it
-                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
-                                        if ((existingCategory.getId() == -1)) {
-                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                                        }
+                                                newRecordType = type;
+                                                // parent = "";
+                                                parent = category;
+                                                workingType = category;
+                                                newLineItem = new LineItemCSV(newRecordType, inDate, category, category,
+                                                                amount);
+                                                newLineItem.setIsMainCat(true);
+                                                // if the category is not in the
+                                                // category database, insert
+                                                // it
+                                                existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                                if ((existingCategory.getId() == -1)) {
+                                                        existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                                }
 
-                                        // if the category is not in the actual
-                                        // database, insert it
-                                        existingActual = ReadData.actualFindCategory(existingCategory);
-                                        if (existingActual.getId() == -1) {
-                                                WriteData.actualInsertRecord(existingCategory);
-                                        }
-                                        else {
-                                                WriteData.autualUpdateAmount(existingActual);
-                                        }
+                                                // if the category is not in the actual
+                                                // database, insert it
+                                                existingActual = ReadData.actualFindCategory(existingCategory);
+                                                if (existingActual.getId() == -1) {
+                                                        WriteData.actualInsertRecord(existingCategory);
+                                                } else {
+                                                        WriteData.autualUpdateAmount(existingActual);
+                                                }
 
-                                        break;
+                                                break;
 
-                                case 8:
-                                        parent = workingType;
-                                        newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
-                                        newLineItem.setIsMainCat(false);
+                                        case 8:
+                                                parent = workingType;
+                                                newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
+                                                newLineItem.setIsMainCat(false);
 
-                                        // if the category is not in the
-                                        // category database, insert
-                                        // it
-                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
-                                        if ((existingCategory.getId() == -1)) {
-                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                                        }
+                                                // if the category is not in the
+                                                // category database, insert
+                                                // it
+                                                existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                                if ((existingCategory.getId() == -1)) {
+                                                        existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                                }
 
-                                        // if the category is not in the actual
-                                        // database, insert it
-                                        existingActual = ReadData.actualFindCategory(existingCategory);
-                                        if (existingActual.getId() == -1) {
-                                                WriteData.actualInsertRecord(existingCategory);
-                                        }
-                                        else {
-                                                WriteData.autualUpdateAmount(existingActual);
-                                        }
+                                                // if the category is not in the actual
+                                                // database, insert it
+                                                existingActual = ReadData.actualFindCategory(existingCategory);
+                                                if (existingActual.getId() == -1) {
+                                                        WriteData.actualInsertRecord(existingCategory);
+                                                } else {
+                                                        WriteData.autualUpdateAmount(existingActual);
+                                                }
 
-                                        break;
+                                                break;
 
-                                default:
-                                        // Handle any other number of leading
-                                        // spaces
-                                        break;
+                                        default:
+                                                // Handle any other number of leading
+                                                // spaces
+                                                break;
                                 }
 
                         }
                         csvReader.close();
 
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                         e.printStackTrace();
                 }
 

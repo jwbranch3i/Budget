@@ -114,6 +114,7 @@ public class ReadData {
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
                 newItem.setBudget(rs.getDouble("BUDGET"));
+                newItem.setStartBal(rs.getDouble("STARTBAL"));
 
                 if (newItem.getHide() == false) {
                     items.add(newItem);

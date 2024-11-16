@@ -69,6 +69,8 @@ public class DB {
         public static final String ACTUAL_COL_DATE = "date";
         public static final String ACTUAL_COL_ACTUAL = "actual";
         public static final String ACTUAL_COL_BUDGET = "budget";
+        public static final String ACTUAL_COL_STARTBAL = "startBal";
+        public static final String ACTUAL_COL_ENDBAL = "endBal";
 
         public static final int ACTUAL_COL_ID_INDEX = 1;
         public static final int ACTUAL_COL_CATEGORY_INDEX = 2;
@@ -102,7 +104,7 @@ public class DB {
         /*
          * SELECT actual.id AS ID, category.hide AS HIDE, category.main_category
          * AS MAIN_CATEGORY, category.category AS CATEGORY, actual.date AS DATE,
-         * actual.actual AS ACTUAL, actual.budget AS BUDGET FROM category INNER
+         * actual.actual AS ACTUAL, actual.budget AS BUDGET, actual.startBal as STARTBAL FROM category INNER
          * JOIN actual ON actual.category = category.id WHERE STRFTIME('%m',
          * actual.date) = ? AND STRFTIME('%Y', actual.date) = ? AND
          * category.type = ? ORDER BY PARENT, MAIN_CATEGORY DESC, CATEGORY
@@ -111,14 +113,14 @@ public class DB {
                         + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
                         + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET
-                        + " AS BUDGET FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE
-                        + "." + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE
-                        + "." + CAT_COL_CATEGORY;
-
+                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET, "
+                        + ACTUAL_TABLE + "." + ACTUAL_COL_STARTBAL + " AS STARTBAL FROM " + CAT_TABLE + " INNER JOIN "
+                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "."
+                        + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', "
+                        + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY "
+                        + CAT_TABLE + "." + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, "
+                        + CAT_TABLE + "." + CAT_COL_CATEGORY;
+ 
         /*
          * SELECT id, type, parent, category FROM category WHERE id NOT IN
          * (SELECT category FROM actual WHERE strftime('%m', date) = ? AND

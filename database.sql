@@ -1,12 +1,16 @@
+
+-- actual definition
+
 CREATE TABLE actual (
 	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	category INTEGER NOT NULL,
 	date TEXT NOT NULL,
 	actual NUMERIC NOT NULL,
-	budget NUMERIC NOT NULL,
+	budget NUMERIC NOT NULL, startBal NUMERIC DEFAULT (0) NOT NULL, endBal NUMERIC DEFAULT (0) NOT NULL,
 	CONSTRAINT actual_category_FK FOREIGN KEY (category) REFERENCES category(id) ON DELETE CASCADE
 );
 
+-- category definition
 
 CREATE TABLE category (
 	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
