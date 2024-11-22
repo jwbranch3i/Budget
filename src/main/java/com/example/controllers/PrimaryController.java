@@ -30,13 +30,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -241,7 +245,8 @@ public class PrimaryController {
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                         getTableRows(inDate);
                         UIData.updateTableTotal(tables);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                         e.printStackTrace();
                 }
         }
@@ -253,7 +258,8 @@ public class PrimaryController {
 
                 if (!chkBox.isSelected()) {
                         readFromDatabase(inDate);
-                } else {
+                }
+                else {
                         // routine to open dialog box to select file
                         String savedFilePath = "C:\\";
                         try {
@@ -262,7 +268,8 @@ public class PrimaryController {
                                 BufferedReader bufferedReader = new BufferedReader(fileReader);
                                 savedFilePath = bufferedReader.readLine();
                                 bufferedReader.close();
-                        } catch (IOException e) {
+                        }
+                        catch (IOException e) {
                                 System.out.println("Error retrieving file path: " + e.getMessage());
                         }
 
@@ -285,7 +292,8 @@ public class PrimaryController {
                                         FileWriter fileWriter = new FileWriter("filePath.txt");
                                         fileWriter.write(filePath);
                                         fileWriter.close();
-                                } catch (IOException e) {
+                                }
+                                catch (IOException e) {
                                         System.out.println("Error saving file path: " + e.getMessage());
                                 }
 
@@ -519,6 +527,9 @@ public class PrimaryController {
                                         }
                                 });
 
+                // set up right click edit for tableMandatory */
+                // ****************************************************/
+
                 // ***************************************/
                 // Set up table columns
                 // ***************************************/
@@ -565,6 +576,28 @@ public class PrimaryController {
                 tableMandatory_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
                 tableMandatory_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
+                tableMandatory.setRowFactory(tv -> {
+                        TableRow<LineItem> row = new TableRow<>();
+                        ContextMenu contextMenu = new ContextMenu();
+                        MenuItem editItem = new MenuItem("Edit");
+                        contextMenu.getItems().add(editItem);
+
+                        row.setOnMouseClicked(event -> {
+                                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+                                        LineItem item = row.getItem();
+                                        contextMenu.show(row, event.getScreenX(), event.getScreenY());
+                                }
+                        });
+
+                        editItem.setOnAction(event -> {
+                                LineItem item = row.getItem();
+                                itemEdit(item); // Call your routine here
+                        });
+
+                        return row;
+                });
+
+                
                 /***********************************************************/
                 tableManditoryTotal_Category
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -705,7 +738,8 @@ public class PrimaryController {
                                 if (nextRecord[1].trim().equals("INFLOWS")) {
                                         type = DB.INCOME;
                                         continue;
-                                } else if (nextRecord[1].trim().equals("OUTFLOWS")) {
+                                }
+                                else if (nextRecord[1].trim().equals("OUTFLOWS")) {
                                         type = DB.MANDITORY;
                                         continue;
                                 }
@@ -723,73 +757,77 @@ public class PrimaryController {
 
                                 try {
                                         amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
-                                } catch (NumberFormatException e) {
+                                }
+                                catch (NumberFormatException e) {
                                         amount = 0.0;
                                 }
 
                                 switch (leadingSpaces) {
-                                        case 4: // if the line is a category
+                                case 4: // if the line is a category
 
-                                                newRecordType = type;
-                                                // parent = "";
-                                                parent = category;
-                                                workingType = category;
-                                                newLineItem = new LineItemCSV(newRecordType, inDate, category, category,
-                                                                amount);
-                                                newLineItem.setIsMainCat(true);
-                                                // if the category is not in the
-                                                // category database, insert
-                                                // it
-                                                existingCategory = ReadData.categoryFindRecord(newLineItem);
-                                                if ((existingCategory.getId() == -1)) {
-                                                        existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                                                }
+                                        newRecordType = type;
+                                        // parent = "";
+                                        parent = category;
+                                        workingType = category;
+                                        newLineItem = new LineItemCSV(newRecordType, inDate, category, category,
+                                                        amount);
+                                        newLineItem.setIsMainCat(true);
+                                        // if the category is not in the
+                                        // category database, insert
+                                        // it
+                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                        if ((existingCategory.getId() == -1)) {
+                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                        }
 
-                                                // if the category is not in the actual
-                                                // database, insert it
-                                                existingActual = ReadData.actualFindCategory(existingCategory);
-                                                if (existingActual.getId() == -1) {
-                                                        WriteData.actualInsertRecord(existingCategory);
-                                                } else {
-                                                        WriteData.autualUpdateAmount(existingActual);
-                                                }
+                                        // if the category is not in the actual
+                                        // database, insert it
+                                        existingActual = ReadData.actualFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.actualInsertRecord(existingCategory);
+                                        }
+                                        else {
+                                                WriteData.autualUpdateAmount(existingActual);
+                                        }
 
-                                                break;
+                                        break;
 
-                                        case 8:
-                                                parent = workingType;
-                                                newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
-                                                newLineItem.setIsMainCat(false);
+                                case 8:
+                                        parent = workingType;
+                                        newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
+                                        newLineItem.setIsMainCat(false);
 
-                                                // if the category is not in the
-                                                // category database, insert
-                                                // it
-                                                existingCategory = ReadData.categoryFindRecord(newLineItem);
-                                                if ((existingCategory.getId() == -1)) {
-                                                        existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                                                }
+                                        // if the category is not in the
+                                        // category database, insert
+                                        // it
+                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                        if ((existingCategory.getId() == -1)) {
+                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                        }
 
-                                                // if the category is not in the actual
-                                                // database, insert it
-                                                existingActual = ReadData.actualFindCategory(existingCategory);
-                                                if (existingActual.getId() == -1) {
-                                                        WriteData.actualInsertRecord(existingCategory);
-                                                } else {
-                                                        WriteData.autualUpdateAmount(existingActual);
-                                                }
+                                        // if the category is not in the actual
+                                        // database, insert it
+                                        existingActual = ReadData.actualFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.actualInsertRecord(existingCategory);
+                                        }
+                                        else {
+                                                WriteData.autualUpdateAmount(existingActual);
+                                        }
 
-                                                break;
+                                        break;
 
-                                        default:
-                                                // Handle any other number of leading
-                                                // spaces
-                                                break;
+                                default:
+                                        // Handle any other number of leading
+                                        // spaces
+                                        break;
                                 }
 
                         }
                         csvReader.close();
 
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                         e.printStackTrace();
                 }
 
@@ -914,6 +952,9 @@ public class PrimaryController {
 
                 // keep focus on the selected row
                 tableDiscretionary.requestFocus();
+        }
 
+        public void itemEdit(LineItem item) {
+                // Implement your routine here
         }
 }
