@@ -478,6 +478,7 @@ public class PrimaryController {
                 // ***************************************/
                 // Add row to totals tables
                 // ***************************************/
+
                 // add row to tableIncomeTotal
                 LineItem incomeTotal = new LineItem();
                 incomeTotal.setCategory("Total");
@@ -526,9 +527,6 @@ public class PrimaryController {
                                                 tableMandatory.getSelectionModel().clearSelection();
                                         }
                                 });
-
-                // set up right click edit for tableMandatory */
-                // ****************************************************/
 
                 // ***************************************/
                 // Set up table columns
@@ -591,13 +589,12 @@ public class PrimaryController {
 
                         editItem.setOnAction(event -> {
                                 LineItem item = row.getItem();
-                                itemEdit(item); // Call your routine here
+                                editLineItem(item); // Call your routine here
                         });
 
                         return row;
                 });
 
-                
                 /***********************************************************/
                 tableManditoryTotal_Category
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -633,6 +630,27 @@ public class PrimaryController {
 
                 tableDiscretionary_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
                 tableDiscretionary_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableDiscretionary.setRowFactory(tv -> {
+                        TableRow<LineItem> row = new TableRow<>();
+                        ContextMenu contextMenu = new ContextMenu();
+                        MenuItem editItem = new MenuItem("Edit");
+                        contextMenu.getItems().add(editItem);
+
+                        row.setOnMouseClicked(event -> {
+                                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+                                        LineItem item = row.getItem();
+                                        contextMenu.show(row, event.getScreenX(), event.getScreenY());
+                                }
+                        });
+
+                        editItem.setOnAction(event -> {
+                                LineItem item = row.getItem();
+                                editLineItem(item); // Call your routine here
+                        });
+
+                        return row;
+                });
 
                 /***********************************************************/
                 tableDiscretionaryTotal_Category
@@ -954,7 +972,24 @@ public class PrimaryController {
                 tableDiscretionary.requestFocus();
         }
 
-        public void itemEdit(LineItem item) {
-                // Implement your routine here
+        public void editLineItem(LineItem item) {
+                try {
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/editItem.fxml"));
+                        Parent root = fxmlLoader.load();
+
+                        EditItemController editItemController = fxmlLoader.getController();
+                        // editItemController.setItem(item);
+
+                        Stage stage = new Stage();
+                        stage.setTitle("Edit Item");
+                        stage.setScene(new Scene(root));
+                        stage.initModality(Modality.WINDOW_MODAL);
+                        stage.initOwner(myAnchorPane.getScene().getWindow());
+                        stage.showAndWait();
+
+                }
+                catch (IOException e) {
+                        e.printStackTrace();
+                }
         }
 }

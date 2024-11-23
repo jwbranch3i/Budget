@@ -4,4 +4,5 @@
         
     ],
     "java.format.settings.url": ".vscode/java-formatter.xml",
+    "sqltools.useNodeRuntime": true,
 }
