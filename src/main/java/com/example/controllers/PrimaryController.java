@@ -582,7 +582,6 @@ public class PrimaryController {
 
                         row.setOnMouseClicked(event -> {
                                 if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                                        LineItem item = row.getItem();
                                         contextMenu.show(row, event.getScreenX(), event.getScreenY());
                                 }
                         });
@@ -639,7 +638,6 @@ public class PrimaryController {
 
                         row.setOnMouseClicked(event -> {
                                 if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                                        LineItem item = row.getItem();
                                         contextMenu.show(row, event.getScreenX(), event.getScreenY());
                                 }
                         });
@@ -978,7 +976,7 @@ public class PrimaryController {
                         Parent root = fxmlLoader.load();
 
                         EditItemController editItemController = fxmlLoader.getController();
-                        // editItemController.setItem(item);
+                        editItemController.setItem(item);
 
                         Stage stage = new Stage();
                         stage.setTitle("Edit Item");

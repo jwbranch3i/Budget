@@ -178,6 +178,11 @@ public class LineItem {
         return this.startBal.get();
     }
 
+    /************************ computed ******************************/
+    public Double getComputed() {
+        return getStartBal() - getActual();
+    }
+
     @Override
     public String toString() {
         return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
