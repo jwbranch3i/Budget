@@ -60,7 +60,8 @@
             <VBox spacing="10.0">
                <children>
                   <Button fx:id="btn_EditCat" alignment="CENTER" mnemonicParsing="false" onAction="#button_EditCat" text="Edit Categories" />
-                  <Button fx:id="btn_UpdateBudget" alignment="CENTER" mnemonicParsing="false" onAction="#button_GetLastBudget" text="Update Budget" />
+                  <Button fx:id="btn_UpdateBudget" alignment="CENTER" mnemonicParsing="false" onAction="#button_UpdateBudget" text="Update Budget" />
+                  <Button fx:id="btn_UpdateBalance" alignment="CENTER" layoutX="10.0" layoutY="45.0" mnemonicParsing="false" onAction="#button_UpdateBalance" text="Update Start Balance" />
                </children>
             </VBox>
          </children>

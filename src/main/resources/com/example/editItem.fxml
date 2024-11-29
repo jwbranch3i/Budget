@@ -17,6 +17,11 @@
                <children>
                   <VBox alignment="CENTER_RIGHT" prefHeight="200.0">
                      <children>
+                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="85.0" layoutY="16.0" text="ID:">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
                         <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Date:">
                            <font>
                               <Font size="18.0" />
@@ -54,7 +59,12 @@
                   </VBox>
                   <VBox prefHeight="200.0">
                      <children>
-                        <Label fx:id="date_LBL" alignment="BOTTOM_LEFT" text="Label">
+                        <Label fx:id="id_LBL" layoutX="10.0" layoutY="10.0" text="Label">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="date_LBL" text="Label">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -74,7 +84,10 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="startBal_Field" />
+                        <TextField fx:id="startBal_Field">
+                           <font>
+                              <Font size="18.0" />
+                           </font></TextField>
                         <Label fx:id="computed_LBL" layoutX="10.0" layoutY="91.0" text="Label">
                            <font>
                               <Font size="18.0" />
@@ -89,8 +102,8 @@
             </HBox>
             <HBox spacing="20.0">
                <children>
-                  <Button fx:id="btn_Cancel" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefWidth="65.0" text="Cancel" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="btn_Save" alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefWidth="65.0" text="Save" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btn_Cancel" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#button_cancel" prefWidth="65.0" text="Cancel" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btn_Save" alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#button_saveStartBal" prefWidth="65.0" text="Save" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
          </children>

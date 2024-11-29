@@ -62,3 +62,23 @@ SET budget = COALESCE((
 	AND strftime('%Y-%m', a.date) = ?
 ), 0)
 WHERE strftime('%Y-%m', actual.date) = ?;
+
+-- update budget for current month
+UPDATE actual
+SET budget = COALESCE((
+	SELECT budget
+	FROM actual AS a
+	WHERE a.category = actual.category
+	AND strftime('%Y-%m', a.date) = '2024-10'
+), 0)
+WHERE strftime('%Y-%m', actual.date) = '2024-11';
+
+
+UPDATE actual
+SET startBal = COALESCE((
+	SELECT endBal - actual
+	FROM actual AS a
+	WHERE a.category = actual.category
+	AND strftime('%Y-%m', a.date) = '2024-10'
+), 0)
+WHERE strftime('%Y-%m', actual.date) = '2024-11';
