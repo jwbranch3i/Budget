@@ -1027,4 +1027,20 @@ public class PrimaryController {
                         e.printStackTrace();
                 }
         }
+
+        public LocalDate getWorkingDate() {
+                return LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
+        }
+
+        public void updateTablesTask() {
+                LocalDate inDate = getWorkingDate();
+                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                tableManditoryTotal
+                                .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                tableDiscretionaryTotal.setItems(
+                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                getTableRows(inDate);
+                UIData.updateTableTotal(tables);
+        }
+
 }
