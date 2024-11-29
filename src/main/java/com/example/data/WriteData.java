@@ -179,20 +179,4 @@ public class WriteData {
             System.out.println("Error getLastBudget: " + e.getMessage());
         }
     }
-
-    public static void updateBudget(LocalDate indate) {
-        try {
-            String currentDate = indate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-            String lastMonthDate = indate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
-
-            PreparedStatement updateBudget = DataSource.getConn().prepareStatement(DB.UPDATE_TO_LAST_MONTH_BUDGET);
-            updateBudget.setString(1, lastMonthDate);
-            updateBudget.setString(2, currentDate);
-            updateBudget.executeUpdate();
-        }
-        catch (Exception e) {
-            System.out.println("Error updateBudget: " + e.getMessage());
-        }
-    }
-
 }

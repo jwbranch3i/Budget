@@ -211,6 +211,9 @@ public class PrimaryController {
         private Button btn_UpdateBudget;
 
         @FXML
+        private Button btn_UpdateBalance;
+
+        @FXML
         private Label mainDateLabel;
 
         @FXML
@@ -311,17 +314,13 @@ public class PrimaryController {
         }
 
         @FXML
-        // TODO : complete update budget routine
-        void button_GetLastBudget(ActionEvent event) {
+        void button_UpdateBudget(ActionEvent event) {
                 LineItem firstItem = tableMandatory.getItems().get(0);
                 LocalDate inDate = firstItem.getDate();
 
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                // Implement the budget update routine here
-                                // For example, you might call a method to
-                                // update the budget
                                 WriteData.getLastBudget(inDate);
                                 return null;
                         }
@@ -339,7 +338,45 @@ public class PrimaryController {
                                 getTableRows(inDate);
                                 UIData.updateTableTotal(tables);
                                 tableIncome.refresh();
+                        }
 
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the
+                                // task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
+                };
+                new Thread(task).start();
+        }
+
+        @FXML
+        void button_UpdateBalance(ActionEvent event) {
+                LineItem firstItem = tableMandatory.getItems().get(0);
+                LocalDate inDate = firstItem.getDate();
+
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                WriteData.updateBalance(inDate);
+                                return null;
+                        }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table view to reflect the changes
+                                tableIncomeTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                                tableManditoryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                                tableDiscretionaryTotal.setItems(FXCollections
+                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                                getTableRows(inDate);
+                                UIData.updateTableTotal(tables);
+                                tableIncome.refresh();
                         }
 
                         @Override
@@ -860,7 +897,7 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.actualUpdateBudget(item);
+                                WriteData.actualUpdate(item);
                                 tableIncomeTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
                                 UIData.updateTableTotal(tables);
@@ -901,7 +938,7 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.actualUpdateBudget(item);
+                                WriteData.actualUpdate(item);
                                 tableManditoryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
                                 UIData.updateTableTotal(tables);
@@ -940,7 +977,7 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.actualUpdateBudget(item);
+                                WriteData.actualUpdate(item);
                                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                                 ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
                                 UIData.updateTableTotal(tables);
