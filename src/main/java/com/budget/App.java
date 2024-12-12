@@ -6,12 +6,12 @@
  * The stop() method is overridden to close the data source when the application is stopped.
  * The main() method is the entry point of the application.
  */
-package com.example;
+package com.budget;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.data.DataSource;
+import com.budget.dataModal.DataSource;
 
 import javafx.application.Application;
 import javafx.application.Platform;

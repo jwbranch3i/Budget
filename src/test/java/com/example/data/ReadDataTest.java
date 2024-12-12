@@ -12,6 +12,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.budget.dataModal.Categories;
+import com.budget.dataModal.DataSource;
+import com.budget.dataModal.LineItem;
+import com.budget.dataModal.LineItemCSV;
+import com.budget.dataModal.ReadData;
+
 import javafx.application.Platform;
 
 public class ReadDataTest {

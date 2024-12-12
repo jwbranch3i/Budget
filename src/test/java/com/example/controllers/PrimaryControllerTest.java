@@ -7,7 +7,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.example.data.DataSource;
+import com.budget.controllers.PrimaryController;
+import com.budget.dataModal.DataSource;
 
 import javafx.application.Platform;
 

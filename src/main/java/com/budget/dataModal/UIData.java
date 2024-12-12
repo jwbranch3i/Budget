@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 import java.util.ArrayList;
 import java.util.List;

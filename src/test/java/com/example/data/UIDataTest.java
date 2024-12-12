@@ -6,7 +6,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.example.controllers.PrimaryController;
+import com.budget.controllers.PrimaryController;
+import com.budget.dataModal.DataSource;
+import com.budget.dataModal.UIData;
+
 import javafx.application.Platform;
 
 public class UIDataTest {

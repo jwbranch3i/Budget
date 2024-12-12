@@ -1,7 +1,7 @@
-package com.example.controllers;
+package com.budget.controllers;
 
-import com.example.data.LineItem;
-import com.example.data.WriteData;
+import com.budget.dataModal.LineItem;
+import com.budget.dataModal.WriteData;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

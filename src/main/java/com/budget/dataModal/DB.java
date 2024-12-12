@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 // import org.apache.commons.beanutils.converters.StringArrayConverter;
 
@@ -90,10 +90,9 @@ public class DB {
         public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
-   
         /*
-         * UPDATE actual SET date = ?, actual = ?, budget = ?,
-         * startBal = ? WHERE id = ?
+         * UPDATE actual SET date = ?, actual = ?, budget = ?, startBal = ?
+         * WHERE id = ?
          */
         public static final String ACTUAL_UPDATE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_DATE + " = ?, "
                         + ACTUAL_COL_ACTUAL + " = ?, " + ACTUAL_COL_BUDGET + " = ?, " + ACTUAL_COL_STARTBAL
@@ -160,5 +159,17 @@ public class DB {
                         + " = COALESCE(( SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a WHERE a."
                         + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
                         + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
+                        + ACTUAL_COL_DATE + ") = ?";
+
+        /*
+         * UPDATE actual SET startBal = COALESCE(( SELECT startBal - actual FROM
+         * actual AS a WHERE a.category = actual.category AND strftime('%Y-%m',
+         * a.date) = ? ), 0) WHERE strftime('%Y-%m', actual.date) = ?
+         * 
+         */
+        public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
+                        + " = COALESCE(( SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM "
+                        + ACTUAL_TABLE + " AS a WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
                         + ACTUAL_COL_DATE + ") = ?";
 }

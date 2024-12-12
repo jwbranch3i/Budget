@@ -1,4 +1,4 @@
-package com.example.controllers;
+package com.budget.controllers;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,13 +9,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import com.example.Util;
-import com.example.data.DB;
-import com.example.data.LineItem;
-import com.example.data.LineItemCSV;
-import com.example.data.ReadData;
-import com.example.data.UIData;
-import com.example.data.WriteData;
+import com.budget.Util;
+import com.budget.dataModal.DB;
+import com.budget.dataModal.LineItem;
+import com.budget.dataModal.LineItemCSV;
+import com.budget.dataModal.ReadData;
+import com.budget.dataModal.UIData;
+import com.budget.dataModal.WriteData;
 import com.opencsv.CSVReader;
 
 import javafx.collections.FXCollections;
@@ -315,13 +315,10 @@ public class PrimaryController {
 
         @FXML
         void button_UpdateBudget(ActionEvent event) {
-                LineItem firstItem = tableMandatory.getItems().get(0);
-                LocalDate inDate = firstItem.getDate();
-
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.getLastBudget(inDate);
+                                WriteData.getLastBudget(getWorkingDate());
                                 return null;
                         }
 
@@ -329,15 +326,7 @@ public class PrimaryController {
                         protected void succeeded() {
                                 super.succeeded();
                                 // Refresh the table view to reflect the changes
-                                tableIncomeTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                                tableManditoryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
-                                tableDiscretionaryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
-                                getTableRows(inDate);
-                                UIData.updateTableTotal(tables);
-                                tableIncome.refresh();
+                                updateTables();
                         }
 
                         @Override
@@ -360,7 +349,7 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.updateBalance(inDate);
+                                WriteData.updateBalance(getWorkingDate());
                                 return null;
                         }
 
@@ -1030,6 +1019,34 @@ public class PrimaryController {
 
         public LocalDate getWorkingDate() {
                 return LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
+        }
+
+        public void updateTables(){
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                updateTablesTask();
+                                return null;
+                        }
+
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Refresh the table views to reflect the changes
+                                tableIncome.refresh();
+                                tableMandatory.refresh();
+                                tableDiscretionary.refresh();
+                        }
+
+                        @Override
+                        protected void failed() {
+                                super.failed();
+                                // Handle any errors that occurred during the task
+                                Throwable exception = getException();
+                                exception.printStackTrace();
+                        }
+                };
+                new Thread(task).start();
         }
 
         public void updateTablesTask() {

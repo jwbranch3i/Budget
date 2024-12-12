@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -177,6 +177,21 @@ public class WriteData {
         }
         catch (Exception e) {
             System.out.println("Error getLastBudget: " + e.getMessage());
+        }
+    }
+
+    public static void updateBalance(LocalDate inDate) {
+        try {
+            String currentDate = inDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String lastMonthDate = inDate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+            PreparedStatement updateBalance = DataSource.getConn().prepareStatement(DB.UPDATE_BALANCE);
+            updateBalance.setString(1, lastMonthDate);
+            updateBalance.setString(2, currentDate);
+            updateBalance.executeUpdate();
+        }
+        catch (Exception e) {
+            System.out.println("Error updateBalance: " + e.getMessage());
         }
     }
 }

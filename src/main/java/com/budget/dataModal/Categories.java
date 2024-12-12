@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
