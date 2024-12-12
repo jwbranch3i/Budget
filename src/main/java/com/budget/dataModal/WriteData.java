@@ -1,7 +1,9 @@
-package com.example.data;
+package com.budget.dataModal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class WriteData {
     /**
@@ -30,8 +32,6 @@ public class WriteData {
             insertRecord.setBoolean(3, item.isMainCat());
             insertRecord.setString(4, item.getCategory());
 
-
-            
             insertRecord.executeUpdate();
             ResultSet rs = insertRecord.getGeneratedKeys();
             if (rs.next()) {
@@ -76,15 +76,21 @@ public class WriteData {
      * @return true if the budget amount was successfully updated, false
      *         otherwise.
      */
-    public static boolean actualUpdateBudget(LineItem item) {
+    public static boolean actualUpdate(LineItem item) {
+        System.out.println(item.toString());
         try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE_BUDGET);
-            updateRecord.setDouble(1, item.getBudget());
-            updateRecord.setInt(2, item.getId());
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE);
+
+            String dateString = item.getDate().toString();
+            updateRecord.setString(1, dateString);
+            updateRecord.setDouble(2, item.getActual());
+            updateRecord.setDouble(3, item.getBudget());
+            updateRecord.setDouble(4, item.getStartBal());
+            updateRecord.setInt(5, item.getId());
             updateRecord.executeUpdate();
         }
         catch (Exception e) {
-            System.out.println("Error budgetUpdateAmount: " + e.getMessage());
+            System.out.println("Error : " + e.getMessage());
             return false;
         }
         return true;
@@ -113,8 +119,7 @@ public class WriteData {
             insertRecord.setString(2, dateString);
 
             insertRecord.setDouble(3, existingCategory.getAmount());
-  
- 
+
             insertRecord.executeUpdate();
 
             ResultSet rs = insertRecord.getGeneratedKeys();
@@ -159,4 +164,34 @@ public class WriteData {
         return true;
     }
 
+    public static void getLastBudget(LocalDate indate) {
+        try {
+            String currentDate = indate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String lastMonthDate = indate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+            PreparedStatement getLastBudget = DataSource.getConn().prepareStatement(DB.UPDATE_TO_LAST_MONTH_BUDGET);
+            getLastBudget.setString(1, lastMonthDate);
+            getLastBudget.setString(2, currentDate);
+            getLastBudget.executeUpdate();
+
+        }
+        catch (Exception e) {
+            System.out.println("Error getLastBudget: " + e.getMessage());
+        }
+    }
+
+    public static void updateBalance(LocalDate inDate) {
+        try {
+            String currentDate = inDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            String lastMonthDate = inDate.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+            PreparedStatement updateBalance = DataSource.getConn().prepareStatement(DB.UPDATE_BALANCE);
+            updateBalance.setString(1, lastMonthDate);
+            updateBalance.setString(2, currentDate);
+            updateBalance.executeUpdate();
+        }
+        catch (Exception e) {
+            System.out.println("Error updateBalance: " + e.getMessage());
+        }
+    }
 }

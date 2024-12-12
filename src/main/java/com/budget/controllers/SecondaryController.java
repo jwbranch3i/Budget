@@ -1,13 +1,14 @@
-package com.example.controllers;
+package com.budget.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
-import com.example.data.Categories;
-import com.example.data.ReadData;
-import com.example.data.WriteData;
+import com.budget.dataModal.Categories;
+import com.budget.dataModal.ReadData;
+import com.budget.dataModal.WriteData;
+
+import java.util.HashMap;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

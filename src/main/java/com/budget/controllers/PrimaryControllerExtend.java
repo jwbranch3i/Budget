@@ -1,7 +1,7 @@
-package com.example.controllers;
+package com.budget.controllers;
 
-import com.example.Util;
-import com.example.data.LineItem;
+import com.budget.Util;
+import com.budget.dataModal.LineItem;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;

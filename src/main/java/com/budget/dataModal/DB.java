@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 // import org.apache.commons.beanutils.converters.StringArrayConverter;
 
@@ -69,6 +69,8 @@ public class DB {
         public static final String ACTUAL_COL_DATE = "date";
         public static final String ACTUAL_COL_ACTUAL = "actual";
         public static final String ACTUAL_COL_BUDGET = "budget";
+        public static final String ACTUAL_COL_STARTBAL = "startBal";
+        public static final String ACTUAL_COL_ENDBAL = "endBal";
 
         public static final int ACTUAL_COL_ID_INDEX = 1;
         public static final int ACTUAL_COL_CATEGORY_INDEX = 2;
@@ -88,7 +90,12 @@ public class DB {
         public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
-        public static final String ACTUAL_UPDATE_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
+        /*
+         * UPDATE actual SET date = ?, actual = ?, budget = ?, startBal = ?
+         * WHERE id = ?
+         */
+        public static final String ACTUAL_UPDATE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_DATE + " = ?, "
+                        + ACTUAL_COL_ACTUAL + " = ?, " + ACTUAL_COL_BUDGET + " = ?, " + ACTUAL_COL_STARTBAL
                         + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
         public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
@@ -99,26 +106,26 @@ public class DB {
         public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT STRFTIME('%Y', " + ACTUAL_COL_DATE
                         + ") AS YEAR FROM " + ACTUAL_TABLE + " ORDER BY " + ACTUAL_COL_DATE + " ASC";
 
-
         /*
          * SELECT actual.id AS ID, category.hide AS HIDE, category.main_category
          * AS MAIN_CATEGORY, category.category AS CATEGORY, actual.date AS DATE,
-         * actual.actual AS ACTUAL, actual.budget AS BUDGET FROM category INNER
-         * JOIN actual ON actual.category = category.id WHERE STRFTIME('%m',
-         * actual.date) = ? AND STRFTIME('%Y', actual.date) = ? AND
-         * category.type = ? ORDER BY PARENT, MAIN_CATEGORY DESC, CATEGORY
+         * actual.actual AS ACTUAL, actual.budget AS BUDGET, actual.startBal as
+         * STARTBAL FROM category INNER JOIN actual ON actual.category =
+         * category.id WHERE STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y',
+         * actual.date) = ? AND category.type = ? ORDER BY PARENT, MAIN_CATEGORY
+         * DESC, CATEGORY
          */
         public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
                         + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
                         + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
-                        + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "."
-                        + CAT_COL_PARENT + ", " + CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "."
-                        + CAT_COL_CATEGORY;
+                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET, "
+                        + ACTUAL_TABLE + "." + ACTUAL_COL_STARTBAL + " AS STARTBAL FROM " + CAT_TABLE + " INNER JOIN "
+                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "."
+                        + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
+                        + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
+                        + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "." + CAT_COL_PARENT + ", " + CAT_TABLE
+                        + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "." + CAT_COL_CATEGORY;
 
         /*
          * SELECT id, type, parent, category FROM category WHERE id NOT IN
@@ -143,4 +150,26 @@ public class DB {
                         + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
                         + "." + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
+        /*
+         * UPDATE actual SET budget = COALESCE(( SELECT budget FROM actual AS a
+         * WHERE a.category = actual.category AND strftime('%Y-%m', a.date) = ?
+         * ), 0) WHERE strftime('%Y-%m', actual.date) = ?;
+         */
+        public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
+                        + " = COALESCE(( SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a WHERE a."
+                        + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
+                        + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
+                        + ACTUAL_COL_DATE + ") = ?";
+
+        /*
+         * UPDATE actual SET startBal = COALESCE(( SELECT startBal - actual FROM
+         * actual AS a WHERE a.category = actual.category AND strftime('%Y-%m',
+         * a.date) = ? ), 0) WHERE strftime('%Y-%m', actual.date) = ?
+         * 
+         */
+        public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
+                        + " = COALESCE(( SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM "
+                        + ACTUAL_TABLE + " AS a WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
+                        + ACTUAL_COL_DATE + ") = ?";
 }

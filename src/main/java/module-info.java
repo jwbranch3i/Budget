@@ -9,12 +9,12 @@ module com.example {
     requires transitive java.sql;
     requires org.slf4j;
 
-    opens com.example to javafx.fxml;
-    opens com.example.controllers to javafx.fxml;
-    opens com.example.data to javafx.base;
+    opens com.budget to javafx.fxml;
+    opens com.budget.controllers to javafx.fxml;
+    opens com.budget.dataModal to javafx.base;
 
-    exports com.example;
-    exports com.example.controllers;
-    exports com.example.data;
+    exports com.budget;
+    exports com.budget.controllers;
+    exports com.budget.dataModal;
 }
 

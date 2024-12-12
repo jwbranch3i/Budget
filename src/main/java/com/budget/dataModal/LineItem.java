@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.dataModal;
 
 import java.time.LocalDate;
 
@@ -17,6 +17,7 @@ public class LineItem {
     private SimpleStringProperty category = new SimpleStringProperty("");
     private SimpleDoubleProperty actual = new SimpleDoubleProperty(0.0);
     private SimpleDoubleProperty budget = new SimpleDoubleProperty(0.0);
+    private SimpleDoubleProperty startBal = new SimpleDoubleProperty(0.0);
     private SimpleDoubleProperty balance = new SimpleDoubleProperty(0.0);
 
     public LineItem() {
@@ -119,6 +120,7 @@ public class LineItem {
 
     public void setActual(Double Actual) {
         this.actual.set(Actual);
+        this.balance.set(getStartBal() - getActual());
     }
 
     public Double getActual() {
@@ -139,7 +141,7 @@ public class LineItem {
     }
 
     /********************* Diff ***********************************/
- 
+
     public Double getDiff() {
         if (getType() == 0) {
             return getActual() - getBudget();
@@ -154,22 +156,39 @@ public class LineItem {
         return this.balance;
     }
 
-    public void setBalance(Double balance) {
-        this.balance.set(balance);
+    public void setBalance() {
+        this.balance.set(getStartBal() - getActual());
     }
 
     public Double getBalance() {
         return this.balance.get();
     }
 
-        
+    /********************* startBal ***********************************/
+    public SimpleDoubleProperty getstartBalProperty() {
+        return this.startBal;
+    }
+
+    public void setStartBal(Double startBal) {
+        this.startBal.set(startBal);
+        this.balance.set(getStartBal() - getActual());
+    }
+
+    public Double getStartBal() {
+        return this.startBal.get();
+    }
+
+    /************************ computed ******************************/
+    public Double getComputed() {
+        return getStartBal() - getActual();
+    }
 
     @Override
     public String toString() {
         return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
                 + getDate() + "'" + ", parent='" + getParent() + "'" + ", category='" + getCategory() + "'"
                 + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
-                + "}";
+                + ", start balance='" + getStartBal() + "'" + "}";
     }
 
     // convert the LineItem object to LineItemCSV object

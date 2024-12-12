@@ -1,4 +1,4 @@
-package com.example;
+package com.budget;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

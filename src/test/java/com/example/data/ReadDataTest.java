@@ -12,6 +12,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.budget.dataModal.Categories;
+import com.budget.dataModal.DataSource;
+import com.budget.dataModal.LineItem;
+import com.budget.dataModal.LineItemCSV;
+import com.budget.dataModal.ReadData;
+
 import javafx.application.Platform;
 
 public class ReadDataTest {
@@ -49,12 +55,10 @@ public class ReadDataTest {
         stmt.setInt(1, testItem_Cat.getId());
 
         String dateString = testItem_Act.getDate().toString();
-        System.out.println(dateString);
 
         stmt.setString(2, dateString);
         stmt.setDouble(3, testItem_Act.getAmount());
 
-        System.out.println(stmt.toString());
 
         stmt.executeUpdate();
 
@@ -192,6 +196,22 @@ public class ReadDataTest {
 
         // print each item in result
         for (Categories item : result) {
+            System.out.println(item);
+        }
+
+        // Assert the expected result
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testgetYears(){
+        ArrayList<Integer> result;
+
+        result = ReadData.getYears();
+
+        // print each item in result
+        System.out.println("Years:");
+        for (Integer item : result) {
             System.out.println(item);
         }
 

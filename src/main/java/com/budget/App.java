@@ -6,12 +6,12 @@
  * The stop() method is overridden to close the data source when the application is stopped.
  * The main() method is the entry point of the application.
  */
-package com.example;
+package com.budget;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.data.DataSource;
+import com.budget.dataModal.DataSource;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,7 +31,7 @@ public class App extends Application {
 
 			root = loader.load();
 
-			Scene scene = new Scene(root, 1420, 800);
+			Scene scene = new Scene(root);
   
 			scene.getStylesheets().add(getClass().getResource("testfile.css").toExternalForm());
 
@@ -40,7 +40,6 @@ public class App extends Application {
 			primaryStage.show();
 		} catch (Exception e) {
 			logger.error("Error loading FXML", e);
-			//e.printStackTrace();
 		}
 	}
 
