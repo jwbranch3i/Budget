@@ -50,9 +50,13 @@ public class DB {
                         + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_PARENT
                         + " = ? AND " + CAT_COL_CATEGORY + " = ?";
 
-        /* SELECT ID, HIDE, TYPE, PARENT, CATEGORY FROM CATEGORY */
-        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_HIDE + ", "
-                        + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE;
+        /*
+         * SELECT id, hide, type, parent, category FROM category ORDER BY parent,
+         * type, category
+         */
+        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_HIDE + ", " + CAT_COL_TYPE
+                        + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " ORDER BY "
+                        + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", " + CAT_COL_CATEGORY;
 
         /* UPDATE category SET type = ? WHERE id = ? */
         public static final String CAT_UPDATE_TYPE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ? WHERE "
@@ -165,11 +169,10 @@ public class DB {
          * UPDATE actual SET startBal = COALESCE(( SELECT startBal - actual FROM
          * actual AS a WHERE a.category = actual.category AND strftime('%Y-%m',
          * a.date) = ? ), 0) WHERE strftime('%Y-%m', actual.date) = ?
-         * 
          */
         public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
                         + " = COALESCE(( SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM "
                         + ACTUAL_TABLE + " AS a WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
-                        + ACTUAL_COL_DATE + ") = ?";
+                        + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE
+                        + ") = ? ), 0) WHERE STRFTIME('%Y-%m', " + ACTUAL_COL_DATE + ") = ?";
 }

@@ -1,4 +1,4 @@
-package com.example.data;
+package com.budget.data;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

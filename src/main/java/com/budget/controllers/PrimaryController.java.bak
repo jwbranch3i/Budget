@@ -220,7 +220,7 @@ public class PrimaryController {
         void button_EditCat(ActionEvent event) {
                 try {
                         // Load the FXML file for the new window
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/secondary.fxml"));
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/secondary.fxml"));
                         Parent root = fxmlLoader.load();
 
                         // Create a new Stage
@@ -998,7 +998,7 @@ public class PrimaryController {
 
         public void editLineItem(LineItem item) {
                 try {
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/editItem.fxml"));
                         Parent root = fxmlLoader.load();
 
                         EditItemController editItemController = fxmlLoader.getController();

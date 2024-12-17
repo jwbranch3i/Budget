@@ -180,9 +180,4 @@ public class SecondaryController {
 
   }
 
-  // public void catColumnType_OnEditCommit(TableColumn.CellEditEvent<Categories, Integer> e) {
-  //   Categories category = e.getRowValue();
-  //   category.setType(e.getNewValue());
-  //   WriteData.categoryUpdateType(category);
-  // }
 }

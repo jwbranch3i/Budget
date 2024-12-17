@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controllers.PrimaryController">
+   <top>
+      <HBox prefHeight="100.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane fx:id="myAnchorPane" style="-fx-border-color: black;">
+               <children>
+                  <VBox fx:id="categoryBox" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <Button fx:id="btn_Update" disable="true" mnemonicParsing="false" onAction="#button_UpdateCat" text="Update" />
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                           <children>
+                              <VBox alignment="CENTER" prefHeight="200.0" spacing="5.0">
+                                 <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" text="Month" />
+                                    <ComboBox fx:id="monthBox" prefWidth="125.0" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Label text="Year" />
+                                    <ComboBox fx:id="yearBox" prefWidth="125.0" />
+                                 </children>
+                              </VBox>
+                           </children></HBox>
+                        <CheckBox fx:id="chkBox" mnemonicParsing="false" text="Read Data from file." />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </AnchorPane>
+            <AnchorPane style="-fx-border-color: black;">
+               <children>
+                  <TableView fx:id="tableTotal" prefHeight="200.0">
+                    <columns>
+                      <TableColumn fx:id="tableTotal_Category" prefWidth="200.0" />
+                      <TableColumn fx:id="tableTotal_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="tableTotal_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="tableTotal_Diff" prefWidth="75.0" text="Diff" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+            <VBox spacing="10.0">
+               <children>
+                  <Button fx:id="btn_EditCat" alignment="CENTER" mnemonicParsing="false" onAction="#button_EditCat" text="Edit Categories" />
+                  <Button fx:id="btn_UpdateBudget" alignment="CENTER" mnemonicParsing="false" onAction="#button_UpdateBudget" text="Update Budget" />
+                  <Button fx:id="btn_UpdateBalance" alignment="CENTER" layoutX="10.0" layoutY="45.0" mnemonicParsing="false" onAction="#button_UpdateBalance" text="Update Start Balance" />
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </HBox>
+   </top>
+   <bottom>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="mainDateLabel" contentDisplay="CENTER" text="September 2024" textAlignment="CENTER">
+               <font>
+                  <Font size="52.0" />
+               </font>
+            </Label>
+         </children></HBox>
+   </bottom>
+   <center>
+      <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="INCOME">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
+                  <TableView fx:id="tableIncome" editable="true">
+                    <columns>
+                      <TableColumn fx:id="tableIncome_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" sortable="false" text="Category" />
+                      <TableColumn fx:id="tableIncome_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableIncome_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableIncome_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Diff" />
+                    </columns>
+                  </TableView>
+                  <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0">
+                     <columns>
+                        <TableColumn fx:id="tableIncomeTotal_Category" editable="false" maxWidth="200.0" minWidth="199.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableIncomeTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
+               <children>
+                  <Label text="MANDITORY">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
+                  <TableView fx:id="tableMandatory" editable="true" prefWidth="520.0">
+                     <columns>
+                        <TableColumn fx:id="tableMandatory_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" text="Category" />
+                        <TableColumn fx:id="tableMandatory_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableMandatory_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableMandatory_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Diff" />
+                        <TableColumn fx:id="tableMandatory_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
+                     </columns>
+                  </TableView>
+                  <TableView id="totalTable" fx:id="tableManditoryTotal" prefHeight="40.0">
+                     <columns>
+                        <TableColumn fx:id="tableManditoryTotal_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableManditoryTotal_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0">
+               <children>
+                  <Label text="DISCRETIONARY">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
+                  <TableView fx:id="tableDiscretionary" editable="true" prefWidth="520.0">
+                     <columns>
+                        <TableColumn fx:id="tableDiscretionary_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" text="Category" />
+                        <TableColumn fx:id="tableDiscretionary_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
+                        <TableColumn fx:id="tableDiscretionary_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
+                        <TableColumn fx:id="tableDiscretionary_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" text="Diff" />
+                        <TableColumn fx:id="tableDiscretionary_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
+                     </columns>
+                  </TableView>
+                  <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0">
+                     <columns>
+                        <TableColumn fx:id="tableDiscretionaryTotal_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_Balance" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+         <BorderPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </BorderPane.margin>
+      </HBox>
+   </center>
+</BorderPane>

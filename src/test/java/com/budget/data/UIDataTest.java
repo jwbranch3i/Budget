@@ -1,6 +1,5 @@
-package com.example.controllers;
+package com.budget.data;
 
-import java.io.File;
 import java.time.LocalDate;
 
 import org.junit.AfterClass;
@@ -9,10 +8,11 @@ import org.junit.Test;
 
 import com.budget.controllers.PrimaryController;
 import com.budget.dataModal.DataSource;
+import com.budget.dataModal.UIData;
 
 import javafx.application.Platform;
 
-public class PrimaryControllerTest {
+public class UIDataTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         if (!DataSource.getInstance().open()) {
@@ -27,21 +27,16 @@ public class PrimaryControllerTest {
     }
 
     @Test
-    public void testReadActual() {
-        File csvfile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\Oct2024.csv");
+    public void testUpdateTableTotal() {
 
-        PrimaryController.readActual(csvfile, LocalDate.now());
-    }
-
-    @Test
-    public void testGetTableRows() {
-
-        LocalDate inDate = LocalDate.of(2024, 8, 1);
-        // LocalDate inDate = LocalDate.of(2024, 9, 1);
+        LocalDate inDate = LocalDate.of(2024, 10, 1);
 
         PrimaryController controller = new PrimaryController();
         controller.initialize();
-
         controller.getTableRows(inDate);
+
+        UIData.updateTableTotal(controller.getTables());
+        
+        System.out.println("testUpdateTableTotal - *** finish ***");
     }
 }
