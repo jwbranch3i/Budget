@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class LineItemCSV {
     private int id = 0;
     private Boolean hide = false;
+    private Boolean in_total = true;
     private Boolean isMainCat = true;
     private int type = 0;
     private LocalDate date = LocalDate.now();
@@ -37,6 +38,15 @@ public class LineItemCSV {
 
     public void setHide(Boolean hide) {
         this.hide = hide;
+    }
+
+    /********************* in_total ***********************************/
+    public Boolean in_Total() {
+        return this.in_total;
+    }
+
+    public void in_Total(Boolean in_total) {
+        this.in_total = in_total;
     }
 
     /********************* isCategory ***********************************/

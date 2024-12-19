@@ -8,10 +8,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class LineItem {
-    int id = 0;
-    Boolean hide = false;
-    int type = 0;
-    Boolean isCategory = false;
+    private int id = 0;
+    private Boolean hide = false;
+    private Boolean in_total = true;
+    private int type = 0;
+    private Boolean isCategory = false;
     private SimpleObjectProperty<LocalDate> date = new SimpleObjectProperty<LocalDate>(LocalDate.now());
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
@@ -48,6 +49,15 @@ public class LineItem {
 
     public void setHide(Boolean hide) {
         this.hide = hide;
+    }
+
+    /********************* in_total ***********************************/
+    public Boolean in_Total() {
+        return this.in_total;
+    }
+
+    public void in_Total(Boolean in_total) {
+        this.in_total = in_total;
     }
 
     /********************* isCategory ***********************************/

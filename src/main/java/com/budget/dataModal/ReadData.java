@@ -227,6 +227,7 @@ public class ReadData {
             while (rs.next()) {
                 Categories newItem = new Categories();
                 newItem.setId(rs.getInt("ID"));
+                newItem.in_Total(rs.getBoolean("IN_TOTAL"));
                 newItem.setHide(rs.getBoolean("HIDE"));
                 newItem.setType(rs.getInt("TYPE"));
                 newItem.setParent(rs.getString("PARENT"));
