@@ -45,11 +45,11 @@ public class LineItem {
 
     /********************* in_total ***********************************/
     public Boolean in_total() {
-        return this.hide;
+        return this.in_total;
     }
 
-    public void in_total(Boolean total) {
-        this.total = total;
+    public void in_total(Boolean in_total) {
+        this.in_total = in_total;
     }
 
     /********************* hide ***********************************/
@@ -205,7 +205,7 @@ public class LineItem {
 
     @Override
     public String toString() {
-        return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
+        return "{" + " id='" + getId() + "'" + ", hide='" + hide() + "'" + ", type='" + getType() + "'" + ", date='"
                 + getDate() + "'" + ", parent='" + getParent() + "'" + ", category='" + getCategory() + "'"
                 + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
                 + ", start balance='" + getStartBal() + "'" + "}";

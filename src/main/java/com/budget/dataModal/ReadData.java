@@ -108,7 +108,7 @@ public class ReadData {
                 LineItem newItem = new LineItem();
                 newItem.setId(rs.getInt("ID"));
                 newItem.setType(type);
-                newItem.setHide(rs.getBoolean("HIDE"));
+                newItem.hide(rs.getBoolean("HIDE"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
                 newItem.setCategory(rs.getString("CATEGORY"));
@@ -116,7 +116,7 @@ public class ReadData {
                 newItem.setBudget(rs.getDouble("BUDGET"));
                 newItem.setStartBal(rs.getDouble("STARTBAL"));
 
-                if (newItem.getHide() == false) {
+                if (newItem.hide() == false) {
                     items.add(newItem);
                 }
             }
@@ -227,8 +227,8 @@ public class ReadData {
             while (rs.next()) {
                 Categories newItem = new Categories();
                 newItem.setId(rs.getInt("ID"));
-                newItem.in_Total(rs.getBoolean("IN_TOTAL"));
-                newItem.setHide(rs.getBoolean("HIDE"));
+                newItem.in_total(rs.getBoolean("IN_TOTAL"));
+                newItem.hide(rs.getBoolean("HIDE"));
                 newItem.setType(rs.getInt("TYPE"));
                 newItem.setParent(rs.getString("PARENT"));
                 newItem.setCategory(rs.getString("CATEGORY"));

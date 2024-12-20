@@ -91,15 +91,15 @@ public class SecondaryController {
 
           // Set the CheckBox value to the current item in the row
           Categories currentCategory = getTableView().getItems().get(getIndex());
-          isHidden.setSelected(currentCategory.getHide());
+          isHidden.setSelected(currentCategory.hide());
 
           // Add listener to save changes to the database
           isHidden.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
               // Update the category hide status
-              if (currentCategory.getHide() != newValue) {
-                currentCategory.setHide(newValue);
-                WriteData.categoryUpdateHide(currentCategory);
+              if (currentCategory.hide() != newValue) {
+                currentCategory.hide(newValue);
+                WriteData.categoryUpdate(currentCategory);
               }
             }
           });
@@ -139,7 +139,7 @@ public class SecondaryController {
               // Update the category type
               if (currentCategory.getType() != getKeyByValue(typeMap, newValue)) {
                 currentCategory.setType(getKeyByValue(typeMap, newValue));
-                WriteData.categoryUpdateType(currentCategory);
+                WriteData.categoryUpdate(currentCategory);
               }
             }
           });

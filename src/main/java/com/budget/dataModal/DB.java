@@ -60,15 +60,7 @@ public class DB {
                         + " FROM " + CAT_TABLE + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", "
                         + CAT_COL_CATEGORY;
 
-        /* UPDATE category SET type = ? WHERE id = ? */
-        public static final String CAT_UPDATE_TYPE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ? WHERE "
-                        + CAT_COL_ID + " = ?";
-
-        /* UPDATE category SET hide = ? WHERE id = ? */
-        public static final String CAT_UPDATE_HIDE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_HIDE + " = ? WHERE "
-                        + CAT_COL_ID + " = ?";
-
-        /*
+       /*
          * UPDATE category SET type = ?, parent = ?, category = ?, in_total = ?,
          * hide = ?, acct = ? WHERE id = ?
          */

@@ -156,34 +156,6 @@ public class WriteData {
         return true;
     }
 
-    public static Boolean categoryUpdateType(Categories item) {
-        try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_TYPE);
-            updateRecord.setInt(1, item.getType());
-            updateRecord.setInt(2, item.getId());
-            updateRecord.executeUpdate();
-        }
-        catch (Exception e) {
-            System.out.println("Error categoryUpdateType: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    public static Boolean categoryUpdateHide(Categories item) {
-        try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_HIDE);
-            updateRecord.setBoolean(1, item.getHide());
-            updateRecord.setInt(2, item.getId());
-            updateRecord.executeUpdate();
-        }
-        catch (Exception e) {
-            System.out.println("Error categoryUpdateHide: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
     public static void getLastBudget(LocalDate indate) {
         try {
             String currentDate = indate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
