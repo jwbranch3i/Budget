@@ -136,6 +136,26 @@ public class WriteData {
         return returnActual;
     }
 
+    public static Boolean categoryUpdate(Categories item){
+        try {
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CATEGORY_UPDATE);
+            updateRecord.setInt(1, item.getType());
+            updateRecord.setString(2, item.getParent());
+            updateRecord.setString(3, item.getCategory());
+            updateRecord.setBoolean(4, item.in_total());
+            updateRecord.setBoolean(5, item.hide());
+            updateRecord.setInt(6, item.getAcct());
+            updateRecord.setInt(7, item.getId());
+           
+            updateRecord.executeUpdate();
+        }
+        catch (Exception e) {
+            System.out.println("Error categoryUpdate: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
     public static Boolean categoryUpdateType(Categories item) {
         try {
             PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_TYPE);

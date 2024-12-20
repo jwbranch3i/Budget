@@ -56,8 +56,9 @@ public class DB {
          * BY parent, type, category
          */
         public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_IN_TOTAL + ", "
-                        + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM "
-                        + CAT_TABLE + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", " + CAT_COL_CATEGORY;
+                        + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY
+                        + " FROM " + CAT_TABLE + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", "
+                        + CAT_COL_CATEGORY;
 
         /* UPDATE category SET type = ? WHERE id = ? */
         public static final String CAT_UPDATE_TYPE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ? WHERE "
@@ -66,6 +67,14 @@ public class DB {
         /* UPDATE category SET hide = ? WHERE id = ? */
         public static final String CAT_UPDATE_HIDE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_HIDE + " = ? WHERE "
                         + CAT_COL_ID + " = ?";
+
+        /*
+         * UPDATE category SET type = ?, parent = ?, category = ?, in_total = ?,
+         * hide = ?, acct = ? WHERE id = ?
+         */
+        public static final String CATEGORY_UPDATE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ?, "
+                        + CAT_COL_PARENT + " = ?, " + CAT_COL_CATEGORY + " = ?, " + CAT_COL_IN_TOTAL + " = ?, "
+                        + CAT_COL_HIDE + " = ?, " + CAT_COL_ACCT + " = ? WHERE " + CAT_COL_ID + " = ?";
 
         /* table - actual */
         public static final String ACTUAL_TABLE = "actual";
