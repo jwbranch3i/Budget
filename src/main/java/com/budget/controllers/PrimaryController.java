@@ -465,6 +465,12 @@ public class PrimaryController {
 
                 task.setOnSucceeded(e -> {
                         ArrayList<Integer> years = task.getValue();
+
+                        /* add current year to array if not in array */
+                        if (!years.contains(LocalDate.now().getYear())) {
+                                years.add(LocalDate.now().getYear());
+                        }
+
                         ObservableList<Integer> yearChoices = FXCollections.observableArrayList(years);
                         yearBox.setItems(yearChoices);
                         yearBox.setEditable(true);
