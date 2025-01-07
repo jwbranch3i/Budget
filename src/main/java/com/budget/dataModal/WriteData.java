@@ -77,7 +77,6 @@ public class WriteData {
      *         otherwise.
      */
     public static boolean actualUpdate(LineItem item) {
-        System.out.println(item.toString());
         try {
             PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE);
 
