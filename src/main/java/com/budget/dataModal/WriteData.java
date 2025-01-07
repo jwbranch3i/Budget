@@ -77,7 +77,6 @@ public class WriteData {
      *         otherwise.
      */
     public static boolean actualUpdate(LineItem item) {
-        System.out.println(item.toString());
         try {
             PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE);
 
@@ -136,29 +135,21 @@ public class WriteData {
         return returnActual;
     }
 
-    public static Boolean categoryUpdateType(Categories item) {
+    public static Boolean categoryUpdate(Categories item){
         try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_TYPE);
+            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CATEGORY_UPDATE);
             updateRecord.setInt(1, item.getType());
-            updateRecord.setInt(2, item.getId());
+            updateRecord.setString(2, item.getParent());
+            updateRecord.setString(3, item.getCategory());
+            updateRecord.setBoolean(4, item.in_total());
+            updateRecord.setBoolean(5, item.hide());
+            updateRecord.setInt(6, item.getAcct());
+            updateRecord.setInt(7, item.getId());
+           
             updateRecord.executeUpdate();
         }
         catch (Exception e) {
-            System.out.println("Error categoryUpdateType: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    public static Boolean categoryUpdateHide(Categories item) {
-        try {
-            PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.CAT_UPDATE_HIDE);
-            updateRecord.setBoolean(1, item.getHide());
-            updateRecord.setInt(2, item.getId());
-            updateRecord.executeUpdate();
-        }
-        catch (Exception e) {
-            System.out.println("Error categoryUpdateHide: " + e.getMessage());
+            System.out.println("Error categoryUpdate: " + e.getMessage());
             return false;
         }
         return true;

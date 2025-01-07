@@ -205,13 +205,13 @@ public class ReadDataTest {
 
     @Test
     public void testgetYears(){
-        ArrayList<Integer> result;
+        ArrayList<String> result;
 
         result = ReadData.getYears();
 
         // print each item in result
         System.out.println("Years:");
-        for (Integer item : result) {
+        for (String item : result) {
             System.out.println(item);
         }
 

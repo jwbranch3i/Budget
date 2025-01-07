@@ -193,7 +193,7 @@ public class PrimaryController {
         private ProgressIndicator progressIndicator;
 
         @FXML
-        private ComboBox<Integer> yearBox;
+        private ComboBox<String> yearBox;
 
         @FXML
         private ComboBox<String> monthBox;
@@ -237,7 +237,7 @@ public class PrimaryController {
                         // Show the modal window
                         stage.showAndWait();
 
-                        LocalDate inDate = LocalDate.of(yearBox.getValue(),
+                        LocalDate inDate = LocalDate.of(Integer.parseInt(yearBox.getValue()),
                                         monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
 
                         tableIncomeTotal.setItems(
@@ -256,8 +256,8 @@ public class PrimaryController {
 
         @FXML
         void button_UpdateCat(ActionEvent event) {
-                LocalDate inDate = LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1,
-                                1);
+                LocalDate inDate = LocalDate.of(Integer.parseInt(yearBox.getValue()),
+                                monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
 
                 if (!chkBox.isSelected()) {
                         readFromDatabase(inDate);
@@ -455,20 +455,36 @@ public class PrimaryController {
                 });
 
                 // Create a task to run getYears in another thread
-                Task<ArrayList<Integer>> task = new Task<ArrayList<Integer>>() {
+                Task<ArrayList<String>> task = new Task<ArrayList<String>>() {
                         @Override
-                        protected ArrayList<Integer> call() throws Exception {
+                        protected ArrayList<String> call() throws Exception {
                                 return ReadData.getYears();
                         }
                 };
                 new Thread(task).start();
 
                 task.setOnSucceeded(e -> {
-                        ArrayList<Integer> years = task.getValue();
-                        ObservableList<Integer> yearChoices = FXCollections.observableArrayList(years);
+                        ArrayList<String> years = task.getValue();
+
+                        /* add current year to array if not in array */
+                        String currentYear = String.valueOf(LocalDate.now().getYear());
+                        String currentYearPlusOne = String.valueOf(LocalDate.now().getYear() + 1);
+                        String currentYearMinusOne = String.valueOf(LocalDate.now().getYear() - 1);
+                        if (!years.contains(currentYear)) {
+                                years.add(currentYear);
+                        }
+                        if (!years.contains(currentYearPlusOne)) {
+                                years.add(currentYearPlusOne);
+                        }
+                        if (!years.contains(currentYearMinusOne)) {
+                                years.add(currentYearMinusOne);
+                        }
+                        years.sort(String::compareTo);
+
+                        ObservableList<String> yearChoices = FXCollections.observableArrayList(years);
                         yearBox.setItems(yearChoices);
                         yearBox.setEditable(true);
-                        yearBox.getSelectionModel().selectFirst();
+                        yearBox.getSelectionModel().select(currentYear);
                 });
                 yearBox.setOnAction(e -> {
                         btn_Update.setDisable(false);
@@ -1018,10 +1034,11 @@ public class PrimaryController {
         }
 
         public LocalDate getWorkingDate() {
-                return LocalDate.of(yearBox.getValue(), monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
+                return LocalDate.of(Integer.parseInt(yearBox.getValue()),
+                                monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
         }
 
-        public void updateTables(){
+        public void updateTables() {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
@@ -1032,7 +1049,8 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table views to reflect the changes
+                                // Refresh the table views to reflect the
+                                // changes
                                 tableIncome.refresh();
                                 tableMandatory.refresh();
                                 tableDiscretionary.refresh();
@@ -1041,7 +1059,8 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 super.failed();
-                                // Handle any errors that occurred during the task
+                                // Handle any errors that occurred during the
+                                // task
                                 Throwable exception = getException();
                                 exception.printStackTrace();
                         }

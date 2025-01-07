@@ -11,6 +11,7 @@ public class LineItem {
     private int id = 0;
     private Boolean hide = false;
     private Boolean in_total = true;
+    private int acct = 0;
     private int type = 0;
     private Boolean isCategory = false;
     private SimpleObjectProperty<LocalDate> date = new SimpleObjectProperty<LocalDate>(LocalDate.now());
@@ -42,22 +43,22 @@ public class LineItem {
         this.id = id;
     }
 
-    /********************* hide ***********************************/
-    public Boolean getHide() {
-        return this.hide;
-    }
-
-    public void setHide(Boolean hide) {
-        this.hide = hide;
-    }
-
     /********************* in_total ***********************************/
-    public Boolean in_Total() {
+    public Boolean in_total() {
         return this.in_total;
     }
 
-    public void in_Total(Boolean in_total) {
+    public void in_total(Boolean in_total) {
         this.in_total = in_total;
+    }
+
+    /********************* hide ***********************************/
+    public Boolean hide() {
+        return this.hide;
+    }
+
+    public void hide(Boolean hide) {
+        this.hide = hide;
     }
 
     /********************* isCategory ***********************************/
@@ -67,6 +68,15 @@ public class LineItem {
 
     public void setIsCategory(Boolean isCategory) {
         this.isCategory = isCategory;
+    }
+
+    /********************* acct ***********************************/
+    public int getAcct() {
+        return this.acct;
+    }
+
+    public void setAcct(int acct) {
+        this.type = acct;
     }
 
     /********************* type ***********************************/
@@ -195,7 +205,7 @@ public class LineItem {
 
     @Override
     public String toString() {
-        return "{" + " id='" + getId() + "'" + ", hide='" + getHide() + "'" + ", type='" + getType() + "'" + ", date='"
+        return "{" + " id='" + getId() + "'" + ", hide='" + hide() + "'" + ", type='" + getType() + "'" + ", date='"
                 + getDate() + "'" + ", parent='" + getParent() + "'" + ", category='" + getCategory() + "'"
                 + ", actual='" + getActual() + "'" + ", budget='" + getBudget() + "'" + ", diff='" + getDiff() + "'"
                 + ", start balance='" + getStartBal() + "'" + "}";

@@ -36,7 +36,7 @@ public class LineItemTest {
         System.out.println(lineItem.getDiff());
 
         assertEquals(type, lineItem.getType());
-        assertEquals(hide, lineItem.getHide());
+        assertEquals(hide, lineItem.hide());
         assertEquals(date, lineItem.getDate());
         assertEquals(parent, lineItem.getParent());
         assertEquals(category, lineItem.getCategory());
@@ -61,7 +61,7 @@ public class LineItemTest {
         System.out.println(lineItem2.getDiff());
 
         assertEquals(type, lineItem2.getType());
-        assertEquals(hide, lineItem2.getHide());
+        assertEquals(hide, lineItem2.hide());
         assertEquals(date, lineItem2.getDate());
         assertEquals(parent, lineItem2.getParent());
         assertEquals(category, lineItem2.getCategory());
@@ -80,8 +80,8 @@ public class LineItemTest {
         assertEquals(id, lineItem.getId());
 
         Boolean hide = true;
-        lineItem.setHide(hide);
-        assertEquals(hide, lineItem.getHide());
+        lineItem.hide(hide);
+        assertEquals(hide, lineItem.hide());
 
         int type = 2;
         lineItem.setType(type);
