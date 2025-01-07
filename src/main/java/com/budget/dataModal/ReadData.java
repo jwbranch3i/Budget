@@ -196,18 +196,19 @@ public class ReadData {
     }
 
     // method to available years in database
-    public static ArrayList<Integer> getYears() {
-        ArrayList<Integer> years = new ArrayList<Integer>();
+    public static ArrayList<String> getYears() {
+        ArrayList<String> years = new ArrayList<String>();
 
         try {
             PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                years.add(rs.getInt("YEAR"));
+                years.add(rs.getString("YEAR"));
             }
 
-            if (years.size() == 0) {
-                years.add(LocalDate.now().getYear());
+           
+            if (years.isEmpty()) {
+                years.add(String.valueOf(LocalDate.now().getYear())); // Convert Integer to String
             }
         }
         catch (Exception e) {
