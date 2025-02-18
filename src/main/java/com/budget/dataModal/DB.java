@@ -18,7 +18,7 @@ public class DB {
         /* table - catogery */
         public static final String CAT_TABLE = "category";
         public static final String CAT_COL_ID = "id";
-        public static final String CAT_COL_IN_TOTAL = "in_total";
+        public static final String CAT_COL_INCLUDE_IN_TOTAL = "include_in_total";
         public static final String CAT_COL_HIDE = "hide";
         public static final String CAT_COL_TYPE = "type";
         public static final String CAT_COL_PARENT = "parent";
@@ -28,13 +28,22 @@ public class DB {
         public static final String CAT_COL_BALANCE = "balance";
 
         public static final int CAT_COL_ID_INDEX = 1;
-        public static final int CAT_COL_HIDE_INDEX = 2;
-        public static final int CAT_COL_TYPE_INDEX = 3;
-        public static final int CAT_COL_PARENT_INDEX = 4;
-        public static final int CAT_COL_MAIN_CATEGORY_INDEX = 5;
-        public static final int CAT_COL_CATEGORY_INDEX = 6;
-        public static final int CAT_COL_ACCT_INDEX = 7;
-        public static final int CAT_COL_BALANCE_INDEX = 8;
+        public static final int CAT_COL_INCLUDE_IN_TOTAL_INDEX = 2;
+        public static final int CAT_COL_HIDE_INDEX = 3;
+        public static final int CAT_COL_TYPE_INDEX = 4;
+        public static final int CAT_COL_PARENT_INDEX = 5;
+        public static final int CAT_COL_MAIN_CATEGORY_INDEX = 6;
+        public static final int CAT_COL_CATEGORY_INDEX = 7;
+        public static final int CAT_COL_ACCT_INDEX = 8;
+        public static final int CAT_COL_BALANCE_INDEX = 9;
+
+        /* table - Accounts */
+        public static final String ACCOUNTS_TABLE = "accounts";
+        public static final String ACCOUNTS_COL_ID = "id";
+        public static final String ACCOUNTS_COL_ACCTNAME = "acctName";
+
+        public static final int ACCOUNTS_COL_ID_INDEX = 1;
+        public static final int ACCOUNTS_COL_ACCTNAME_INDEX = 2;
 
         /* table - category */
         /*
@@ -52,20 +61,20 @@ public class DB {
                         + " = ? AND " + CAT_COL_CATEGORY + " = ?";
 
         /*
-         * SELECT id, in_total, hide, type, parent, category FROM category ORDER
+         * SELECT id, include_in_total, hide, type, parent, category FROM category ORDER
          * BY parent, type, category
          */
-        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_IN_TOTAL + ", "
+        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_INCLUDE_IN_TOTAL + ", "
                         + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY
                         + " FROM " + CAT_TABLE + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", "
                         + CAT_COL_CATEGORY;
 
        /*
-         * UPDATE category SET type = ?, parent = ?, category = ?, in_total = ?,
+         * UPDATE category SET type = ?, parent = ?, category = ?, include_in_total = ?,
          * hide = ?, acct = ? WHERE id = ?
          */
         public static final String CATEGORY_UPDATE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ?, "
-                        + CAT_COL_PARENT + " = ?, " + CAT_COL_CATEGORY + " = ?, " + CAT_COL_IN_TOTAL + " = ?, "
+                        + CAT_COL_PARENT + " = ?, " + CAT_COL_CATEGORY + " = ?, " + CAT_COL_INCLUDE_IN_TOTAL + " = ?, "
                         + CAT_COL_HIDE + " = ?, " + CAT_COL_ACCT + " = ? WHERE " + CAT_COL_ID + " = ?";
 
         /* table - actual */

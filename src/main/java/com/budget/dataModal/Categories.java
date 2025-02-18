@@ -9,7 +9,7 @@ import java.util.ArrayList; // Add this import statement
 public class Categories {
     int id = 0;
     private SimpleBooleanProperty hide = new SimpleBooleanProperty(false);
-    private SimpleBooleanProperty in_total = new SimpleBooleanProperty(true);
+    private SimpleBooleanProperty include_in_total = new SimpleBooleanProperty(true);
     private SimpleIntegerProperty type = new SimpleIntegerProperty(0);
     private SimpleStringProperty parent = new SimpleStringProperty("");
     private SimpleStringProperty category = new SimpleStringProperty("");
@@ -39,19 +39,19 @@ public class Categories {
         this.id = id;
     }
 
-    /********************* in_total ***********************************/
-    public SimpleBooleanProperty in_totalProperty() {
-        return this.in_total;
+    /********************* include_in_total ***********************************/
+    public SimpleBooleanProperty include_in_totalProperty() {
+        return this.include_in_total;
     }
 
-    public Boolean in_total() {
-        return in_total.get();
+    public Boolean include_in_total() {
+        return include_in_total.get();
     }
-    public Boolean getIn_total() {
-        return in_total.get();
+    public Boolean getInclude_in_total() {
+        return include_in_total.get();
     }
-    public void in_total(boolean in_total) {
-        this.in_total.set(in_total);
+    public void include_in_total(boolean include_in_total) {
+        this.include_in_total.set(include_in_total);
     }
 
     /********************* hide ***********************************/
@@ -125,7 +125,7 @@ public class Categories {
         return "{" +
             " id='" + getId() + "'" +
             ", hide='" + hide() + "'" +
-            ", in_total='" + in_total() + "'" +
+            ", include_in_total='" + include_in_total() + "'" +
             ", type='" + getType() + "'" +
             ", parent='" + getParent() + "'" +
             ", category='" + getCategory() + "'" +

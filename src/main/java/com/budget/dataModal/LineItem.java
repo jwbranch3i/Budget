@@ -10,7 +10,7 @@ import javafx.beans.property.StringProperty;
 public class LineItem {
     private int id = 0;
     private Boolean hide = false;
-    private Boolean in_total = true;
+    private Boolean include_in_total  = true;
     private int acct = 0;
     private int type = 0;
     private Boolean isCategory = false;
@@ -43,13 +43,13 @@ public class LineItem {
         this.id = id;
     }
 
-    /********************* in_total ***********************************/
-    public Boolean in_total() {
-        return this.in_total;
+    /********************* include_in_total ***********************************/
+    public Boolean include_in_total() {
+        return this.include_in_total;
     }
 
-    public void in_total(Boolean in_total) {
-        this.in_total = in_total;
+    public void include_in_total(Boolean include_in_total) {
+        this.include_in_total = include_in_total;
     }
 
     /********************* hide ***********************************/
