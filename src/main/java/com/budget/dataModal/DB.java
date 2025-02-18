@@ -4,186 +4,180 @@ package com.budget.dataModal;
 
 public class DB {
 
-        /* CVS file */
-        public static final String CSV_FILE_PATH = "D:\\VSCwork\\budget\\";
+  /* CVS file */
+  public static final String CSV_FILE_PATH = "D:\\VSCwork\\budget\\";
 
-        public static final String CSV_FILE_NAME = "budgetPrint.csv";
-        // public static final String CSV_FILE_NAME = "budgetPrintData.csv";
-        public static final String CSV_FILE = CSV_FILE_PATH + CSV_FILE_NAME;
+  public static final String CSV_FILE_NAME = "budgetPrint.csv";
+  // public static final String CSV_FILE_NAME = "budgetPrintData.csv";
+  public static final String CSV_FILE = CSV_FILE_PATH + CSV_FILE_NAME;
 
-        public static final int INCOME = 0;
-        public static final int MANDITORY = 1;
-        public static final int DISCRETIONARY = 2;
+  public static final int INCOME = 0;
+  public static final int MANDITORY = 1;
+  public static final int DISCRETIONARY = 2;
 
-        /* table - catogery */
-        public static final String CAT_TABLE = "category";
-        public static final String CAT_COL_ID = "id";
-        public static final String CAT_COL_INCLUDE_IN_TOTAL = "include_in_total";
-        public static final String CAT_COL_HIDE = "hide";
-        public static final String CAT_COL_TYPE = "type";
-        public static final String CAT_COL_PARENT = "parent";
-        public static final String CAT_COL_MAIN_CATEGORY = "main_category";
-        public static final String CAT_COL_CATEGORY = "category";
-        public static final String CAT_COL_ACCT = "acct";
-        public static final String CAT_COL_BALANCE = "balance";
+  /* table - catogery */
+  public static final String CAT_TABLE = "category";
+  public static final String CAT_COL_ID = "id";
+  public static final String CAT_COL_INCLUDE_IN_TOTAL = "include_in_total";
+  public static final String CAT_COL_HIDE = "hide";
+  public static final String CAT_COL_TYPE = "type";
+  public static final String CAT_COL_PARENT = "parent";
+  public static final String CAT_COL_MAIN_CATEGORY = "main_category";
+  public static final String CAT_COL_CATEGORY = "category";
+  public static final String CAT_COL_ACCT = "acct";
+  public static final String CAT_COL_BALANCE = "balance";
 
-        public static final int CAT_COL_ID_INDEX = 1;
-        public static final int CAT_COL_INCLUDE_IN_TOTAL_INDEX = 2;
-        public static final int CAT_COL_HIDE_INDEX = 3;
-        public static final int CAT_COL_TYPE_INDEX = 4;
-        public static final int CAT_COL_PARENT_INDEX = 5;
-        public static final int CAT_COL_MAIN_CATEGORY_INDEX = 6;
-        public static final int CAT_COL_CATEGORY_INDEX = 7;
-        public static final int CAT_COL_ACCT_INDEX = 8;
-        public static final int CAT_COL_BALANCE_INDEX = 9;
+  public static final int CAT_COL_ID_INDEX = 1;
+  public static final int CAT_COL_INCLUDE_IN_TOTAL_INDEX = 2;
+  public static final int CAT_COL_HIDE_INDEX = 3;
+  public static final int CAT_COL_TYPE_INDEX = 4;
+  public static final int CAT_COL_PARENT_INDEX = 5;
+  public static final int CAT_COL_MAIN_CATEGORY_INDEX = 6;
+  public static final int CAT_COL_CATEGORY_INDEX = 7;
+  public static final int CAT_COL_ACCT_INDEX = 8;
+  public static final int CAT_COL_BALANCE_INDEX = 9;
 
-        /* table - Accounts */
-        public static final String ACCOUNTS_TABLE = "accounts";
-        public static final String ACCOUNTS_COL_ID = "id";
-        public static final String ACCOUNTS_COL_ACCTNAME = "acctName";
+  /* table - Accounts */
+  public static final String ACCOUNTS_TABLE = "accounts";
+  public static final String ACCOUNTS_COL_ID = "id";
+  public static final String ACCOUNTS_COL_ACCTNAME = "acctName";
 
-        public static final int ACCOUNTS_COL_ID_INDEX = 1;
-        public static final int ACCOUNTS_COL_ACCTNAME_INDEX = 2;
+  public static final int ACCOUNTS_COL_ID_INDEX = 1;
+  public static final int ACCOUNTS_COL_ACCTNAME_INDEX = 2;
 
-        /* table - category */
-        /*
-         * INSERT INTO category (type, parent, main_category, category)
-         * VALUES(?, ?, ?, ?)
-         */
-        public static final String CAT_INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + " (" + CAT_COL_TYPE + ", "
-                        + CAT_COL_PARENT + ", " + CAT_COL_MAIN_CATEGORY + ", " + CAT_COL_CATEGORY
-                        + ") VALUES(?, ?, ?, ?)";
+  /* table - category */
+  /*
+   * INSERT INTO category (type, parent, main_category, category) VALUES(?, ?,
+   * ?, ?)
+   */
+  public static final String CAT_INSERT_CATEGORY = "INSERT INTO " + CAT_TABLE + " (" + CAT_COL_TYPE + ", "
+      + CAT_COL_PARENT + ", " + CAT_COL_MAIN_CATEGORY + ", " + CAT_COL_CATEGORY + ") VALUES(?, ?, ?, ?)";
 
-        public static final String DELETE_ALL_CATEGORY = "DELETE FROM " + CAT_TABLE;
+  public static final String DELETE_ALL_CATEGORY = "DELETE FROM " + CAT_TABLE;
 
-        public static final String CAT_FIND_CATEGORY = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
-                        + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_PARENT
-                        + " = ? AND " + CAT_COL_CATEGORY + " = ?";
+  public static final String CAT_FIND_CATEGORY = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT
+      + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_PARENT + " = ? AND " + CAT_COL_CATEGORY
+      + " = ?";
 
-        /*
-         * SELECT id, include_in_total, hide, type, parent, category FROM category ORDER
-         * BY parent, type, category
-         */
-        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_INCLUDE_IN_TOTAL + ", "
-                        + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY
-                        + " FROM " + CAT_TABLE + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", "
-                        + CAT_COL_CATEGORY;
+  /*
+   * SELECT id, include_in_total, hide, type, parent, category FROM category
+   * ORDER BY parent, type, category
+   */
+  public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_INCLUDE_IN_TOTAL + ", "
+      + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE
+      + " ORDER BY " + CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", " + CAT_COL_CATEGORY;
 
-       /*
-         * UPDATE category SET type = ?, parent = ?, category = ?, include_in_total = ?,
-         * hide = ?, acct = ? WHERE id = ?
-         */
-        public static final String CATEGORY_UPDATE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ?, "
-                        + CAT_COL_PARENT + " = ?, " + CAT_COL_CATEGORY + " = ?, " + CAT_COL_INCLUDE_IN_TOTAL + " = ?, "
-                        + CAT_COL_HIDE + " = ?, " + CAT_COL_ACCT + " = ? WHERE " + CAT_COL_ID + " = ?";
+  /*
+   * UPDATE category SET type = ?, parent = ?, category = ?, include_in_total =
+   * ?, hide = ?, acct = ? WHERE id = ?
+   */
+  public static final String CATEGORY_UPDATE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ?, "
+      + CAT_COL_PARENT + " = ?, " + CAT_COL_CATEGORY + " = ?, " + CAT_COL_INCLUDE_IN_TOTAL + " = ?, " + CAT_COL_HIDE
+      + " = ?, " + CAT_COL_ACCT + " = ? WHERE " + CAT_COL_ID + " = ?";
 
-        /* table - actual */
-        public static final String ACTUAL_TABLE = "actual";
-        public static final String ACTUAL_COL_ID = "id";
-        public static final String ACTUAL_COL_CATEGORY = "category";
-        public static final String ACTUAL_COL_DATE = "date";
-        public static final String ACTUAL_COL_ACTUAL = "actual";
-        public static final String ACTUAL_COL_BUDGET = "budget";
-        public static final String ACTUAL_COL_STARTBAL = "startBal";
-        public static final String ACTUAL_COL_ENDBAL = "endBal";
+  /* table - actual */
+  public static final String ACTUAL_TABLE = "actual";
+  public static final String ACTUAL_COL_ID = "id";
+  public static final String ACTUAL_COL_CATEGORY = "category";
+  public static final String ACTUAL_COL_DATE = "date";
+  public static final String ACTUAL_COL_ACTUAL = "actual";
+  public static final String ACTUAL_COL_BUDGET = "budget";
+  public static final String ACTUAL_COL_STARTBAL = "startBal";
+  public static final String ACTUAL_COL_ENDBAL = "endBal";
 
-        public static final int ACTUAL_COL_ID_INDEX = 1;
-        public static final int ACTUAL_COL_CATEGORY_INDEX = 2;
-        public static final int ACTUAL_COL_DATE_INDEX = 3;
-        public static final int ACTUAL_COL_ACTUAL_INDEX = 4;
-        public static final int ACTUAL_COL_BUDGET_INDEX = 5;
+  public static final int ACTUAL_COL_ID_INDEX = 1;
+  public static final int ACTUAL_COL_CATEGORY_INDEX = 2;
+  public static final int ACTUAL_COL_DATE_INDEX = 3;
+  public static final int ACTUAL_COL_ACTUAL_INDEX = 4;
+  public static final int ACTUAL_COL_BUDGET_INDEX = 5;
 
-        public static final String ACTUAL_FIND_CATEGORY = "SELECT " + ACTUAL_COL_ID + ", " + ACTUAL_COL_CATEGORY + ", "
-                        + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + " FROM " + ACTUAL_TABLE + " WHERE "
-                        + ACTUAL_COL_CATEGORY + " = ?" + " AND STRFTIME('%m', " + ACTUAL_COL_DATE + ") = ?"
-                        + " AND STRFTIME('%Y', " + ACTUAL_COL_DATE + ") = ?";
+  public static final String ACTUAL_FIND_CATEGORY = "SELECT " + ACTUAL_COL_ID + ", " + ACTUAL_COL_CATEGORY + ", "
+      + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + " FROM " + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_CATEGORY + " = ?"
+      + " AND STRFTIME('%m', " + ACTUAL_COL_DATE + ") = ?" + " AND STRFTIME('%Y', " + ACTUAL_COL_DATE + ") = ?";
 
-        public static final String ACTUAL_INSERT_RECORD = "INSERT INTO " + ACTUAL_TABLE + " (" + ACTUAL_COL_CATEGORY
-                        + ", " + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + ", " + ACTUAL_COL_BUDGET
-                        + ") VALUES(?, ?, ?, 0)";
+  public static final String ACTUAL_INSERT_RECORD = "INSERT INTO " + ACTUAL_TABLE + " (" + ACTUAL_COL_CATEGORY + ", "
+      + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + ", " + ACTUAL_COL_BUDGET + ") VALUES(?, ?, ?, 0)";
 
-        public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
-                        + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
+  public static final String ACTUAL_UPDATE_ACTUAL = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL
+      + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
 
-        /*
-         * UPDATE actual SET date = ?, actual = ?, budget = ?, startBal = ?
-         * WHERE id = ?
-         */
-        public static final String ACTUAL_UPDATE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_DATE + " = ?, "
-                        + ACTUAL_COL_ACTUAL + " = ?, " + ACTUAL_COL_BUDGET + " = ?, " + ACTUAL_COL_STARTBAL
-                        + " = ? WHERE " + ACTUAL_COL_ID + " = ?";
+  /*
+   * UPDATE actual SET date = ?, actual = ?, budget = ?, startBal = ? WHERE id =
+   * ?
+   */
+  public static final String ACTUAL_UPDATE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_DATE + " = ?, "
+      + ACTUAL_COL_ACTUAL + " = ?, " + ACTUAL_COL_BUDGET + " = ?, " + ACTUAL_COL_STARTBAL + " = ? WHERE "
+      + ACTUAL_COL_ID + " = ?";
 
-        public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
-                        + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL FROM " + CAT_TABLE
-                        + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
-                        + CAT_TABLE + "." + CAT_COL_ID + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+  public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
+      + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL FROM " + CAT_TABLE + " INNER JOIN "
+      + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID
+      + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
-        public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT STRFTIME('%Y', " + ACTUAL_COL_DATE
-                        + ") AS YEAR FROM " + ACTUAL_TABLE + " ORDER BY " + ACTUAL_COL_DATE + " ASC";
+  public static final String ACTUAL_GET_YEARS = "SELECT DISTINCT STRFTIME('%Y', " + ACTUAL_COL_DATE + ") AS YEAR FROM "
+      + ACTUAL_TABLE + " ORDER BY " + ACTUAL_COL_DATE + " ASC";
 
-        /*
-         * SELECT actual.id AS ID, category.hide AS HIDE, category.main_category
-         * AS MAIN_CATEGORY, category.category AS CATEGORY, actual.date AS DATE,
-         * actual.actual AS ACTUAL, actual.budget AS BUDGET, actual.startBal as
-         * STARTBAL FROM category INNER JOIN actual ON actual.category =
-         * category.id WHERE STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y',
-         * actual.date) = ? AND category.type = ? ORDER BY PARENT, MAIN_CATEGORY
-         * DESC, CATEGORY
-         */
-        public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
-                        + " AS ID, " + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "."
-                        + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY
-                        + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_ACTUAL + " AS ACTUAL, " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET, "
-                        + ACTUAL_TABLE + "." + ACTUAL_COL_STARTBAL + " AS STARTBAL FROM " + CAT_TABLE + " INNER JOIN "
-                        + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "."
-                        + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
-                        + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "." + CAT_COL_PARENT + ", " + CAT_TABLE
-                        + "." + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "." + CAT_COL_CATEGORY;
+  /*
+   * SELECT actual.id AS ID, category.hide AS HIDE, category.include_in_total,
+   * category.main_category AS MAIN_CATEGORY, category.category AS CATEGORY,
+   * actual.date AS DATE, actual.actual AS ACTUAL, actual.budget AS BUDGET,
+   * actual.startBal as STARTBAL FROM category INNER JOIN actual ON
+   * actual.category = category.id WHERE STRFTIME('%m', actual.date) = ? AND
+   * STRFTIME('%Y', actual.date) = ? AND category.type = ? ORDER BY PARENT,
+   * MAIN_CATEGORY DESC, CATEGORY.CATEGORY
+   */
+  public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID + " AS ID, "
+      + CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE, " + CAT_TABLE + "." + CAT_COL_INCLUDE_IN_TOTAL + ", " + CAT_TABLE
+      + "." + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY, " + CAT_TABLE + "." + CAT_COL_CATEGORY + " AS CATEGORY, "
+      + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL, "
+      + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET, " + ACTUAL_TABLE + "." + ACTUAL_COL_STARTBAL
+      + " as STARTBAL FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+      + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "."
+      + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
+      + "." + CAT_COL_TYPE + " = ? ORDER BY " + CAT_TABLE + "." + CAT_COL_PARENT + ", " + CAT_TABLE + "."
+      + CAT_COL_MAIN_CATEGORY + " DESC, " + CAT_TABLE + "." + CAT_COL_CATEGORY;
 
-        /*
-         * SELECT id, type, parent, category FROM category WHERE id NOT IN
-         * (SELECT category FROM actual WHERE strftime('%m', date) = ? AND
-         * STRFTIME('%Y', actual.date) = ?);
-         */
-        public static final String FIND_MISSING_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
-                        + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_ID
-                        + " NOT IN (SELECT " + ACTUAL_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " WHERE STRFTIME('%m', "
-                        + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_COL_DATE + ") = ?)";
+  /*
+   * SELECT id, type, parent, category FROM category WHERE id NOT IN (SELECT
+   * category FROM actual WHERE strftime('%m', date) = ? AND STRFTIME('%Y',
+   * actual.date) = ?);
+   */
+  public static final String FIND_MISSING_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_TYPE + ", "
+      + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + " FROM " + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (SELECT "
+      + ACTUAL_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " WHERE STRFTIME('%m', " + ACTUAL_COL_DATE
+      + ") = ? AND STRFTIME('%Y', " + ACTUAL_COL_DATE + ") = ?)";
 
-        /*
-         * SELECT SUM(ACTUAL.amount) AS ATOTAL, SUM(AMOUNT.BUDGET) AS BTOTAL
-         * FROM category INNER JOIN actual ON actual.category = category.id
-         * WHERE STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y', actual.date)
-         * = ? AND category.type = ? AND category.hide = 0
-         */
-        public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
-                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL FROM " + CAT_TABLE
-                        + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
-                        + CAT_TABLE + "." + CAT_COL_ID + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE
-                        + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE
-                        + "." + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+  /*
+   * SELECT SUM(ACTUAL.amount) AS ATOTAL, SUM(AMOUNT.BUDGET) AS BTOTAL FROM
+   * category INNER JOIN actual ON actual.category = category.id WHERE
+   * STRFTIME('%m', actual.date) = ? AND STRFTIME('%Y', actual.date) = ? AND
+   * category.type = ? AND category.hide = 0
+   */
+  public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
+      + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL FROM " + CAT_TABLE + " INNER JOIN "
+      + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID
+      + " WHERE STRFTIME('%m', " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + ") = ? AND STRFTIME('%Y', " + ACTUAL_TABLE
+      + "." + ACTUAL_COL_DATE + ") = ? AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?" + " AND " + CAT_TABLE + "."
+      + CAT_COL_HIDE + " = 0";
 
-        /*
-         * UPDATE actual SET budget = COALESCE(( SELECT budget FROM actual AS a
-         * WHERE a.category = actual.category AND strftime('%Y-%m', a.date) = ?
-         * ), 0) WHERE strftime('%Y-%m', actual.date) = ?;
-         */
-        public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
-                        + " = COALESCE(( SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a WHERE a."
-                        + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
-                        + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', "
-                        + ACTUAL_COL_DATE + ") = ?";
+  /*
+   * UPDATE actual SET budget = COALESCE(( SELECT budget FROM actual AS a WHERE
+   * a.category = actual.category AND strftime('%Y-%m', a.date) = ? ), 0) WHERE
+   * strftime('%Y-%m', actual.date) = ?;
+   */
+  public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
+      + " = COALESCE(( SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a WHERE a." + ACTUAL_COL_CATEGORY
+      + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE
+      + ") = ? ), 0) WHERE STRFTIME('%Y-%m', " + ACTUAL_COL_DATE + ") = ?";
 
-        /*
-         * UPDATE actual SET startBal = COALESCE(( SELECT startBal - actual FROM
-         * actual AS a WHERE a.category = actual.category AND strftime('%Y-%m',
-         * a.date) = ? ), 0) WHERE strftime('%Y-%m', actual.date) = ?
-         */
-        public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
-                        + " = COALESCE(( SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM "
-                        + ACTUAL_TABLE + " AS a WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_CATEGORY + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE
-                        + ") = ? ), 0) WHERE STRFTIME('%Y-%m', " + ACTUAL_COL_DATE + ") = ?";
+  /*
+   * UPDATE actual SET startBal = COALESCE(( SELECT startBal - actual FROM
+   * actual AS a WHERE a.category = actual.category AND strftime('%Y-%m',
+   * a.date) = ? ), 0) WHERE strftime('%Y-%m', actual.date) = ?
+   */
+  public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
+      + " = COALESCE(( SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM " + ACTUAL_TABLE
+      + " AS a WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
+      + " AND STRFTIME('%Y-%m', a." + ACTUAL_COL_DATE + ") = ? ), 0) WHERE STRFTIME('%Y-%m', " + ACTUAL_COL_DATE
+      + ") = ?";
 }

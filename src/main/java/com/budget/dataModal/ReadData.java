@@ -109,6 +109,7 @@ public class ReadData {
                 newItem.setId(rs.getInt("ID"));
                 newItem.setType(type);
                 newItem.hide(rs.getBoolean("HIDE"));
+                newItem.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
                 newItem.setCategory(rs.getString("CATEGORY"));

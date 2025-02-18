@@ -6,10 +6,15 @@ import com.budget.dataModal.WriteData;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 
 public class EditItemController {
+    @FXML
+    private GridPane gridPane;
+
     @FXML
     private Label id_LBL;
 
@@ -35,6 +40,9 @@ public class EditItemController {
     private Label date_LBL;
 
     @FXML
+    private CheckBox chkbox_include;
+
+    @FXML
     private TextField startBal_Field;
 
     LineItem item;
@@ -55,6 +63,7 @@ public class EditItemController {
     public void setItem(LineItem editItem) {
         this.item = editItem;
         id_LBL.setText(String.valueOf(item.getId()));
+        chkbox_include.setSelected(item.include_in_total());
         Category_LBL.setText(item.getCategory());
         actual_LBL.setText(item.getActual().toString());
         budget_LBL.setText(item.getBudget().toString());
