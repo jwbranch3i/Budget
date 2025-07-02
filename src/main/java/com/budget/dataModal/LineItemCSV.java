@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class LineItemCSV {
     private int id = 0;
     private Boolean hide = false;
-    private Boolean in_total = true;
+    private Boolean include_in_total = true;
     private Boolean isMainCat = true;
     private int type = 0;
     private LocalDate date = LocalDate.now();
@@ -40,13 +40,13 @@ public class LineItemCSV {
         this.hide = hide;
     }
 
-    /********************* in_total ***********************************/
-    public Boolean in_Total() {
-        return this.in_total;
+    /********************* include_in_total ***********************************/
+    public Boolean include_in_total() {
+        return this.include_in_total;
     }
 
-    public void in_Total(Boolean in_total) {
-        this.in_total = in_total;
+    public void include_in_total(Boolean include_in_total) {
+        this.include_in_total = include_in_total;
     }
 
     /********************* isCategory ***********************************/

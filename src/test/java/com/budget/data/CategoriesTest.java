@@ -14,7 +14,7 @@ public class CategoriesTest {
         Categories category = new Categories();
         assertEquals(0, category.getId());
         assertFalse(category.hide());
-        assertTrue(category.in_total());
+        assertTrue(category.include_in_total());
         assertEquals(0, category.getType());
         assertEquals("", category.getParent());
         assertEquals("", category.getCategory());
@@ -37,7 +37,7 @@ public class CategoriesTest {
         Categories category = new Categories();
         category.setId(1);
         category.hide(true);
-        category.in_total(false);
+        category.include_in_total(false);
         category.setType(2);
         category.setParent("New Parent");
         category.setCategory("New Category");
@@ -45,7 +45,7 @@ public class CategoriesTest {
 
         assertEquals(1, category.getId());
         assertTrue(category.hide());
-        assertFalse(category.in_total());
+        assertFalse(category.include_in_total());
         assertEquals(2, category.getType());
         assertEquals("New Parent", category.getParent());
         assertEquals("New Category", category.getCategory());
