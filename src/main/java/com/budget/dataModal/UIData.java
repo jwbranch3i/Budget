@@ -4,16 +4,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
 
 public class UIData {
 
     public static void updateTableTotal(ArrayList<TableView<LineItem>> tables) {
+        updateTableTotal(tables.get(0), tables.get(1), tables.get(2), tables.get(3));
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static void updateTableTotal(Object incomeTable, Object mandatoryTable, Object discretionaryTable, TableView<LineItem> totalTable) {
 
-        tables.get(3).getItems().clear(); // clear totals tableview
+        totalTable.getItems().clear(); // clear totals tableview
 
-        List<LineItem> incomeItems = tables.get(0).getItems();
-        List<LineItem> mandatoryItems = tables.get(1).getItems();
-        List<LineItem> discretionaryItems = tables.get(2).getItems();
+        // Get income items (always TableView)
+        List<LineItem> incomeItems = ((TableView<LineItem>) incomeTable).getItems();
+        
+        // Get mandatory items (could be TreeTableView)
+        List<LineItem> mandatoryItems = new ArrayList<>();
+        if (mandatoryTable instanceof TreeTableView) {
+            TreeTableView<LineItem> treeTable = (TreeTableView<LineItem>) mandatoryTable;
+            TreeItem<LineItem> root = treeTable.getRoot();
+            if (root != null) {
+                for (TreeItem<LineItem> child : root.getChildren()) {
+                    if (child.getValue() != null) {
+                        mandatoryItems.add(child.getValue());
+                    }
+                }
+            }
+        } else {
+            mandatoryItems = ((TableView<LineItem>) mandatoryTable).getItems();
+        }
+        
+        // Get discretionary items (always TableView)
+        List<LineItem> discretionaryItems = ((TableView<LineItem>) discretionaryTable).getItems();
 
         LineItem incomeTotal = new LineItem();
         if (incomeItems.size() == 1) {
@@ -45,11 +70,10 @@ public class UIData {
         itemTotal.setBudget(incomeTotal.getBudget() - (mandatoryTotal.getBudget() + discretionaryTotal.getBudget()));
         itemTotal.setType(0);
       
-
-        tables.get(3).getItems().add(incomeTotal);
-        tables.get(3).getItems().add(mandatoryTotal);
-        tables.get(3).getItems().add(discretionaryTotal);
-        tables.get(3).getItems().add(itemTotal);
-
+        totalTable.getItems().add(incomeTotal);
+        totalTable.getItems().add(mandatoryTotal);
+        totalTable.getItems().add(discretionaryTotal);
+        totalTable.getItems().add(itemTotal);
     }
+
 }
