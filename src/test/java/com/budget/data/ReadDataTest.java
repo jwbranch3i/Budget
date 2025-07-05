@@ -8,17 +8,19 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import com.budget.Util;
 import com.budget.dataModal.Categories;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
 import com.budget.dataModal.ReadData;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import javafx.application.Platform;
+import javafx.scene.control.TreeItem;
 
 public class ReadDataTest {
     public static LineItemCSV testItem_Cat = new LineItemCSV(1, LocalDate.now(), "Eatable", "Groceries", 0.0);
@@ -144,22 +146,44 @@ public class ReadDataTest {
 
     }
 
+
+    @Test
+    public void testGetTableAmountsTree() {
+        int tableType = 1;
+
+        // set date to 9-01-2024
+        // LocalDate inDate = LocalDate.of(2025, 6, 1);
+        LocalDate inDate = LocalDate.of(2025, 6, 1);
+
+        TreeItem<LineItem> result;
+
+        result = ReadData.getTableAmountsTree(tableType, inDate);
+
+        // print each item in result
+        Util.printTreeItems(result);
+
+        // Assert the expected result
+        assertNotNull(result);
+
+    }
+
+
     @Test
     public void testGetTableAmounts() {
         int tableType = 1;
 
         // set date to 9-01-2024
         // LocalDate inDate = LocalDate.of(2024, 8, 1);
-        LocalDate inDate = LocalDate.of(2024, 10, 1);
+        LocalDate inDate = LocalDate.of(2025, 06, 1);
 
         ArrayList<LineItem> result;
 
         result = ReadData.getTableAmounts(tableType, inDate);
 
         // print each item in result
-        for (LineItem item : result) {
-            System.out.println(item);
-        }
+        // for (LineItem item : result) {
+        //     System.out.println(item);
+        // }
 
         // Assert the expected result
         assertNotNull(result);
@@ -217,6 +241,9 @@ public class ReadDataTest {
 
         // Assert the expected result
         assertNotNull(result);
+    
     }
-
 }
+
+
+    

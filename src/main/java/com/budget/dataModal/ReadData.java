@@ -4,6 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javafx.scene.control.TreeItem;
 
 public class ReadData {
 
@@ -91,6 +95,66 @@ public class ReadData {
         }
     }
 
+    /**
+     * Reads items from the database using DB.GET_ACTUAL_AND_BUDGET_AMOUNTS,
+     * grouping the results by PARENT into a TreeItem<LineItem> tree.
+     *
+     * @param type The type of items to retrieve.
+     * @param date The date to filter the items.
+     * @return The root TreeItem containing grouped LineItems by PARENT.
+     */
+    public static TreeItem<LineItem> getTableAmountsTree(int type, LocalDate date) {
+        TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
+        try {
+            String monthString = String.format("%02d", date.getMonthValue());
+            String yearString = String.format("%04d", date.getYear());
+
+            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
+            ps.setString(1, monthString);
+            ps.setString(2, yearString);
+            ps.setInt(3, type);
+
+            ResultSet rs = ps.executeQuery();
+
+            // Map to hold parent nodes
+
+            Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
+
+            while (rs.next()) {
+                LineItem newItem = new LineItem();
+                newItem.setId(rs.getInt("ID"));
+                newItem.setType(type);
+                newItem.hide(rs.getBoolean("HIDE"));
+                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
+                newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
+                newItem.setCategory(rs.getString("CATEGORY"));
+                newItem.setActual(rs.getDouble("ACTUAL"));
+                newItem.setBudget(rs.getDouble("BUDGET"));
+                newItem.setStartBal(rs.getDouble("STARTBAL"));
+                String parent = rs.getString("PARENT");
+
+                // Get or create parent node
+                TreeItem<LineItem> parentNode = parentMap.get(parent);
+                if (parentNode == null) {
+                    LineItem parentItem = new LineItem();
+                    parentItem.setCategory(parent);
+                    parentNode = new TreeItem<>(parentItem);
+                    parentMap.put(parent, parentNode);
+                    rootNode.getChildren().add(parentNode);
+                }
+                else {
+                    parentNode.getChildren().add(new TreeItem<>(newItem));
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error getTableAmountsTreeGroupedByParent: " + e.getMessage());
+        }
+        return rootNode;
+    }
+
+ 
     public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
 
         ArrayList<LineItem> items = new ArrayList<LineItem>();
@@ -151,7 +215,6 @@ public class ReadData {
                 newItem.setParent(rs.getString("PARENT"));
                 newItem.setCategory(rs.getString("CATEGORY"));
 
-      
                 newItem = WriteData.actualInsertRecord(newItem);
                 if (newItem.getHide() == false) {
                     items.add(newItem);
@@ -207,9 +270,11 @@ public class ReadData {
                 years.add(rs.getString("YEAR"));
             }
 
-           
             if (years.isEmpty()) {
-                years.add(String.valueOf(LocalDate.now().getYear())); // Convert Integer to String
+                years.add(String.valueOf(LocalDate.now().getYear())); // Convert
+                                                                      // Integer
+                                                                      // to
+                                                                      // String
             }
         }
         catch (Exception e) {

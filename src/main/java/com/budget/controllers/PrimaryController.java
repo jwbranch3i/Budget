@@ -18,6 +18,7 @@ import com.budget.dataModal.UIData;
 import com.budget.dataModal.WriteData;
 import com.opencsv.CSVReader;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -38,6 +39,9 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
@@ -127,22 +131,22 @@ public class PrimaryController {
         /*************************************************************************/
 
         @FXML
-        private TableView<LineItem> tableMandatory;
+        private TreeTableView<LineItem> tableMandatory;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Actual;
+        private TreeTableColumn<LineItem, Double> tableMandatory_Actual;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Budget;
+        private TreeTableColumn<LineItem, Double> tableMandatory_Budget;
 
         @FXML
-        private TableColumn<LineItem, String> tableMandatory_Category;
+        private TreeTableColumn<LineItem, String> tableMandatory_Category;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Diff;
+        private TreeTableColumn<LineItem, Double> tableMandatory_Diff;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Balance;
+        private TreeTableColumn<LineItem, Double> tableMandatory_Balance;
 
         /*************************************************************************/
 
@@ -343,7 +347,8 @@ public class PrimaryController {
 
         @FXML
         void button_UpdateBalance(ActionEvent event) {
-                LineItem firstItem = tableMandatory.getItems().get(0);
+                LineItem firstItem = tableMandatory.getRoot().getChildren().get(0).getValue();
+                // LineItem firstItem = tableMandatory.getItems().get(0);
                 LocalDate inDate = firstItem.getDate();
 
                 Task<Void> task = new Task<Void>() {
@@ -356,16 +361,18 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableIncomeTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                                tableManditoryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
-                                tableDiscretionaryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
-                                getTableRows(inDate);
-                                UIData.updateTableTotal(tables);
-                                tableIncome.refresh();
+                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                Platform.runLater(() -> {
+                                        tableIncomeTotal.setItems(FXCollections
+                                                        .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+                                        tableManditoryTotal.setItems(FXCollections
+                                                        .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
+                                        tableDiscretionaryTotal.setItems(FXCollections
+                                                        .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                                        getTableRows(inDate);
+                                        UIData.updateTableTotal(tables);
+                                        tableIncome.refresh();
+                                });
                         }
 
                         @Override
@@ -600,24 +607,79 @@ public class PrimaryController {
                 tableIncomeTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
-                tableMandatory_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableMandatory_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                // tableMandatory_Category.setCellValueFactory(new
+                // PropertyValueFactory<LineItem, String>("Category"));
 
-                tableMandatory_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableMandatory_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableMandatory_Category.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleStringProperty(item.getCategory());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleStringProperty("");
+                        }
+                });
+                tableMandatory_Category
+                                .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
 
-                tableMandatory_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableMandatory_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // **************************************
+                tableMandatory_Actual.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getActual());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableMandatory_Actual.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
+
+                // **************************************
+
+                tableMandatory_Budget.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableMandatory_Budget.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
                 tableMandatory_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
 
-                tableMandatory_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableMandatory_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // **************************************
+                tableMandatory_Diff.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableMandatory_Diff.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
 
-                tableMandatory_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableMandatory_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // **************************************
+                tableMandatory_Balance.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableMandatory_Balance.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
+
+                // **************************************
 
                 tableMandatory.setRowFactory(tv -> {
-                        TableRow<LineItem> row = new TableRow<>();
+                        TreeTableRow<LineItem> row = new TreeTableRow<>();
                         ContextMenu contextMenu = new ContextMenu();
                         MenuItem editItem = new MenuItem("Edit");
                         contextMenu.getItems().add(editItem);
@@ -715,9 +777,18 @@ public class PrimaryController {
                 Task<Void> task2 = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                getTableRows(inDate);
-                                UIData.updateTableTotal(tables);
+                                // Do data processing on background thread, not UI updates
                                 return null;
+                        }
+                        
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Do UI updates on FX Application Thread
+                                Platform.runLater(() -> {
+                                        getTableRows(inDate);
+                                        UIData.updateTableTotal(tables);
+                                });
                         }
                 };
                 new Thread(task2).start();
@@ -734,9 +805,18 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                getTableRows(inDate);
-                                UIData.updateTableTotal(tables);
+                                // Do data processing on background thread, not UI updates
                                 return null;
+                        }
+                        
+                        @Override
+                        protected void succeeded() {
+                                super.succeeded();
+                                // Do UI updates on FX Application Thread
+                                Platform.runLater(() -> {
+                                        getTableRows(inDate);
+                                        UIData.updateTableTotal(tables);
+                                });
                         }
                 };
                 new Thread(task).start();
@@ -749,9 +829,8 @@ public class PrimaryController {
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
                 // get mandatory data
-                tableMandatory.getItems().clear();
-                tableMandatory.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDITORY, inDate)));
+                tableMandatory.setRoot(null);
+                tableMandatory.setRoot(ReadData.getTableAmountsTree(DB.MANDITORY, inDate));
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
@@ -903,18 +982,19 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
-                                tableIncomeTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
                                 return null;
                         }
 
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableIncome.refresh();
+                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                Platform.runLater(() -> {
+                                        tableIncomeTotal.setItems(FXCollections
+                                                        .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
+                                        UIData.updateTableTotal(tables);
+                                        tableIncome.refresh();
+                                });
                         }
 
                         @Override
@@ -933,29 +1013,33 @@ public class PrimaryController {
 
         }
 
-        public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
+        public void mandatoryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
+                LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
                 item.setBudget(e.getNewValue());
 
-                LineItem selectedItem = tableMandatory.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
+                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableMandatory.getSelectionModel().getSelectedItem();
+                if (selectedTreeItem != null) {
+                    LineItem selectedItem = selectedTreeItem.getValue();
+                    selectedItem.setBudget(e.getNewValue());
+                }
 
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
-                                tableManditoryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
                                 return null;
                         }
 
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableMandatory.refresh();
+                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                Platform.runLater(() -> {
+                                        tableManditoryTotal.setItems(FXCollections
+                                                        .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                        UIData.updateTableTotal(tables);
+                                        tableMandatory.refresh();
+                                });
                         }
 
                         @Override
@@ -983,18 +1067,19 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
-                                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                                ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
                                 return null;
                         }
 
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableDiscretionary.refresh();
+                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                Platform.runLater(() -> {
+                                        tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                                        ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+                                        UIData.updateTableTotal(tables);
+                                        tableDiscretionary.refresh();
+                                });
                         }
 
                         @Override
@@ -1042,18 +1127,21 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                updateTablesTask();
+                                // Do the data processing on background thread, but not UI updates
                                 return null;
                         }
 
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table views to reflect the
-                                // changes
-                                tableIncome.refresh();
-                                tableMandatory.refresh();
-                                tableDiscretionary.refresh();
+                                // Do all UI updates on the FX Application Thread
+                                Platform.runLater(() -> {
+                                        updateTablesTask();
+                                        // Refresh the table views to reflect the changes
+                                        tableIncome.refresh();
+                                        tableMandatory.refresh();
+                                        tableDiscretionary.refresh();
+                                });
                         }
 
                         @Override
