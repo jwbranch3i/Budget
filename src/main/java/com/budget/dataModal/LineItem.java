@@ -33,6 +33,21 @@ public class LineItem {
         this.actual.set(Actual);
         this.budget.set(Budget);
     }
+    public LineItem(LineItem other) {
+        this.id = other.id;
+        this.hide = other.hide;
+        this.include_in_total = other.include_in_total;
+        this.acct = other.acct;
+        this.type = other.type;
+        this.isCategory = other.isCategory;
+        this.date = new SimpleObjectProperty<>(other.getDate());
+        this.parent = new SimpleStringProperty(other.getParent());
+        this.category = new SimpleStringProperty(other.category.get());
+        this.actual = new SimpleDoubleProperty(other.getActual());
+        this.budget = new SimpleDoubleProperty(other.getBudget());
+        this.startBal = new SimpleDoubleProperty(other.getStartBal());
+        this.balance = new SimpleDoubleProperty(other.getBalance());
+    }
 
     /********************** id **********************************/
     public int getId() {

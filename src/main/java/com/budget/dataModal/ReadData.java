@@ -127,52 +127,55 @@ public class ReadData {
                 newItem.hide(rs.getBoolean("HIDE"));
                 newItem.setDate(LocalDate.parse(rs.getString("DATE")));
                 newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
+                newItem.setParent(rs.getString("PARENT"));
                 newItem.setCategory(rs.getString("CATEGORY"));
                 newItem.setActual(rs.getDouble("ACTUAL"));
                 newItem.setBudget(rs.getDouble("BUDGET"));
                 newItem.setStartBal(rs.getDouble("STARTBAL"));
-                String parent = rs.getString("PARENT");
+                String parent = newItem.getParent();
 
                 // Get or create parent node
                 TreeItem<LineItem> parentNode = parentMap.get(parent);
                 if (parentNode == null) {
-                    LineItem parentItem = new LineItem();
-                    parentItem.setCategory(parent);
-                    parentItem.setType(type);
-                    parentItem.setDate(date);
-                    // Initialize totals to 0
-                    parentItem.setActual(0.0);
-                    parentItem.setBudget(0.0);
-                    parentNode = new TreeItem<>(parentItem);
+                    parentNode = new TreeItem<>(newItem);
                     parentMap.put(parent, parentNode);
                     rootNode.getChildren().add(parentNode);
                 }
-                
-                // Add child to parent
-                parentNode.getChildren().add(new TreeItem<>(newItem));
-                
-                // Update parent totals
-                LineItem parentItem = parentNode.getValue();
-                parentItem.setActual(parentItem.getActual() + newItem.getActual());
-                parentItem.setBudget(parentItem.getBudget() + newItem.getBudget());
-            }
-            
+                else {
+                    // Update existing parent node with new item
+                    if (parentNode.getChildren().isEmpty()) {
+                        LineItem existingItem = parentNode.getValue();
+                        existingItem.setActual(newItem.getActual());
+                        existingItem.setBudget(newItem.getBudget());
+                    }
+                    else {
+                        // If the parent already has children, we need to update
+                        // the existing item
+                        LineItem existingItem = parentNode.getChildren().get(0).getValue();
+                        existingItem.setActual(existingItem.getActual() + newItem.getActual());
+                        existingItem.setBudget(existingItem.getBudget() + newItem.getBudget());
+                    }
+                    parentNode.getChildren().add(new TreeItem<>(newItem));
+                }
+
+             }
+
             // Calculate root node totals (sum of all parent totals)
-            LineItem rootItem = rootNode.getValue();
-            rootItem.setCategory("Root Total");
-            rootItem.setType(type);
-            rootItem.setDate(date);
-            double rootActualTotal = 0.0;
-            double rootBudgetTotal = 0.0;
-            
-            for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
-                LineItem parentItem = parentNode.getValue();
-                rootActualTotal += parentItem.getActual();
-                rootBudgetTotal += parentItem.getBudget();
-            }
-            
-            rootItem.setActual(rootActualTotal);
-            rootItem.setBudget(rootBudgetTotal);
+            // LineItem rootItem = rootNode.getValue();
+            // rootItem.setCategory("Root Total");
+            // rootItem.setType(type);
+            // rootItem.setDate(date);
+            // double rootActualTotal = 0.0;
+            // double rootBudgetTotal = 0.0;
+
+            // for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
+            //     LineItem parentItem = parentNode.getValue();
+            //     rootActualTotal += parentItem.getActual();
+            //     rootBudgetTotal += parentItem.getBudget();
+            // }
+
+            // rootItem.setActual(rootActualTotal);
+            // rootItem.setBudget(rootBudgetTotal);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -181,7 +184,6 @@ public class ReadData {
         return rootNode;
     }
 
- 
     public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
 
         ArrayList<LineItem> items = new ArrayList<LineItem>();
@@ -338,24 +340,25 @@ public class ReadData {
     }
 
     /**
-     * Calculates and updates the totals (actual and budget) for each parent TreeItem
-     * based on the sum of all its children TreeItems.
+     * Calculates and updates the totals (actual and budget) for each parent
+     * TreeItem based on the sum of all its children TreeItems.
      * 
      * @param rootNode The root TreeItem to process
      */
     public static void calculateTreeTotals(TreeItem<LineItem> rootNode) {
-        if (rootNode == null) return;
-        
+        if (rootNode == null)
+            return;
+
         // Process each parent node (direct children of root)
         for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
             calculateNodeTotal(parentNode);
         }
-        
+
         // Calculate root total from all parent totals
         if (rootNode.getValue() != null) {
             double rootActualTotal = 0.0;
             double rootBudgetTotal = 0.0;
-            
+
             for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
                 LineItem parentItem = parentNode.getValue();
                 if (parentItem != null) {
@@ -363,36 +366,37 @@ public class ReadData {
                     rootBudgetTotal += parentItem.getBudget();
                 }
             }
-            
+
             rootNode.getValue().setActual(rootActualTotal);
             rootNode.getValue().setBudget(rootBudgetTotal);
         }
     }
-    
+
     /**
      * Recursively calculates totals for a TreeItem node based on its children.
      * 
      * @param node The TreeItem node to calculate totals for
      */
     private static void calculateNodeTotal(TreeItem<LineItem> node) {
-        if (node == null || node.getValue() == null) return;
-        
+        if (node == null || node.getValue() == null)
+            return;
+
         double actualTotal = 0.0;
         double budgetTotal = 0.0;
-        
+
         // If this node has children, calculate totals from children
         if (!node.getChildren().isEmpty()) {
             for (TreeItem<LineItem> child : node.getChildren()) {
                 // Recursively calculate child totals first
                 calculateNodeTotal(child);
-                
+
                 LineItem childItem = child.getValue();
                 if (childItem != null) {
                     actualTotal += childItem.getActual();
                     budgetTotal += childItem.getBudget();
                 }
             }
-            
+
             // Update this node's totals
             node.getValue().setActual(actualTotal);
             node.getValue().setBudget(budgetTotal);
