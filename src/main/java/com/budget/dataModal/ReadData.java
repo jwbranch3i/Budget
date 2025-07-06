@@ -151,7 +151,7 @@ public class ReadData {
                     else {
                         // If the parent already has children, we need to update
                         // the existing item
-                        LineItem existingItem = parentNode.getChildren().get(0).getValue();
+                        LineItem existingItem = parentNode.getValue();
                         existingItem.setActual(existingItem.getActual() + newItem.getActual());
                         existingItem.setBudget(existingItem.getBudget() + newItem.getBudget());
                     }
