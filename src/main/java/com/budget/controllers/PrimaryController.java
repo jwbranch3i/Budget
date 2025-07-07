@@ -54,63 +54,26 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class PrimaryController {
+        /********************* */
+        /* Income Table */
+        /********************* */
         @FXML
-        private TableView<LineItem> tableDiscretionary;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Budget;
+        private TreeTableView<LineItem> tableIncome;
 
         @FXML
-        private TableColumn<LineItem, String> tableDiscretionary_Category;
+        private TreeTableColumn<LineItem, Double> tableIncome_Actual;
 
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Diff;
+        private TreeTableColumn<LineItem, Double> tableIncome_Budget;
 
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Balance;
-
-        /************************************************************************/
+        private TreeTableColumn<LineItem, String> tableIncome_Category;
 
         @FXML
-        private TableView<LineItem> tableDiscretionaryTotal;
+        private TreeTableColumn<LineItem, Double> tableIncome_Diff;
 
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Budget;
-
-        @FXML
-        private TableColumn<LineItem, String> tableDiscretionaryTotal_Category;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Diff;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Balance;
-
-        /************************************************************************/
-
-        @FXML
-        private TableView<LineItem> tableIncome;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Budget;
-
-        @FXML
-        private TableColumn<LineItem, String> tableIncome_Category;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Diff;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Balance;
+        private TreeTableColumn<LineItem, Double> tableIncome_Balance;
 
         /*************************************************************************/
 
@@ -129,8 +92,9 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> tableIncomeTotal_Diff;
 
-        /*************************************************************************/
-
+        /********************* */
+        /* Mandatory Table */
+        /********************* */
         @FXML
         private TreeTableView<LineItem> tableMandatory;
 
@@ -169,8 +133,52 @@ public class PrimaryController {
         @FXML
         private TableColumn<LineItem, Double> tableManditoryTotal_Balance;
 
+        /********************* */
+        /* Discretionary Table */
+        /********************* */
+        @FXML
+        private TreeTableView<LineItem> tableDiscretionary;
+
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Actual;
+
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Budget;
+
+        @FXML
+        private TreeTableColumn<LineItem, String> tableDiscretionary_Category;
+
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Diff;
+
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Balance;
+
+        /************************************************************************/
+
+        @FXML
+        private TableView<LineItem> tableDiscretionaryTotal;
+
+        @FXML
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Actual;
+
+        @FXML
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Budget;
+
+        @FXML
+        private TableColumn<LineItem, String> tableDiscretionaryTotal_Category;
+
+        @FXML
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Diff;
+
+        @FXML
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Balance;
+
         /*************************************************************************/
 
+        /********************* */
+        /* Totals Table */
+        /********************* */
         @FXML
         private TableView<LineItem> tableTotal;
 
@@ -190,34 +198,24 @@ public class PrimaryController {
 
         @FXML
         private VBox categoryBox;
-
         @FXML
         private AnchorPane myAnchorPane;
-
         @FXML
         private ProgressIndicator progressIndicator;
-
         @FXML
         private ComboBox<String> yearBox;
-
         @FXML
         private ComboBox<String> monthBox;
-
         @FXML
         private CheckBox chkBox;
-
         @FXML
         private Button btn_Update;
-
         @FXML
         private Button btn_EditCat;
-
         @FXML
         private Button btn_UpdateBudget;
-
         @FXML
         private Button btn_UpdateBalance;
-
         @FXML
         private Label mainDateLabel;
 
@@ -362,14 +360,15 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                // Refresh the table view to reflect the changes
+                                // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
                                         tableIncomeTotal.setItems(FXCollections
                                                         .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
                                         tableManditoryTotal.setItems(FXCollections
                                                         .observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
-                                        tableDiscretionaryTotal.setItems(FXCollections
-                                                        .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                                        tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                                        ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                                         getTableRows(inDate);
                                         UIData.updateTableTotal(tables);
                                         tableIncome.refresh();
@@ -778,10 +777,11 @@ public class PrimaryController {
                 Task<Void> task2 = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                // Do data processing on background thread, not UI updates
+                                // Do data processing on background thread, not
+                                // UI updates
                                 return null;
                         }
-                        
+
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
@@ -806,10 +806,11 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                // Do data processing on background thread, not UI updates
+                                // Do data processing on background thread, not
+                                // UI updates
                                 return null;
                         }
-                        
+
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
@@ -833,7 +834,7 @@ public class PrimaryController {
                 tableMandatory.setRoot(null);
                 tableMandatory.setRoot(ReadData.getTableAmountsTree(DB.MANDITORY, inDate));
                 tableMandatory.getRoot().setExpanded(true);
-               // tableMandatory.setShowRoot(false);
+                // tableMandatory.setShowRoot(false);
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
@@ -993,10 +994,11 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                // Refresh the table view to reflect the changes
+                                // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
-                                        tableIncomeTotal.setItems(FXCollections
-                                                        .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
+                                        tableIncomeTotal.setItems(FXCollections.observableArrayList(
+                                                        ReadData.getTotals(DB.INCOME, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableIncome.refresh();
                                 });
@@ -1022,10 +1024,11 @@ public class PrimaryController {
                 LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
                 item.setBudget(e.getNewValue());
 
-                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableMandatory.getSelectionModel().getSelectedItem();
+                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableMandatory.getSelectionModel()
+                                .getSelectedItem();
                 if (selectedTreeItem != null) {
-                    LineItem selectedItem = selectedTreeItem.getValue();
-                    selectedItem.setBudget(e.getNewValue());
+                        LineItem selectedItem = selectedTreeItem.getValue();
+                        selectedItem.setBudget(e.getNewValue());
                 }
 
                 Task<Void> task = new Task<Void>() {
@@ -1038,10 +1041,11 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                // Refresh the table view to reflect the changes
+                                // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
-                                        tableManditoryTotal.setItems(FXCollections
-                                                        .observableArrayList(ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                        tableManditoryTotal.setItems(FXCollections.observableArrayList(
+                                                        ReadData.getTotals(DB.MANDITORY, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableMandatory.refresh();
                                 });
@@ -1078,7 +1082,8 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Refresh the table view to reflect the changes - wrap in Platform.runLater
+                                // Refresh the table view to reflect the changes
+                                // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
                                         tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                                         ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
@@ -1132,17 +1137,20 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                // Do the data processing on background thread, but not UI updates
+                                // Do the data processing on background thread,
+                                // but not UI updates
                                 return null;
                         }
 
                         @Override
                         protected void succeeded() {
                                 super.succeeded();
-                                // Do all UI updates on the FX Application Thread
+                                // Do all UI updates on the FX Application
+                                // Thread
                                 Platform.runLater(() -> {
                                         updateTablesTask();
-                                        // Refresh the table views to reflect the changes
+                                        // Refresh the table views to reflect
+                                        // the changes
                                         tableIncome.refresh();
                                         tableMandatory.refresh();
                                         tableDiscretionary.refresh();
