@@ -39,6 +39,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
@@ -831,6 +832,8 @@ public class PrimaryController {
                 // get mandatory data
                 tableMandatory.setRoot(null);
                 tableMandatory.setRoot(ReadData.getTableAmountsTree(DB.MANDITORY, inDate));
+                tableMandatory.getRoot().setExpanded(true);
+               // tableMandatory.setShowRoot(false);
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
@@ -982,6 +985,8 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
+                                TreeItem<LineItem> rootItem = tableMandatory.getRoot();
+                                Util.calculateTreeTotals(rootItem);
                                 return null;
                         }
 

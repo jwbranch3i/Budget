@@ -57,9 +57,9 @@ public class Util {
         };
     }
 
-
     /**
      * Recursively prints all items in a TreeItem structure
+     * 
      * @param item The root TreeItem to print
      */
     public static void printTreeItems(TreeItem<LineItem> item) {
@@ -68,7 +68,8 @@ public class Util {
 
     /**
      * Recursively prints all items in a TreeItem structure with indentation
-     * @param item The TreeItem to print
+     * 
+     * @param item  The TreeItem to print
      * @param depth The current depth for indentation
      */
     private static void printTreeItems(TreeItem<LineItem> item, int depth) {
@@ -78,15 +79,14 @@ public class Util {
 
         // Create indentation based on depth
         String indent = "  ".repeat(depth);
-        
+
         // Print the current item
         LineItem lineItem = item.getValue();
         if (lineItem != null) {
-            System.out.println(indent + "├─ " + lineItem.getCategory() + 
-                             " (Actual: " + lineItem.getActual() + 
-                             ", Budget: " + lineItem.getBudget() + 
-                             ", Type: " + lineItem.getType() + ")");
-        } else {
+            System.out.println(indent + "├─ " + lineItem.getCategory() + " (Actual: " + lineItem.getActual()
+                    + ", Budget: " + lineItem.getBudget() + ", Type: " + lineItem.getType() + ")");
+        }
+        else {
             System.out.println(indent + "├─ [NULL ITEM]");
         }
 
@@ -96,5 +96,69 @@ public class Util {
         }
     }
 
+    /**
+     * Calculates and updates the totals (actual and budget) for each parent
+     * TreeItem based on the sum of all its children TreeItems.
+     * 
+     * @param rootNode The root TreeItem to process
+     */
+    public static void calculateTreeTotals(TreeItem<LineItem> rootNode) {
+        if (rootNode == null)
+            return;
+
+        // Process each parent node (direct children of root)
+        for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
+            calculateNodeTotal(parentNode);
+        }
+
+        // Calculate root total from all parent totals
+        if (rootNode.getValue() != null) {
+            double rootActualTotal = 0.0;
+            double rootBudgetTotal = 0.0;
+
+            for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
+                LineItem parentItem = parentNode.getValue();
+                if (parentItem != null) {
+                    rootActualTotal += parentItem.getActual();
+                    rootBudgetTotal += parentItem.getBudget();
+                }
+            }
+
+            rootNode.getValue().setActual(rootActualTotal);
+            rootNode.getValue().setBudget(rootBudgetTotal);
+        }
+    }
+
+    /**
+     * Recursively calculates totals for a TreeItem node based on its children.
+     * 
+     * @param node The TreeItem node to calculate totals for
+     */
+    private static void calculateNodeTotal(TreeItem<LineItem> node) {
+        if (node == null || node.getValue() == null)
+            return;
+
+        double actualTotal = 0.0;
+        double budgetTotal = 0.0;
+
+        // If this node has children, calculate totals from children
+        if (!node.getChildren().isEmpty()) {
+            for (TreeItem<LineItem> child : node.getChildren()) {
+                // Recursively calculate child totals first
+                calculateNodeTotal(child);
+
+                LineItem childItem = child.getValue();
+                if (childItem != null) {
+                    actualTotal += childItem.getActual();
+                    budgetTotal += childItem.getBudget();
+                }
+            }
+
+            // Update this node's totals
+            node.getValue().setActual(actualTotal);
+            node.getValue().setBudget(budgetTotal);
+        }
+        // If no children, the node keeps its own values (leaf node)
+    }
+
 }
-  
