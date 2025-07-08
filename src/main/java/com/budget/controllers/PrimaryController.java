@@ -975,19 +975,21 @@ public class PrimaryController {
                 ReadData.findMissingCategories(inDate);
         }
 
-        public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
+        public void incomeTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
+             LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
                 item.setBudget(e.getNewValue());
 
-                LineItem selectedItem = tableIncome.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
+                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableIncome.getSelectionModel()
+                                .getSelectedItem();
+                if (selectedTreeItem != null) {
+                        LineItem selectedItem = selectedTreeItem.getValue();
+                        selectedItem.setBudget(e.getNewValue());
+                }
 
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
-                                TreeItem<LineItem> rootItem = tableMandatory.getRoot();
-                                Util.calculateTreeTotals(rootItem);
                                 return null;
                         }
 
@@ -998,7 +1000,7 @@ public class PrimaryController {
                                 // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
                                         tableIncomeTotal.setItems(FXCollections.observableArrayList(
-                                                        ReadData.getTotals(DB.INCOME, item.getDate())));
+                                                        ReadData.getTotals(DB.MANDITORY, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableIncome.refresh();
                                 });
@@ -1017,7 +1019,6 @@ public class PrimaryController {
 
                 // keep focus on the selected row
                 tableIncome.requestFocus();
-
         }
 
         public void mandatoryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
