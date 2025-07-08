@@ -976,7 +976,7 @@ public class PrimaryController {
         }
 
         public void incomeTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
-             LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
+                LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
                 item.setBudget(e.getNewValue());
 
                 javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableIncome.getSelectionModel()
@@ -1067,12 +1067,17 @@ public class PrimaryController {
                 tableMandatory.requestFocus();
         }
 
-        public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
+        public void discretionaryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
+                LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
                 item.setBudget(e.getNewValue());
 
-                LineItem selectedItem = tableDiscretionary.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
+                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableCiscretionary.getSelectionModel()
+                                .getSelectedItem();
+                if (selectedTreeItem != null) {
+                        LineItem selectedItem = selectedTreeItem.getValue();
+                        selectedItem.setBudget(e.getNewValue());
+                }
+
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
@@ -1087,7 +1092,7 @@ public class PrimaryController {
                                 // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
                                         tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                                        ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
+                                                        ReadData.getTotals(DB.MANDITORY, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableDiscretionary.refresh();
                                 });
