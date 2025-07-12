@@ -87,19 +87,19 @@
          <children>
             <VBox alignment="CENTER">
                <children>
-                  <Label text="INCOME">
-                     <font>
+                    <Label text="INCOME">
+                      <font>
                         <Font name="System Bold Italic" size="24.0" />
-                     </font>
-                  </Label>
-                  <TableView fx:id="tableIncome" editable="true">
-                    <columns>
-                      <TableColumn fx:id="tableIncome_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" sortable="false" text="Category" />
-                      <TableColumn fx:id="tableIncome_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
-                        <TableColumn fx:id="tableIncome_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Budget" />
-                        <TableColumn fx:id="tableIncome_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Diff" />
-                    </columns>
-                  </TableView>
+                      </font>
+                    </Label>
+                    <TreeTableView fx:id="tableIncome" editable="true">
+                     <columns>
+                       <TreeTableColumn fx:id="tableIncome_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" sortable="false" text="Category" />
+                       <TreeTableColumn fx:id="tableIncome_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Actual" />
+                       <TreeTableColumn fx:id="tableIncome_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Budget" />
+                       <TreeTableColumn fx:id="tableIncome_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" text="Diff" />
+                     </columns>
+                    </TreeTableView>
                   <TableView id="totalTable" fx:id="tableIncomeTotal" layoutX="10.0" layoutY="68.0" prefHeight="40.0">
                      <columns>
                         <TableColumn fx:id="tableIncomeTotal_Category" editable="false" maxWidth="200.0" minWidth="199.0" prefWidth="200.0" />
@@ -138,20 +138,21 @@
             </VBox>
             <VBox alignment="CENTER" layoutX="336.0" layoutY="10.0">
                <children>
-                  <Label text="DISCRETIONARY">
-                     <font>
+                    <Label text="DISCRETIONARY">
+                      <font>
                         <Font name="System Bold Italic" size="24.0" />
-                     </font>
-                  </Label>
-                  <TableView fx:id="tableDiscretionary" editable="true" prefWidth="520.0">
-                     <columns>
-                        <TableColumn fx:id="tableDiscretionary_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" text="Category" />
-                        <TableColumn fx:id="tableDiscretionary_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
-                        <TableColumn fx:id="tableDiscretionary_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
-                        <TableColumn fx:id="tableDiscretionary_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" text="Diff" />
-                        <TableColumn fx:id="tableDiscretionary_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
-                     </columns>
-                  </TableView>
+                      </font>
+                    </Label>
+                    <TreeTableView fx:id="tableDiscretionary" editable="true" prefWidth="520.0">
+                      <columns>
+                        <TreeTableColumn fx:id="tableDiscretionary_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" text="Category" />
+                        <TreeTableColumn fx:id="tableDiscretionary_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
+                        <TreeTableColumn fx:id="tableDiscretionary_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
+                        <TreeTableColumn fx:id="tableDiscretionary_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" text="Diff" />
+                        <TreeTableColumn fx:id="tableDiscretionary_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
+                      </columns>
+                    </TreeTableView>
+                
                   <TableView id="totalTable" fx:id="tableDiscretionaryTotal" prefHeight="40.0">
                      <columns>
                         <TableColumn fx:id="tableDiscretionaryTotal_Category" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />

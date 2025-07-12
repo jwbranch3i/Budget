@@ -37,9 +37,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
@@ -578,20 +576,62 @@ public class PrimaryController {
                                 });
 
                 // ***************************************/
-                // Set up table columns
+                // Set up table columns */
+                // tableIncome columns */
                 // ***************************************/
-                tableIncome_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableIncome_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableIncome_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableIncome_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableIncome_Category.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleStringProperty(item.getCategory());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleStringProperty("");
+                        }
+                });
+                tableIncome_Category
+                                .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
 
-                tableIncome_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableIncome_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableIncome_Budget.setOnEditCommit(e -> incomeTableBudget_OnEditCommit(e));
+                // --
+                tableIncome_Actual.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getActual());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableIncome_Actual.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
 
-                tableIncome_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableIncome_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // --
+
+                tableIncome_Budget.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableIncome_Budget.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
+                tableIncome_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
+
+                // --
+                tableIncome_Diff.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableIncome_Diff.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
 
                 /***********************************************************/
                 tableIncomeTotal_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
@@ -606,10 +646,9 @@ public class PrimaryController {
                 tableIncomeTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
                 tableIncomeTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                /***********************************************************/
-                // tableMandatory_Category.setCellValueFactory(new
-                // PropertyValueFactory<LineItem, String>("Category"));
-
+                /****************************************/
+                // tableMandatory columns */
+                // **************************************/
                 tableMandatory_Category.setCellValueFactory(cellData -> {
                         LineItem item = cellData.getValue().getValue();
                         if (item != null) {
@@ -622,7 +661,7 @@ public class PrimaryController {
                 tableMandatory_Category
                                 .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
 
-                // **************************************
+                // --
                 tableMandatory_Actual.setCellValueFactory(cellData -> {
                         LineItem item = cellData.getValue().getValue();
                         if (item != null) {
@@ -635,7 +674,7 @@ public class PrimaryController {
                 tableMandatory_Actual.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
                                 .forTreeTableColumn(Util.getCurrencyConverter()));
 
-                // **************************************
+                // --
 
                 tableMandatory_Budget.setCellValueFactory(cellData -> {
                         LineItem item = cellData.getValue().getValue();
@@ -650,7 +689,7 @@ public class PrimaryController {
                                 .forTreeTableColumn(Util.getCurrencyConverter()));
                 tableMandatory_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
 
-                // **************************************
+                // --
                 tableMandatory_Diff.setCellValueFactory(cellData -> {
                         LineItem item = cellData.getValue().getValue();
                         if (item != null) {
@@ -663,7 +702,7 @@ public class PrimaryController {
                 tableMandatory_Diff.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
                                 .forTreeTableColumn(Util.getCurrencyConverter()));
 
-                // **************************************
+                // --
                 tableMandatory_Balance.setCellValueFactory(cellData -> {
                         LineItem item = cellData.getValue().getValue();
                         if (item != null) {
@@ -717,25 +756,61 @@ public class PrimaryController {
                                 .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
+                tableDiscretionary_Category.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleStringProperty(item.getCategory());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleStringProperty("");
+                        }
+                });
+                tableDiscretionary_Category
+                                .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
 
-                tableDiscretionary_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableDiscretionary_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                // --
+                tableDiscretionary_Actual.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getActual());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableDiscretionary_Actual.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
 
-                tableDiscretionary_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableDiscretionary_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // --
 
-                tableDiscretionary_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableDiscretionary_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableDiscretionary_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
+                tableDiscretionary_Budget.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableDiscretionary_Budget.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
+                tableDiscretionary_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
 
-                tableDiscretionary_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableDiscretionary_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionary_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableDiscretionary_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                // --
+                tableDiscretionary_Diff.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                return new javafx.beans.property.SimpleObjectProperty<>(item.getBudget());
+                        }
+                        else {
+                                return new javafx.beans.property.SimpleObjectProperty<>(0.0);
+                        }
+                });
+                tableDiscretionary_Diff.setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                .forTreeTableColumn(Util.getCurrencyConverter()));
 
                 tableDiscretionary.setRowFactory(tv -> {
-                        TableRow<LineItem> row = new TableRow<>();
+                        TreeTableRow<LineItem> row = new TreeTableRow<>();
                         ContextMenu contextMenu = new ContextMenu();
                         MenuItem editItem = new MenuItem("Edit");
                         contextMenu.getItems().add(editItem);
@@ -788,6 +863,9 @@ public class PrimaryController {
                                 // Do UI updates on FX Application Thread
                                 Platform.runLater(() -> {
                                         getTableRows(inDate);
+                                        Util.calculateTreeTotals(tableIncome.getRoot());
+                                        Util.calculateTreeTotals(tableMandatory.getRoot());
+                                        Util.calculateTreeTotals(tableDiscretionary.getRoot());
                                         UIData.updateTableTotal(tables);
                                 });
                         }
@@ -826,8 +904,11 @@ public class PrimaryController {
 
         public void getTableRows(LocalDate inDate) {
                 // getActuals(inDate);
-                tableIncome.getItems().clear();
-                tableIncome.setItems(FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
+                tableIncome.setRoot(null);
+                tableIncome.setRoot(ReadData.getTableAmountsTree(DB.INCOME, inDate));
+                tableIncome.getRoot().setExpanded(true);
+                // tableIncome.setShowRoot(false);
+                Util.calculateTreeTotals(tableIncome.getRoot());
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
 
                 // get mandatory data
@@ -835,13 +916,16 @@ public class PrimaryController {
                 tableMandatory.setRoot(ReadData.getTableAmountsTree(DB.MANDITORY, inDate));
                 tableMandatory.getRoot().setExpanded(true);
                 // tableMandatory.setShowRoot(false);
+                Util.calculateTreeTotals(tableMandatory.getRoot());
                 tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDITORY, inDate)));
 
                 // get discretionary data
-                tableDiscretionary.getItems().clear();
-                tableDiscretionary.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
+                tableDiscretionary.setRoot(null);
+                tableDiscretionary.setRoot(ReadData.getTableAmountsTree(DB.DISCRETIONARY, inDate));
+                tableDiscretionary.getRoot().setExpanded(true);
+                // tableDiscretionary.setShowRoot(false);
+                Util.calculateTreeTotals(tableDiscretionary.getRoot());
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
 
@@ -977,6 +1061,9 @@ public class PrimaryController {
 
         public void incomeTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
+                if (item.isCategory()) {
+                        return;
+                }
                 item.setBudget(e.getNewValue());
 
                 javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableIncome.getSelectionModel()
@@ -999,8 +1086,9 @@ public class PrimaryController {
                                 // Refresh the table view to reflect the changes
                                 // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
+                                        Util.calculateTreeTotals(tableIncome.getRoot());
                                         tableIncomeTotal.setItems(FXCollections.observableArrayList(
-                                                        ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                                        ReadData.getTotals(DB.INCOME, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableIncome.refresh();
                                 });
@@ -1023,6 +1111,9 @@ public class PrimaryController {
 
         public void mandatoryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
                 LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
+                if (item.isCategory()) {
+                        return;
+                }
                 item.setBudget(e.getNewValue());
 
                 javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableMandatory.getSelectionModel()
@@ -1045,6 +1136,9 @@ public class PrimaryController {
                                 // Refresh the table view to reflect the changes
                                 // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
+                                        // TreeItem<LineItem> root =
+                                        // tableMandatory.getRoot();
+                                        Util.calculateTreeTotals(tableMandatory.getRoot());
                                         tableManditoryTotal.setItems(FXCollections.observableArrayList(
                                                         ReadData.getTotals(DB.MANDITORY, item.getDate())));
                                         UIData.updateTableTotal(tables);
@@ -1068,10 +1162,14 @@ public class PrimaryController {
         }
 
         public void discretionaryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> e) {
+              
                 LineItem item = e.getTreeTablePosition().getTreeItem().getValue();
+                if (item.isCategory()) {
+                        return;
+                }
                 item.setBudget(e.getNewValue());
 
-                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableCiscretionary.getSelectionModel()
+                javafx.scene.control.TreeItem<LineItem> selectedTreeItem = tableDiscretionary.getSelectionModel()
                                 .getSelectedItem();
                 if (selectedTreeItem != null) {
                         LineItem selectedItem = selectedTreeItem.getValue();
@@ -1091,8 +1189,9 @@ public class PrimaryController {
                                 // Refresh the table view to reflect the changes
                                 // - wrap in Platform.runLater
                                 Platform.runLater(() -> {
+                                        Util.calculateTreeTotals(tableDiscretionary.getRoot());
                                         tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                                        ReadData.getTotals(DB.MANDITORY, item.getDate())));
+                                                        ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableDiscretionary.refresh();
                                 });
