@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.budget.Util;
 import com.budget.dataModal.DB;
@@ -460,16 +461,16 @@ public class PrimaryController {
                 });
 
                 // Create a task to run getYears in another thread
-                Task<ArrayList<String>> task = new Task<ArrayList<String>>() {
+                Task<java.util.List<String>> task = new Task<java.util.List<String>>() {
                         @Override
-                        protected ArrayList<String> call() throws Exception {
+                        protected List<String> call() throws Exception {
                                 return ReadData.getYears();
                         }
                 };
                 new Thread(task).start();
 
                 task.setOnSucceeded(e -> {
-                        ArrayList<String> years = task.getValue();
+                        List<String> years = task.getValue();
 
                         /* add current year to array if not in array */
                         String currentYear = String.valueOf(LocalDate.now().getYear());

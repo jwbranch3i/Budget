@@ -2,15 +2,21 @@ package com.budget.dataModal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.scene.control.TreeItem;
 
 public class ReadData {
-
+    private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
+    
+   
     /**
      * Finds the category of a LineItemCSV in the actual database table.
      * 
@@ -18,38 +24,26 @@ public class ReadData {
      * @return The category ID if found, or -1 if not found.
      */
     public static LineItemCSV actualFindCategory(LineItemCSV item) {
-        LineItemCSV returnItem = new LineItemCSV();
-        // copy the item to returnItem
-        returnItem.setId(-1);
-        returnItem.setAmount(item.getAmount());
-        returnItem.setDate(item.getDate());
-        returnItem.setCategory(item.getCategory());
-        returnItem.setParent(item.getParent());
-        returnItem.setType(item.getType());
+        LineItemCSV returnItem = createCopyWithId(item, -1);
+        
+        String monthString = String.format("%02d", item.getDate().getMonthValue());
+        String yearString = String.format("%04d", item.getDate().getYear());
 
-        try {
-            String monthString = String.format("%02d", item.getDate().getMonthValue());
-            String yearString = String.format("%04d", item.getDate().getYear());
-
-            PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY);
+        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY)) {
             findRecord.setInt(1, item.getId());
             findRecord.setString(2, monthString);
             findRecord.setString(3, yearString);
 
-            ResultSet rs = findRecord.executeQuery();
-            if (rs.next()) {
-                returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID));
-                return returnItem;
+            try (ResultSet rs = findRecord.executeQuery()) {
+                if (rs.next()) {
+                    returnItem.setId(rs.getInt(DB.ACTUAL_COL_ID));
+                }
             }
-            else {
-                returnItem.setId(-1);
-                return returnItem;
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Error actualFindCategory: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in actualFindCategory", e);
             return item;
         }
+        return returnItem;
     }
 
     /**
@@ -59,40 +53,23 @@ public class ReadData {
      * @return The record index if found, or -1 if not found.
      */
     public static LineItemCSV categoryFindRecord(LineItemCSV item) {
-        LineItemCSV returnItem = new LineItemCSV();
-        returnItem.setId(-1);
-        // copy the item to returnItem
-        returnItem.setAmount(item.getAmount());
-        returnItem.setDate(item.getDate());
-        returnItem.setCategory(item.getCategory());
-        returnItem.setParent(item.getParent());
-        returnItem.setType(item.getType());
+        LineItemCSV returnItem = createCopyWithId(item, -1);
 
-        PreparedStatement psFindRecord = null;
-        ResultSet rs = null;
-        try {
-            psFindRecord = DataSource.getConn().prepareStatement(DB.CAT_FIND_CATEGORY);
+        try (PreparedStatement psFindRecord = DataSource.getConn().prepareStatement(DB.CAT_FIND_CATEGORY)) {
             psFindRecord.setString(1, item.getParent());
             psFindRecord.setString(2, item.getCategory());
 
-            rs = psFindRecord.executeQuery();
-            if (rs.next()) {
-                returnItem.setId(rs.getInt(DB.CAT_COL_ID));
-                returnItem.setType(rs.getInt(DB.CAT_COL_TYPE));
-                returnItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY));
-
-                return returnItem;
+            try (ResultSet rs = psFindRecord.executeQuery()) {
+                if (rs.next()) {
+                    returnItem.setId(rs.getInt(DB.CAT_COL_ID));
+                    returnItem.setType(rs.getInt(DB.CAT_COL_TYPE));
+                    returnItem.setCategory(rs.getString(DB.CAT_COL_CATEGORY));
+                }
             }
-            else {
-                returnItem.setId(-1);
-                return returnItem;
-            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in categoryFindRecord", e);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error categoryFindRecord: " + e.getMessage());
-            return returnItem;
-        }
+        return returnItem;
     }
 
     /**
@@ -104,239 +81,250 @@ public class ReadData {
      * @return The root TreeItem containing grouped LineItems by PARENT.
      */
     public static TreeItem<LineItem> getTableAmountsTree(int type, LocalDate date) {
-        TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
-        try {
-            String monthString = String.format("%02d", date.getMonthValue());
-            String yearString = String.format("%04d", date.getYear());
+        LineItem rootLineItem = new LineItem();
+        rootLineItem.setCategory("Root Total");
+        rootLineItem.setType(type);
+        rootLineItem.setDate(date);
+        
+        TreeItem<LineItem> rootNode = new TreeItem<>(rootLineItem);
+        Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
+        
+        String monthString = String.format("%02d", date.getMonthValue());
+        String yearString = String.format("%04d", date.getYear());
 
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
             ps.setInt(3, type);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LineItem newItem = createLineItemFromResultSet(rs, type);
+                    String parent = newItem.getParent();
 
-            // Map to hold parent nodes
+                    TreeItem<LineItem> parentNode = parentMap.computeIfAbsent(parent, k -> {
+                        LineItem parentLineItem = createParentLineItem(newItem);
+                        TreeItem<LineItem> node = new TreeItem<>(parentLineItem);
+                        rootNode.getChildren().add(node);
+                        return node;
+                    });
 
-            Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
-
-            while (rs.next()) {
-                LineItem newItem = new LineItem();
-                newItem.setId(rs.getInt("ID"));
-                newItem.setType(type);
-                newItem.hide(rs.getBoolean("HIDE"));
-                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
-                newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
-                newItem.setParent(rs.getString("PARENT"));
-                newItem.setCategory(rs.getString("CATEGORY"));
-                newItem.setActual(rs.getDouble("ACTUAL"));
-                newItem.setBudget(rs.getDouble("BUDGET"));
-                newItem.setStartBal(rs.getDouble("STARTBAL"));
-                String parent = newItem.getParent();
-
-                // Get or create parent node
-                TreeItem<LineItem> parentNode = parentMap.get(parent);
-                if (parentNode == null) {
-                    parentNode = new TreeItem<>(newItem);
-                    parentMap.put(parent, parentNode);
-                    rootNode.getChildren().add(parentNode);
-                }
-                else {
-                    // Update existing parent node with new item
-                    if (parentNode.getChildren().isEmpty()) {
-                        LineItem existingItem = parentNode.getValue();
-                        existingItem.setActual(newItem.getActual());
-                        existingItem.setBudget(newItem.getBudget());
-                    }
-                    else {
-                        // If the parent already has children, we need to update
-                        // the existing item
-                        LineItem existingItem = parentNode.getValue();
-                        existingItem.setActual(existingItem.getActual() + newItem.getActual());
-                        existingItem.setBudget(existingItem.getBudget() + newItem.getBudget());
-                    }
+                    // Update parent totals
+                    LineItem parentItem = parentNode.getValue();
+                    parentItem.setActual(parentItem.getActual() + newItem.getActual());
+                    parentItem.setBudget(parentItem.getBudget() + newItem.getBudget());
+                    
+                    // Add child
                     parentNode.getChildren().add(new TreeItem<>(newItem));
                 }
-
             }
 
-            // Calculate root node totals (sum of all parent totals)
-            // LineItem rootItem = rootNode.getValue();
-            // rootItem.setCategory("Root Total");
-            // rootItem.setType(type);
-            // rootItem.setDate(date);
-            // double rootActualTotal = 0.0;
-            // double rootBudgetTotal = 0.0;
-
-            // for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
-            // LineItem parentItem = parentNode.getValue();
-            // rootActualTotal += parentItem.getActual();
-            // rootBudgetTotal += parentItem.getBudget();
-            // }
-
-            // rootItem.setActual(rootActualTotal);
-            // rootItem.setBudget(rootBudgetTotal);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error getTableAmountsTreeGroupedByParent: " + e.getMessage());
+            // Calculate root totals
+            calculateRootTotals(rootNode);
+            
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getTableAmountsTree", e);
         }
         return rootNode;
     }
 
-    public static ArrayList<LineItem> getTableAmounts(int type, LocalDate date) {
+    /**
+     * Retrieves table amounts as a flat list.
+     */
+    public static List<LineItem> getTableAmounts(int type, LocalDate date) {
+        List<LineItem> items = new ArrayList<>();
+        String monthString = String.format("%02d", date.getMonthValue());
+        String yearString = String.format("%04d", date.getYear());
 
-        ArrayList<LineItem> items = new ArrayList<LineItem>();
-        try {
-            String monthString = String.format("%02d", date.getMonthValue());
-            String yearString = String.format("%04d", date.getYear());
-
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
             ps.setInt(3, type);
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                LineItem newItem = new LineItem();
-                newItem.setId(rs.getInt("ID"));
-                newItem.setType(type);
-                newItem.hide(rs.getBoolean("HIDE"));
-                newItem.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
-                newItem.setDate(LocalDate.parse(rs.getString("DATE")));
-                newItem.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
-                newItem.setCategory(rs.getString("CATEGORY"));
-                newItem.setActual(rs.getDouble("ACTUAL"));
-                newItem.setBudget(rs.getDouble("BUDGET"));
-                newItem.setStartBal(rs.getDouble("STARTBAL"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LineItem newItem = createLineItemFromResultSet(rs, type);
+                    newItem.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
 
-                if (newItem.hide() == false) {
-                    items.add(newItem);
+                    if (!newItem.hide()) {
+                        items.add(newItem);
+                    }
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getTableAmounts", e);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error*** getTableAmounts: " + e.getMessage());
-        }
-
         return items;
     }
 
-    // find catagories not in actual table for a given month
-    // and add to the actual table and return list of added categories
-    public static ArrayList<LineItemCSV> findMissingCategories(LocalDate date) {
-        ArrayList<LineItemCSV> items = new ArrayList<LineItemCSV>();
-        try {
-            String monthString = String.format("%02d", date.getMonthValue());
-            String yearString = String.format("%04d", date.getYear());
+    /**
+     * Find categories not in actual table for a given month and add to the actual table.
+     */
+    public static List<LineItemCSV> findMissingCategories(LocalDate date) {
+        List<LineItemCSV> items = new ArrayList<>();
+        String monthString = String.format("%02d", date.getMonthValue());
+        String yearString = String.format("%04d", date.getYear());
 
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES)) {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                LineItemCSV newItem = new LineItemCSV();
-                newItem.setId(rs.getInt("ID"));
-                newItem.setDate(date);
-                newItem.setType(rs.getInt("TYPE"));
-                newItem.setParent(rs.getString("PARENT"));
-                newItem.setCategory(rs.getString("CATEGORY"));
-
-                newItem = WriteData.actualInsertRecord(newItem);
-                if (newItem.getHide() == false) {
-                    items.add(newItem);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LineItemCSV newItem = createLineItemCSVFromResultSet(rs, date);
+                    newItem = WriteData.actualInsertRecord(newItem);
+                    
+                    if (!newItem.getHide()) {
+                        items.add(newItem);
+                    }
                 }
-
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in findMissingCategories", e);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error*** findMissingCategories: " + e.getMessage());
-        }
-
         return items;
     }
 
+    /**
+     * Get totals for a specific type and date.
+     */
     public static LineItem getTotals(int type, LocalDate date) {
         LineItem newItem = new LineItem();
-        try {
-            String monthString = String.format("%02d", date.getMonthValue());
-            String yearString = String.format("%04d", date.getYear());
+        String monthString = String.format("%02d", date.getMonthValue());
+        String yearString = String.format("%04d", date.getYear());
 
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS)) {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
             ps.setInt(3, type);
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                newItem.setActual(rs.getDouble("ATOTAL"));
-                newItem.setBudget(rs.getDouble("BTOTAL"));
-                newItem.setCategory("TOTAL");
-                newItem.setType(type);
-
-                return newItem;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    newItem.setActual(rs.getDouble("ATOTAL"));
+                    newItem.setBudget(rs.getDouble("BTOTAL"));
+                    newItem.setCategory("TOTAL");
+                    newItem.setType(type);
+                }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getTotals", e);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error*** getTotals: " + e.getMessage());
-        }
-
         return newItem;
     }
 
-    // method to available years in database
-    public static ArrayList<String> getYears() {
-        ArrayList<String> years = new ArrayList<String>();
+    /**
+     * Get available years from database.
+     */
+    public static List<String> getYears() {
+        List<String> years = new ArrayList<>();
 
-        try {
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
-            ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
+             ResultSet rs = ps.executeQuery()) {
+            
             while (rs.next()) {
                 years.add(rs.getString("YEAR"));
             }
 
             if (years.isEmpty()) {
-                years.add(String.valueOf(LocalDate.now().getYear())); // Convert
-                                                                      // Integer
-                                                                      // to
-                                                                      // String
+                years.add(String.valueOf(LocalDate.now().getYear()));
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error getYears: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getYears", e);
         }
         return years;
     }
 
-    // method to get categories from the database
-    public static ArrayList<Categories> getCategories() {
-        ArrayList<Categories> categories = new ArrayList<Categories>();
+    /**
+     * Get categories from the database.
+     */
+    public static List<Categories> getCategories() {
+        List<Categories> categories = new ArrayList<>();
 
-        try {
-            PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES);
-            ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES);
+             ResultSet rs = ps.executeQuery()) {
+            
             while (rs.next()) {
-                Categories newItem = new Categories();
-                newItem.setId(rs.getInt("ID"));
-                newItem.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
-                newItem.hide(rs.getBoolean("HIDE"));
-                newItem.setType(rs.getInt("TYPE"));
-                newItem.setParent(rs.getString("PARENT"));
-                newItem.setCategory(rs.getString("CATEGORY"));
-
+                Categories newItem = createCategoryFromResultSet(rs);
                 categories.add(newItem);
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error getCategories: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getCategories", e);
         }
         return categories;
     }
 
+    // Private helper methods
+    private static LineItemCSV createCopyWithId(LineItemCSV source, int id) {
+        LineItemCSV copy = new LineItemCSV();
+        copy.setId(id);
+        copy.setAmount(source.getAmount());
+        copy.setDate(source.getDate());
+        copy.setCategory(source.getCategory());
+        copy.setParent(source.getParent());
+        copy.setType(source.getType());
+        return copy;
+    }
+
+    private static LineItem createLineItemFromResultSet(ResultSet rs, int type) throws SQLException {
+        LineItem item = new LineItem();
+        item.setId(rs.getInt("ID"));
+        item.setType(type);
+        item.hide(rs.getBoolean("HIDE"));
+        item.setDate(LocalDate.parse(rs.getString("DATE")));
+        item.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
+        item.setParent(rs.getString("PARENT"));
+        item.setCategory(rs.getString("CATEGORY"));
+        item.setActual(rs.getDouble("ACTUAL"));
+        item.setBudget(rs.getDouble("BUDGET"));
+        item.setStartBal(rs.getDouble("STARTBAL"));
+        return item;
+    }
+
+    private static LineItemCSV createLineItemCSVFromResultSet(ResultSet rs, LocalDate date) throws SQLException {
+        LineItemCSV item = new LineItemCSV();
+        item.setId(rs.getInt("ID"));
+        item.setDate(date);
+        item.setType(rs.getInt("TYPE"));
+        item.setParent(rs.getString("PARENT"));
+        item.setCategory(rs.getString("CATEGORY"));
+        return item;
+    }
+
+    private static Categories createCategoryFromResultSet(ResultSet rs) throws SQLException {
+        Categories category = new Categories();
+        category.setId(rs.getInt("ID"));
+        category.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
+        category.hide(rs.getBoolean("HIDE"));
+        category.setType(rs.getInt("TYPE"));
+        category.setParent(rs.getString("PARENT"));
+        category.setCategory(rs.getString("CATEGORY"));
+        return category;
+    }
+
+    private static LineItem createParentLineItem(LineItem childItem) {
+        LineItem parent = new LineItem();
+        parent.setCategory(childItem.getParent());
+        parent.setType(childItem.getType());
+        parent.setDate(childItem.getDate());
+        parent.setParent(childItem.getParent());
+        parent.setIsCategory(true);
+        parent.setActual(0.0);
+        parent.setBudget(0.0);
+        return parent;
+    }
+
+    private static void calculateRootTotals(TreeItem<LineItem> rootNode) {
+        LineItem rootItem = rootNode.getValue();
+        double rootActualTotal = 0.0;
+        double rootBudgetTotal = 0.0;
+
+        for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
+            LineItem parentItem = parentNode.getValue();
+            rootActualTotal += parentItem.getActual();
+            rootBudgetTotal += parentItem.getBudget();
+        }
+
+        rootItem.setActual(rootActualTotal);
+        rootItem.setBudget(rootBudgetTotal);
+    }
 }
