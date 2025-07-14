@@ -26,7 +26,7 @@ public class Categories {
         this.category.set(category);
 
         items.add("Income");
-        items.add("Mandatory");
+        items.add("Manditory");
         items.add("Discretionary");
     }
 

@@ -28,7 +28,7 @@ public class CategoriesTest {
         assertEquals("Parent", category.getParent());
         assertEquals("Category", category.getCategory());
         assertTrue(Categories.getItems().contains("Income"));
-        assertTrue(Categories.getItems().contains("Mandatory"));
+        assertTrue(Categories.getItems().contains("Manditory"));
         assertTrue(Categories.getItems().contains("Discretionary"));
     }
 

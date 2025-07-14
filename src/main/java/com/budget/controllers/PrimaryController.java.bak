@@ -115,22 +115,22 @@ public class PrimaryController {
         /*************************************************************************/
 
         @FXML
-        private TableView<LineItem> tableMandatoryTotal;
+        private TableView<LineItem> tableManditoryTotal;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatoryTotal_Actual;
+        private TableColumn<LineItem, Double> tableManditoryTotal_Actual;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatoryTotal_Budget;
+        private TableColumn<LineItem, Double> tableManditoryTotal_Budget;
 
         @FXML
-        private TableColumn<LineItem, String> tableMandatoryTotal_Category;
+        private TableColumn<LineItem, String> tableManditoryTotal_Category;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatoryTotal_Diff;
+        private TableColumn<LineItem, Double> tableManditoryTotal_Diff;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatoryTotal_Balance;
+        private TableColumn<LineItem, Double> tableManditoryTotal_Balance;
 
         /********************* */
         /* Discretionary Table */
@@ -244,7 +244,7 @@ public class PrimaryController {
 
                         tableIncomeTotal.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                        tableMandatoryTotal.setItems(
+                        tableManditoryTotal.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                         tableDiscretionaryTotal.setItems(FXCollections
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
@@ -364,7 +364,7 @@ public class PrimaryController {
                                 Platform.runLater(() -> {
                                         tableIncomeTotal.setItems(FXCollections
                                                         .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                                        tableMandatoryTotal.setItems(FXCollections
+                                        tableManditoryTotal.setItems(FXCollections
                                                         .observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                                         tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                                         ReadData.getTotals(DB.DISCRETIONARY, inDate)));
@@ -427,7 +427,7 @@ public class PrimaryController {
 
                 // Apply the style class to the table
                 tableIncomeTotal.getStyleClass().add("table-view-total");
-                tableMandatoryTotal.getStyleClass().add("table-view-total");
+                tableManditoryTotal.getStyleClass().add("table-view-total");
                 tableDiscretionaryTotal.getStyleClass().add("table-view-total");
 
                 // set btn_Update to be disabled and uncheck chkBox
@@ -438,7 +438,7 @@ public class PrimaryController {
                 // Set up table refrence to update totals table
                 // ***************************************/
                 tables.add(tableIncomeTotal);
-                tables.add(tableMandatoryTotal);
+                tables.add(tableManditoryTotal);
                 tables.add(tableDiscretionaryTotal);
                 tables.add(tableTotal);
 
@@ -507,8 +507,8 @@ public class PrimaryController {
                         header.setVisible(false);
                 });
 
-                tableMandatoryTotal.skinProperty().addListener((a, b, newSkin) -> {
-                        Pane header = (Pane) tableMandatoryTotal.lookup("TableHeaderRow");
+                tableManditoryTotal.skinProperty().addListener((a, b, newSkin) -> {
+                        Pane header = (Pane) tableManditoryTotal.lookup("TableHeaderRow");
                         header.setMinHeight(0);
                         header.setPrefHeight(0);
                         header.setMaxHeight(0);
@@ -534,12 +534,12 @@ public class PrimaryController {
                 incomeTotal.setBudget(1.0);
                 tableIncomeTotal.getItems().add(incomeTotal);
 
-                // add row to tableMandatoryTotal
+                // add row to tableManditoryTotal
                 LineItem manditoryTotal = new LineItem();
                 manditoryTotal.setCategory("Total");
                 manditoryTotal.setActual(0.0);
                 manditoryTotal.setBudget(0.0);
-                tableMandatoryTotal.getItems().add(manditoryTotal);
+                tableManditoryTotal.getItems().add(manditoryTotal);
 
                 // add row to tableDiscretionaryTotal
                 LineItem discretionaryTotal = new LineItem();
@@ -739,21 +739,21 @@ public class PrimaryController {
                 });
 
                 /***********************************************************/
-                tableMandatoryTotal_Category
+                tableManditoryTotal_Category
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableMandatoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                tableManditoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableMandatoryTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                tableManditoryTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 tableIncomeTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableMandatoryTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableMandatoryTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableManditoryTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                tableManditoryTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableMandatoryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableMandatoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableManditoryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                tableManditoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableMandatoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableMandatoryTotal_Balance
+                tableManditoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
+                tableManditoryTotal_Balance
                                 .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
@@ -918,7 +918,7 @@ public class PrimaryController {
                 tableMandatory.getRoot().setExpanded(true);
                 // tableMandatory.setShowRoot(false);
                 Util.calculateTreeTotals(tableMandatory.getRoot());
-                tableMandatoryTotal
+                tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
 
                 // get discretionary data
@@ -1140,7 +1140,7 @@ public class PrimaryController {
                                         // TreeItem<LineItem> root =
                                         // tableMandatory.getRoot();
                                         Util.calculateTreeTotals(tableMandatory.getRoot());
-                                        tableMandatoryTotal.setItems(FXCollections.observableArrayList(
+                                        tableManditoryTotal.setItems(FXCollections.observableArrayList(
                                                         ReadData.getTotals(DB.MANDATORY, item.getDate())));
                                         UIData.updateTableTotal(tables);
                                         tableMandatory.refresh();
@@ -1278,7 +1278,7 @@ public class PrimaryController {
         public void updateTablesTask() {
                 LocalDate inDate = getWorkingDate();
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                tableMandatoryTotal
+                tableManditoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
