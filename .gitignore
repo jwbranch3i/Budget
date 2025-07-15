@@ -45,3 +45,5 @@ buildNumber.properties
 Budget.db
 
 filePath.txt
+
+*.bak
