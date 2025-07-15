@@ -141,8 +141,8 @@ public class WriteData {
             updateRecord.setInt(1, item.getType());
             updateRecord.setString(2, item.getParent());
             updateRecord.setString(3, item.getCategory());
-            updateRecord.setBoolean(4, item.include_in_total());
-            updateRecord.setBoolean(5, item.hide());
+            updateRecord.setBoolean(4, item.isIncludeInTotal());
+            updateRecord.setBoolean(5, item.isHide());
             updateRecord.setInt(6, item.getAcct());
             updateRecord.setInt(7, item.getId());
            

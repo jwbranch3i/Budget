@@ -16,9 +16,6 @@ import javafx.scene.control.TreeItem;
 public class ReadData {
     private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
 
-    // Cache for prepared statements to improve performance
-    private static final Map<String, PreparedStatement> STATEMENT_CACHE = new HashMap<>();
-
     /**
      * Finds the category of a LineItemCSV in the actual database table.
      * 
@@ -311,8 +308,8 @@ public class ReadData {
     private static Categories createCategoryFromResultSet(ResultSet rs) throws SQLException {
         Categories category = new Categories();
         category.setId(rs.getInt("ID"));
-        category.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
-        category.hide(rs.getBoolean("HIDE"));
+        category.setIncludeInTotal(rs.getBoolean("INCLUDE_IN_TOTAL"));
+        category.setHide(rs.getBoolean("HIDE"));
         category.setType(rs.getInt("TYPE"));
         category.setParent(rs.getString("PARENT"));
         category.setCategory(rs.getString("CATEGORY"));
