@@ -153,7 +153,7 @@ public class ReadData {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     LineItem newItem = createLineItemFromResultSet(rs, type);
-                    newItem.include_in_total(rs.getBoolean("INCLUDE_IN_TOTAL"));
+                    newItem.includeInTotal(rs.getBoolean("INCLUDE_IN_TOTAL"));
 
                     if (!newItem.hide()) {
                         items.add(newItem);
@@ -286,7 +286,7 @@ public class ReadData {
         item.setType(type);
         item.hide(rs.getBoolean("HIDE"));
         item.setDate(LocalDate.parse(rs.getString("DATE")));
-        item.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
+        item.isCategory(rs.getBoolean("MAIN_CATEGORY"));
         item.setParent(rs.getString("PARENT"));
         item.setCategory(rs.getString("CATEGORY"));
         item.setActual(rs.getDouble("ACTUAL"));
@@ -322,7 +322,7 @@ public class ReadData {
         parent.setType(childItem.getType());
         parent.setDate(childItem.getDate());
         parent.setParent(childItem.getParent());
-        parent.setIsCategory(true);
+        parent.isCategory(true);
         parent.setActual(0.0);
         parent.setBudget(0.0);
         return parent;

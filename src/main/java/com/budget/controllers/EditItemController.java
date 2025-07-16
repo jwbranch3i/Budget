@@ -63,7 +63,7 @@ public class EditItemController {
     public void setItem(LineItem editItem) {
         this.item = editItem;
         id_LBL.setText(String.valueOf(item.getId()));
-        chkbox_include.setSelected(item.include_in_total());
+        chkbox_include.setSelected(item.includeInTotal());
         Category_LBL.setText(item.getCategory());
         actual_LBL.setText(item.getActual().toString());
         budget_LBL.setText(item.getBudget().toString());
