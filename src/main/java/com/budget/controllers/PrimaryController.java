@@ -320,7 +320,7 @@ public class PrimaryController {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                                WriteData.getLastBudget(getWorkingDate());
+                                WriteData.copyLastMonthBudget(getWorkingDate());
                                 return null;
                         }
 
@@ -1013,7 +1013,7 @@ public class PrimaryController {
                                                 WriteData.actualInsertRecord(existingCategory);
                                         }
                                         else {
-                                                WriteData.autualUpdateAmount(existingActual);
+                                                WriteData.actualUpdateAmount(existingActual);
                                         }
 
                                         break;
@@ -1038,7 +1038,7 @@ public class PrimaryController {
                                                 WriteData.actualInsertRecord(existingCategory);
                                         }
                                         else {
-                                                WriteData.autualUpdateAmount(existingActual);
+                                                WriteData.actualUpdateAmount(existingActual);
                                         }
 
                                         break;
