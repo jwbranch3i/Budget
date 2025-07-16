@@ -29,7 +29,7 @@ public class WriteData {
                     PreparedStatement.RETURN_GENERATED_KEYS);
             insertRecord.setInt(1, item.getType());
             insertRecord.setString(2, item.getParent());
-            insertRecord.setBoolean(3, item.isMainCat());
+            insertRecord.setBoolean(3, item.isMainCategory());
             insertRecord.setString(4, item.getCategory());
 
             insertRecord.executeUpdate();

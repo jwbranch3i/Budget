@@ -185,7 +185,7 @@ public class ReadData {
                     LineItemCSV newItem = createLineItemCSVFromResultSet(rs, date);
                     newItem = WriteData.actualInsertRecord(newItem);
 
-                    if (!newItem.getHide()) {
+                    if (!newItem.hide()) {
                         items.add(newItem);
                     }
                 }
