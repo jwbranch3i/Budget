@@ -30,7 +30,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -52,6 +54,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -201,7 +205,6 @@ public class PrimaryController {
 
         /** Array of tables for UIData total table update */
         private final ArrayList<TableView<LineItem>> tables = new ArrayList<>();
-
 
         @FXML
         void button_EditCat(ActionEvent event) {
@@ -401,6 +404,27 @@ public class PrimaryController {
         }
 
         public void initialize() {
+                try {
+                        LOGGER.info("Initializing PrimaryController");
+
+                        // Initialize controller extension
+                        @SuppressWarnings("unused")
+                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal,
+                                        tableTotal_Category, tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
+
+                        // Setup table columns
+                        setupTableColumns();
+                        LOGGER.info("PrimaryController initialization completed successfully");
+
+                }
+                catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error during PrimaryController initialization", e);
+                        showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
+                }
+
+
+
+//==
 
                 @SuppressWarnings("unused")
                 PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal, tableTotal_Category,
@@ -557,146 +581,6 @@ public class PrimaryController {
                                         }
                                 });
 
-                // ***************************************/
-                // Set up table columns
-                // ***************************************/
-                tableIncome_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableIncome_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableIncome_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableIncome_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableIncome_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableIncome_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableIncome_Budget.setOnEditCommit(e -> incomeTableBudget_OnEditCommit(e));
-
-                tableIncome_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableIncome_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                /***********************************************************/
-                tableIncomeTotal_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableIncomeTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableIncomeTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableIncomeTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableIncomeTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableIncomeTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableIncomeTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableIncomeTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                /***********************************************************/
-                tableMandatory_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableMandatory_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableMandatory_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableMandatory_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatory_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableMandatory_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableMandatory_Budget.setOnEditCommit(e -> mandatoryTableBudget_OnEditCommit(e));
-
-                tableMandatory_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableMandatory_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatory_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableMandatory_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatory.setRowFactory(tv -> {
-                        TableRow<LineItem> row = new TableRow<>();
-                        ContextMenu contextMenu = new ContextMenu();
-                        MenuItem editItem = new MenuItem("Edit");
-                        contextMenu.getItems().add(editItem);
-
-                        row.setOnMouseClicked(event -> {
-                                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                                        contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                                }
-                        });
-
-                        editItem.setOnAction(event -> {
-                                LineItem item = row.getItem();
-                                editLineItem(item); // Call your routine here
-                        });
-
-                        return row;
-                });
-
-                /***********************************************************/
-                tableMandatoryTotal_Category
-                                .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableMandatoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableMandatoryTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableIncomeTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatoryTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableMandatoryTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatoryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableMandatoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableMandatoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableMandatoryTotal_Balance
-                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                /***********************************************************/
-
-                tableDiscretionary_Category.setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableDiscretionary_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableDiscretionary_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableDiscretionary_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionary_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableDiscretionary_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-                tableDiscretionary_Budget.setOnEditCommit(e -> discretionaryTableBudget_OnEditCommit(e));
-
-                tableDiscretionary_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableDiscretionary_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionary_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableDiscretionary_Balance.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionary.setRowFactory(tv -> {
-                        TableRow<LineItem> row = new TableRow<>();
-                        ContextMenu contextMenu = new ContextMenu();
-                        MenuItem editItem = new MenuItem("Edit");
-                        contextMenu.getItems().add(editItem);
-
-                        row.setOnMouseClicked(event -> {
-                                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                                        contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                                }
-                        });
-
-                        editItem.setOnAction(event -> {
-                                LineItem item = row.getItem();
-                                editLineItem(item); // Call your routine here
-                        });
-
-                        return row;
-                });
-
-                /***********************************************************/
-                tableDiscretionaryTotal_Category
-                                .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableDiscretionaryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
-
-                tableDiscretionaryTotal_Actual
-                                .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
-                tableDiscretionaryTotal_Actual
-                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionaryTotal_Budget
-                                .setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableDiscretionaryTotal_Budget
-                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
-
-                tableDiscretionaryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableDiscretionaryTotal_Diff
-                                .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 // Create a task to run getTableRows in another thread
                 Task<Void> task2 = new Task<Void>() {
@@ -716,6 +600,149 @@ public class PrimaryController {
                 mainDateLabel.setText(inDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
 
         }
+        // ========================= TABLE COLUMN SETUP
+        // =========================
+
+        private void setupTableColumns() {
+                setupIncomeTableColumns();
+                setupMandatoryTableColumns();
+                setupDiscretionaryTableColumns();
+                setupTotalTableColumns();
+        }
+
+        private void setupIncomeTableColumns() {
+                setupTreeTableColumn(tableIncome_Category, LineItem::getCategory, true);
+                setupTreeTableColumn(tableIncome_Actual, LineItem::getActual, false);
+                setupTreeTableColumn(tableIncome_Budget, LineItem::getBudget, false);
+                setupTreeTableColumn(tableIncome_Diff, LineItem::getDiff, false);
+
+                tableIncome_Budget.setOnEditCommit(this::incomeTableBudget_OnEditCommit);
+
+                // Setup total table columns
+                setupTotalTableColumn(tableIncomeTotal_Category, "category", false);
+                setupTotalTableColumn(tableIncomeTotal_Actual, "actual", true);
+                setupTotalTableColumn(tableIncomeTotal_Budget, "budget", true);
+                setupTotalTableColumn(tableIncomeTotal_Diff, "diff", true);
+        }
+
+        private void setupMandatoryTableColumns() {
+                setupTreeTableColumn(tableMandatory_Category, LineItem::getCategory, true);
+                setupTreeTableColumn(tableMandatory_Actual, LineItem::getActual, false);
+                setupTreeTableColumn(tableMandatory_Budget, LineItem::getBudget, false);
+                setupTreeTableColumn(tableMandatory_Diff, LineItem::getDiff, false);
+                setupTreeTableColumn(tableMandatory_Balance, LineItem::getBalance, false);
+
+                tableMandatory_Budget.setOnEditCommit(this::mandatoryTableBudget_OnEditCommit);
+
+                // Setup total table columns
+                setupTotalTableColumn(tableMandatoryTotal_Category, "category", false);
+                setupTotalTableColumn(tableMandatoryTotal_Actual, "actual", true);
+                setupTotalTableColumn(tableMandatoryTotal_Budget, "budget", true);
+                setupTotalTableColumn(tableMandatoryTotal_Diff, "diff", true);
+                setupTotalTableColumn(tableMandatoryTotal_Balance, "balance", true);
+        }
+
+        private void setupDiscretionaryTableColumns() {
+                setupTreeTableColumn(tableDiscretionary_Category, LineItem::getCategory, true);
+                setupTreeTableColumn(tableDiscretionary_Actual, LineItem::getActual, false);
+                setupTreeTableColumn(tableDiscretionary_Budget, LineItem::getBudget, false);
+                setupTreeTableColumn(tableDiscretionary_Diff, LineItem::getDiff, false);
+
+                tableDiscretionary_Budget.setOnEditCommit(this::discretionaryTableBudget_OnEditCommit);
+
+                // Setup total table columns
+                setupTotalTableColumn(tableDiscretionaryTotal_Category, "category", false);
+                setupTotalTableColumn(tableDiscretionaryTotal_Actual, "actual", true);
+                setupTotalTableColumn(tableDiscretionaryTotal_Budget, "budget", true);
+                setupTotalTableColumn(tableDiscretionaryTotal_Diff, "diff", true);
+        }
+
+        private void setupTotalTableColumns() {
+                tableTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
+                tableTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+
+                tableTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
+                tableTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
+                tableTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+
+                tableTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
+                tableTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> void setupTreeTableColumn(TreeTableColumn<LineItem, T> column,
+                        java.util.function.Function<LineItem, T> valueExtractor, boolean isStringColumn) {
+                column.setCellValueFactory(cellData -> {
+                        LineItem item = cellData.getValue().getValue();
+                        if (item != null) {
+                                T value = valueExtractor.apply(item);
+                                if (isStringColumn) {
+                                        return (javafx.beans.value.ObservableValue<T>) new javafx.beans.property.SimpleStringProperty(
+                                                        (String) value);
+                                }
+                                else {
+                                        return new javafx.beans.property.SimpleObjectProperty<>(value);
+                                }
+                        }
+                        else {
+                                return isStringColumn
+                                                ? (javafx.beans.value.ObservableValue<T>) new javafx.beans.property.SimpleStringProperty(
+                                                                "")
+                                                : new javafx.beans.property.SimpleObjectProperty<>(
+                                                                (T) Double.valueOf(0.0));
+                        }
+                });
+
+                if (isStringColumn) {
+                        ((TreeTableColumn<LineItem, String>) column).setCellFactory(
+                                        javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
+                }
+                else {
+                        ((TreeTableColumn<LineItem, Double>) column)
+                                        .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
+                                                        .forTreeTableColumn(Util.getCurrencyConverter()));
+                }
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> void setupTotalTableColumn(TableColumn<LineItem, T> column, String propertyName,
+                        boolean isCurrency) {
+                column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+
+                if (isCurrency) {
+                        ((TableColumn<LineItem, Double>) column)
+                                        .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                }
+                else {
+                        ((TableColumn<LineItem, String>) column).setCellFactory(TextFieldTableCell.forTableColumn());
+                }
+        }
+
+        // ========================= ERROR HANDLING =========================
+        private void showErrorAlert(String title, String message) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle(title);
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.showAndWait();
+        }
+
+        private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(title);
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+
+                alert.showAndWait().ifPresent(response -> {
+                        if (response == ButtonType.OK && onConfirm != null) {
+                                onConfirm.run();
+                        }
+                });
+        }
+
+
 
         public void readFromDatabase(LocalDate inDate) {
                 Task<Void> task = new Task<Void>() {
