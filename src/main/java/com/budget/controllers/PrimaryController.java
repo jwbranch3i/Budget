@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.budget.Util;
 import com.budget.dataModal.DB;
@@ -39,6 +41,8 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
@@ -48,174 +52,156 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.util.logging.Logger;
 
+/**
+ * Primary controller for the Budget application main window. Manages the budget
+ * tables, data loading, and user interactions.
+ */
 public class PrimaryController {
+
+        private static final Logger LOGGER = Logger.getLogger(PrimaryController.class.getName());
+
+        // ========================= CONSTANTS =========================
+
+        private static final String FILE_PATH_STORAGE = "filePath.txt";
+        private static final String DEFAULT_DIRECTORY = "C:\\";
+        private static final String EDIT_CATEGORY_TITLE = "Edit Category";
+        private static final String EDIT_ITEM_TITLE = "Edit Item";
+        private static final String TOTAL_LABEL = "Total";
+        private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
+
+        // ========================= THREAD POOL =========================
+
+        private final ExecutorService executorService = Executors.newCachedThreadPool(r -> {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                t.setName("PrimaryController-Worker");
+                return t;
+        });
+
+        // ========================= FXML COMPONENTS =========================
+
+        // Income Table Components
         @FXML
-        private TableView<LineItem> tableDiscretionary;
-
+        private TreeTableView<LineItem> tableIncome;
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Actual;
-
+        private TreeTableColumn<LineItem, Double> tableIncome_Actual;
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Budget;
-
+        private TreeTableColumn<LineItem, Double> tableIncome_Budget;
         @FXML
-        private TableColumn<LineItem, String> tableDiscretionary_Category;
-
+        private TreeTableColumn<LineItem, String> tableIncome_Category;
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Diff;
-
+        private TreeTableColumn<LineItem, Double> tableIncome_Diff;
         @FXML
-        private TableColumn<LineItem, Double> tableDiscretionary_Balance;
-
-        /************************************************************************/
-
-        @FXML
-        private TableView<LineItem> tableDiscretionaryTotal;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Budget;
-
-        @FXML
-        private TableColumn<LineItem, String> tableDiscretionaryTotal_Category;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Diff;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Balance;
-
-        /************************************************************************/
-
-        @FXML
-        private TableView<LineItem> tableIncome;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Budget;
-
-        @FXML
-        private TableColumn<LineItem, String> tableIncome_Category;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Diff;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableIncome_Balance;
-
-        /*************************************************************************/
+        private TreeTableColumn<LineItem, Double> tableIncome_Balance;
 
         @FXML
         private TableView<LineItem> tableIncomeTotal;
-
         @FXML
         private TableColumn<LineItem, Double> tableIncomeTotal_Actual;
-
         @FXML
         private TableColumn<LineItem, Double> tableIncomeTotal_Budget;
-
         @FXML
         private TableColumn<LineItem, String> tableIncomeTotal_Category;
-
         @FXML
         private TableColumn<LineItem, Double> tableIncomeTotal_Diff;
 
-        /*************************************************************************/
+        // Mandatory Table Components
+        @FXML
+        private TreeTableView<LineItem> tableMandatory;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableMandatory_Actual;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableMandatory_Budget;
+        @FXML
+        private TreeTableColumn<LineItem, String> tableMandatory_Category;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableMandatory_Diff;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableMandatory_Balance;
 
         @FXML
-        private TableView<LineItem> tableMandatory;
+        private TableView<LineItem> tableMandatoryTotal;
+        @FXML
+        private TableColumn<LineItem, Double> tableMandatoryTotal_Actual;
+        @FXML
+        private TableColumn<LineItem, Double> tableMandatoryTotal_Budget;
+        @FXML
+        private TableColumn<LineItem, String> tableMandatoryTotal_Category;
+        @FXML
+        private TableColumn<LineItem, Double> tableMandatoryTotal_Diff;
+        @FXML
+        private TableColumn<LineItem, Double> tableMandatoryTotal_Balance;
+
+        // Discretionary Table Components
+        @FXML
+        private TreeTableView<LineItem> tableDiscretionary;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Actual;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Budget;
+        @FXML
+        private TreeTableColumn<LineItem, String> tableDiscretionary_Category;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Diff;
+        @FXML
+        private TreeTableColumn<LineItem, Double> tableDiscretionary_Balance;
 
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Actual;
-
+        private TableView<LineItem> tableDiscretionaryTotal;
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Budget;
-
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Actual;
         @FXML
-        private TableColumn<LineItem, String> tableMandatory_Category;
-
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Budget;
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Diff;
-
+        private TableColumn<LineItem, String> tableDiscretionaryTotal_Category;
         @FXML
-        private TableColumn<LineItem, Double> tableMandatory_Balance;
-
-        /*************************************************************************/
-
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Diff;
         @FXML
-        private TableView<LineItem> tableManditoryTotal;
+        private TableColumn<LineItem, Double> tableDiscretionaryTotal_Balance;
 
-        @FXML
-        private TableColumn<LineItem, Double> tableManditoryTotal_Actual;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableManditoryTotal_Budget;
-
-        @FXML
-        private TableColumn<LineItem, String> tableManditoryTotal_Category;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableManditoryTotal_Diff;
-
-        @FXML
-        private TableColumn<LineItem, Double> tableManditoryTotal_Balance;
-
-        /*************************************************************************/
-
+        // Totals Table Components
         @FXML
         private TableView<LineItem> tableTotal;
-
         @FXML
         private TableColumn<LineItem, String> tableTotal_Category;
-
         @FXML
         private TableColumn<LineItem, Double> tableTotal_Actual;
-
         @FXML
         private TableColumn<LineItem, Double> tableTotal_Budget;
-
         @FXML
         private TableColumn<LineItem, Double> tableTotal_Diff;
 
-        /*************************************************************************/
-
+        // UI Components
         @FXML
         private VBox categoryBox;
-
         @FXML
         private AnchorPane myAnchorPane;
-
         @FXML
         private ProgressIndicator progressIndicator;
-
         @FXML
         private ComboBox<String> yearBox;
-
         @FXML
         private ComboBox<String> monthBox;
-
         @FXML
         private CheckBox chkBox;
-
         @FXML
         private Button btn_Update;
-
         @FXML
         private Button btn_EditCat;
-
         @FXML
         private Button btn_UpdateBudget;
-
         @FXML
         private Button btn_UpdateBalance;
-
         @FXML
         private Label mainDateLabel;
+
+        // ========================= DATA STRUCTURES =========================
+
+        /** Array of tables for UIData total table update */
+        private final ArrayList<TableView<LineItem>> tables = new ArrayList<>();
+
 
         @FXML
         void button_EditCat(ActionEvent event) {
@@ -243,7 +229,7 @@ public class PrimaryController {
 
                         tableIncomeTotal.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                        tableManditoryTotal.setItems(
+                        tableMandatoryTotal.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                         tableDiscretionaryTotal.setItems(FXCollections
                                         .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
@@ -256,7 +242,7 @@ public class PrimaryController {
         }
 
         @FXML
-        void button_UpdateCat(ActionEvent event) {
+        void btn_editCategories(ActionEvent event) {
                 LocalDate inDate = LocalDate.of(Integer.parseInt(yearBox.getValue()),
                                 monthBox.getSelectionModel().getSelectedIndex() + 1, 1);
 
@@ -315,7 +301,7 @@ public class PrimaryController {
         }
 
         @FXML
-        void button_UpdateBudget(ActionEvent event) {
+        void btn_getLastMonthsBudget(ActionEvent event) {
                 Task<Void> task = new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
@@ -344,8 +330,11 @@ public class PrimaryController {
 
         @FXML
         void button_UpdateBalance(ActionEvent event) {
-                LineItem firstItem = tableMandatory.getItems().get(0);
-                LocalDate inDate = firstItem.getDate();
+                LineItem firstItem = null;
+                if (tableMandatory.getRoot() != null && tableMandatory.getRoot().getChildren().size() > 0) {
+                        firstItem = tableMandatory.getRoot().getChildren().get(0).getValue();
+                }
+                LocalDate inDate = firstItem != null ? firstItem.getDate() : getWorkingDate();
 
                 Task<Void> task = new Task<Void>() {
                         @Override
@@ -360,7 +349,7 @@ public class PrimaryController {
                                 // Refresh the table view to reflect the changes
                                 tableIncomeTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                                tableManditoryTotal.setItems(FXCollections
+                                tableMandatoryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                                 tableDiscretionaryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
@@ -407,9 +396,6 @@ public class PrimaryController {
                 // App.setRoot("secondary");
         }
 
-        // Array of tables for UIDatat total table update
-        ArrayList<TableView<LineItem>> tables = new ArrayList<TableView<LineItem>>();
-
         public ArrayList<TableView<LineItem>> getTables() {
                 return tables;
         }
@@ -422,7 +408,7 @@ public class PrimaryController {
 
                 // Apply the style class to the table
                 tableIncomeTotal.getStyleClass().add("table-view-total");
-                tableManditoryTotal.getStyleClass().add("table-view-total");
+                tableMandatoryTotal.getStyleClass().add("table-view-total");
                 tableDiscretionaryTotal.getStyleClass().add("table-view-total");
 
                 // set btn_Update to be disabled and uncheck chkBox
@@ -433,7 +419,7 @@ public class PrimaryController {
                 // Set up table refrence to update totals table
                 // ***************************************/
                 tables.add(tableIncomeTotal);
-                tables.add(tableManditoryTotal);
+                tables.add(tableMandatoryTotal);
                 tables.add(tableDiscretionaryTotal);
                 tables.add(tableTotal);
 
@@ -502,8 +488,8 @@ public class PrimaryController {
                         header.setVisible(false);
                 });
 
-                tableManditoryTotal.skinProperty().addListener((a, b, newSkin) -> {
-                        Pane header = (Pane) tableManditoryTotal.lookup("TableHeaderRow");
+                tableMandatoryTotal.skinProperty().addListener((a, b, newSkin) -> {
+                        Pane header = (Pane) tableMandatoryTotal.lookup("TableHeaderRow");
                         header.setMinHeight(0);
                         header.setPrefHeight(0);
                         header.setMaxHeight(0);
@@ -529,12 +515,12 @@ public class PrimaryController {
                 incomeTotal.setBudget(1.0);
                 tableIncomeTotal.getItems().add(incomeTotal);
 
-                // add row to tableManditoryTotal
-                LineItem manditoryTotal = new LineItem();
-                manditoryTotal.setCategory("Total");
-                manditoryTotal.setActual(0.0);
-                manditoryTotal.setBudget(0.0);
-                tableManditoryTotal.getItems().add(manditoryTotal);
+                // add row to tableMandatoryTotal
+                LineItem mandatoryTotal = new LineItem();
+                mandatoryTotal.setCategory("Total");
+                mandatoryTotal.setActual(0.0);
+                mandatoryTotal.setBudget(0.0);
+                tableMandatoryTotal.getItems().add(mandatoryTotal);
 
                 // add row to tableDiscretionaryTotal
                 LineItem discretionaryTotal = new LineItem();
@@ -638,21 +624,21 @@ public class PrimaryController {
                 });
 
                 /***********************************************************/
-                tableManditoryTotal_Category
+                tableMandatoryTotal_Category
                                 .setCellValueFactory(new PropertyValueFactory<LineItem, String>("Category"));
-                tableManditoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                tableMandatoryTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableManditoryTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
+                tableMandatoryTotal_Actual.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("actual"));
                 tableIncomeTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableManditoryTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
-                tableManditoryTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableMandatoryTotal_Budget.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("budget"));
+                tableMandatoryTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableManditoryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
-                tableManditoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableMandatoryTotal_Diff.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("diff"));
+                tableMandatoryTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableManditoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
-                tableManditoryTotal_Balance
+                tableMandatoryTotal_Balance.setCellValueFactory(new PropertyValueFactory<LineItem, Double>("balance"));
+                tableMandatoryTotal_Balance
                                 .setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
                 /***********************************************************/
@@ -753,7 +739,7 @@ public class PrimaryController {
                 tableMandatory.getItems().clear();
                 tableMandatory.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDATORY, inDate)));
-                tableManditoryTotal
+                tableMandatoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
 
                 // get discretionary data
@@ -945,7 +931,7 @@ public class PrimaryController {
                         @Override
                         protected Void call() throws Exception {
                                 WriteData.actualUpdate(item);
-                                tableManditoryTotal.setItems(FXCollections
+                                tableMandatoryTotal.setItems(FXCollections
                                                 .observableArrayList(ReadData.getTotals(DB.MANDATORY, item.getDate())));
                                 UIData.updateTableTotal(tables);
 
@@ -1072,7 +1058,7 @@ public class PrimaryController {
         public void updateTablesTask() {
                 LocalDate inDate = getWorkingDate();
                 tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
-                tableManditoryTotal
+                tableMandatoryTotal
                                 .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
