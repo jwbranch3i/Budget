@@ -43,6 +43,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -906,126 +907,58 @@ public class PrimaryController {
                 ReadData.findMissingCategories(inDate);
         }
 
-        public void incomeTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setBudget(e.getNewValue());
+         // ========================= EDIT COMMIT HANDLERS
+        // =========================
 
-                LineItem selectedItem = tableIncome.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
-
-                Task<Void> task = new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                                WriteData.actualUpdate(item);
-                                tableIncomeTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.INCOME, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
-                                return null;
-                        }
-
-                        @Override
-                        protected void succeeded() {
-                                super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableIncome.refresh();
-                        }
-
-                        @Override
-                        protected void failed() {
-                                super.failed();
-                                // Handle any errors that occurred during the
-                                // task
-                                Throwable exception = getException();
-                                exception.printStackTrace();
-                        }
-                };
-                new Thread(task).start();
-
-                // keep focus on the selected row
-                tableIncome.requestFocus();
-
+        /**
+         * Handles budget edit commit for income table.
+         */
+        public void incomeTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event) {
+                handleBudgetEditCommit(event, tableIncome, tableIncomeTotal, DB.INCOME);
         }
 
-        public void mandatoryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setBudget(e.getNewValue());
-
-                LineItem selectedItem = tableMandatory.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
-
-                Task<Void> task = new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                                WriteData.actualUpdate(item);
-                                tableMandatoryTotal.setItems(FXCollections
-                                                .observableArrayList(ReadData.getTotals(DB.MANDATORY, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
-                                return null;
-                        }
-
-                        @Override
-                        protected void succeeded() {
-                                super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableMandatory.refresh();
-                        }
-
-                        @Override
-                        protected void failed() {
-                                super.failed();
-                                // Handle any errors that occurred during the
-                                // task
-                                Throwable exception = getException();
-                                exception.printStackTrace();
-                        }
-                };
-                new Thread(task).start();
-
-                // keep focus on the selected row
-                tableMandatory.requestFocus();
+        /**
+         * Handles budget edit commit for mandatory table.
+         */
+        public void mandatoryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event) {
+                handleBudgetEditCommit(event, tableMandatory, tableMandatoryTotal, DB.MANDATORY);
         }
 
-        public void discretionaryTableBudget_OnEditCommit(TableColumn.CellEditEvent<LineItem, Double> e) {
-                LineItem item = e.getRowValue();
-                item.setBudget(e.getNewValue());
-
-                LineItem selectedItem = tableDiscretionary.getSelectionModel().getSelectedItem();
-                selectedItem.setBudget(e.getNewValue());
-                Task<Void> task = new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                                WriteData.actualUpdate(item);
-                                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                                ReadData.getTotals(DB.DISCRETIONARY, item.getDate())));
-                                UIData.updateTableTotal(tables);
-
-                                return null;
-                        }
-
-                        @Override
-                        protected void succeeded() {
-                                super.succeeded();
-                                // Refresh the table view to reflect the changes
-                                tableDiscretionary.refresh();
-                        }
-
-                        @Override
-                        protected void failed() {
-                                super.failed();
-                                // Handle any errors that occurred during the
-                                // task
-                                Throwable exception = getException();
-                                exception.printStackTrace();
-                        }
-                };
-                new Thread(task).start();
-
-                // keep focus on the selected row
-                tableDiscretionary.requestFocus();
+        /**
+         * Handles budget edit commit for discretionary table.
+         */
+        public void discretionaryTableBudget_OnEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event) {
+                handleBudgetEditCommit(event, tableDiscretionary, tableDiscretionaryTotal, DB.DISCRETIONARY);
         }
 
+        private void handleBudgetEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event,
+                        TreeTableView<LineItem> treeTable, TableView<LineItem> totalTable, int dbType) {
+                LineItem item = event.getTreeTablePosition().getTreeItem().getValue();
+                if (item == null || item.isCategory()) {
+                        return;
+                }
+
+                item.setBudget(event.getNewValue());
+
+                TreeItem<LineItem> selectedTreeItem = treeTable.getSelectionModel().getSelectedItem();
+                if (selectedTreeItem != null) {
+                        LineItem selectedItem = selectedTreeItem.getValue();
+                        selectedItem.setBudget(event.getNewValue());
+                }
+
+                executeAsyncTask(() -> WriteData.actualUpdate(item), () -> {
+                        Util.calculateTreeTotals(treeTable.getRoot());
+                        totalTable.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(dbType, item.getDate())));
+                        UIData.updateTableTotal(tables);
+                        treeTable.refresh();
+                        treeTable.requestFocus();
+                }, "Error updating budget for item: " + item.getCategory());
+        }
+
+
+
+        
         public void editLineItem(LineItem item) {
                 try {
                         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
