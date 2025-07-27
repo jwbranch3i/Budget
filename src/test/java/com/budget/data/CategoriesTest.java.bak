@@ -13,8 +13,8 @@ public class CategoriesTest {
     public void testDefaultConstructor() {
         Categories category = new Categories();
         assertEquals(0, category.getId());
-        assertFalse(category.isHide());
-        assertTrue(category.isIncludeInTotal());
+        assertFalse(category.hide());
+        assertTrue(category.include_in_total());
         assertEquals(0, category.getType());
         assertEquals("", category.getParent());
         assertEquals("", category.getCategory());
@@ -27,25 +27,25 @@ public class CategoriesTest {
         assertEquals(1, category.getType());
         assertEquals("Parent", category.getParent());
         assertEquals("Category", category.getCategory());
-        assertTrue(Categories.getCategoryTypes().contains("Income"));
-        assertTrue(Categories.getCategoryTypes().contains("Mandatory"));
-        assertTrue(Categories.getCategoryTypes().contains("Discretionary"));
+        assertTrue(Categories.getItems().contains("Income"));
+        assertTrue(Categories.getItems().contains("Manditory"));
+        assertTrue(Categories.getItems().contains("Discretionary"));
     }
 
     @Test
     public void testSettersAndGetters() {
         Categories category = new Categories();
         category.setId(1);
-        category.setHide(true);
-        category.setIncludeInTotal(false);
+        category.hide(true);
+        category.include_in_total(false);
         category.setType(2);
         category.setParent("New Parent");
         category.setCategory("New Category");
         category.setAcct(3);
 
         assertEquals(1, category.getId());
-        assertTrue(category.isHide());
-        assertFalse(category.isIncludeInTotal());
+        assertTrue(category.hide());
+        assertFalse(category.include_in_total());
         assertEquals(2, category.getType());
         assertEquals("New Parent", category.getParent());
         assertEquals("New Category", category.getCategory());

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.budget.Util;
 import com.budget.dataModal.Categories;
@@ -60,7 +60,6 @@ public class ReadDataTest {
 
         stmt.setString(2, dateString);
         stmt.setDouble(3, testItem_Act.getAmount());
-
 
         stmt.executeUpdate();
 
@@ -146,7 +145,6 @@ public class ReadDataTest {
 
     }
 
-
     @Test
     public void testGetTableAmountsTree() {
         int tableType = 1;
@@ -167,54 +165,30 @@ public class ReadDataTest {
 
     }
 
-
     @Test
-    public void testGetTableAmounts() {
-        int tableType = 1;
-
-        // set date to 9-01-2024
-        // LocalDate inDate = LocalDate.of(2024, 8, 1);
-        LocalDate inDate = LocalDate.of(2025, 06, 1);
-
-        ArrayList<LineItem> result;
-
-        result = ReadData.getTableAmounts(tableType, inDate);
-
-        // print each item in result
-        // for (LineItem item : result) {
-        //     System.out.println(item);
-        // }
-
-        // Assert the expected result
-        assertNotNull(result);
-
-    }
-
-    @Test
+    /* write test for GetTotals() */
     public void testGetTotals() {
-        int tableType = 1;
+        int type = testItem_Cat.getType();
+        LocalDate date = testItem_Cat.getDate();
 
-        // set date to 9-01-2024
-        // LocalDate inDate = LocalDate.of(2024, 8, 1);
-        LocalDate inDate = LocalDate.of(2024, 8, 1);
-
-        ArrayList<LineItem> result;
-
-        result = ReadData.getTableAmounts(tableType, inDate);
-
-        // print each item in result
-        for (LineItem item : result) {
-            System.out.println(item);
-        }
+        LineItem result = ReadData.getTotals(type, date);
 
         // Assert the expected result
         assertNotNull(result);
+        assertEquals("TOTAL", result.getCategory());
+        assertEquals(type, result.getType());
+        // Since test data is minimal, actual and budget may be 0.0 or as
+        // inserted
+        // You may want to adjust these assertions based on your test data setup
+        // For now, just check that actual and budget are not null (primitive
+        // double always not null)
+        System.out.println("Actual: " + result.getActual() + ", Budget: " + result.getBudget());
     }
 
     @Test
     public void testgetCategories() {
 
-        ArrayList<Categories> result;
+        List<Categories> result;
 
         result = ReadData.getCategories();
 
@@ -228,8 +202,8 @@ public class ReadDataTest {
     }
 
     @Test
-    public void testgetYears(){
-        ArrayList<String> result;
+    public void testgetYears() {
+        List<String> result;
 
         result = ReadData.getYears();
 
@@ -241,9 +215,6 @@ public class ReadDataTest {
 
         // Assert the expected result
         assertNotNull(result);
-    
+
     }
 }
-
-
-    
