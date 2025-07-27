@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.budget.Util;
 import com.budget.dataModal.DB;
@@ -21,6 +23,7 @@ import com.budget.dataModal.UIData;
 import com.budget.dataModal.WriteData;
 import com.opencsv.CSVReader;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -35,29 +38,22 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Primary controller for the Budget application main window. Manages the budget
@@ -69,11 +65,11 @@ public class PrimaryController {
 
         // ========================= CONSTANTS =========================
 
-        private static final String FILE_PATH_STORAGE = "filePath.txt";
-        private static final String DEFAULT_DIRECTORY = "C:\\";
-        private static final String EDIT_CATEGORY_TITLE = "Edit Category";
-        private static final String EDIT_ITEM_TITLE = "Edit Item";
-        private static final String TOTAL_LABEL = "Total";
+         private static final String FILE_PATH_STORAGE = "filePath.txt";
+         private static final String DEFAULT_DIRECTORY = "C:\\";
+        // private static final String EDIT_CATEGORY_TITLE = "Edit Category";
+        // private static final String EDIT_ITEM_TITLE = "Edit Item";
+        // private static final String TOTAL_LABEL = "Total";
         private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         // ========================= THREAD POOL =========================
@@ -423,10 +419,7 @@ public class PrimaryController {
                         showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
                 }
 
-
-
-//==
-
+         
                 @SuppressWarnings("unused")
                 PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal, tableTotal_Category,
                                 tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
@@ -582,7 +575,6 @@ public class PrimaryController {
                                         }
                                 });
 
-
                 // Create a task to run getTableRows in another thread
                 Task<Void> task2 = new Task<Void>() {
                         @Override
@@ -601,6 +593,27 @@ public class PrimaryController {
                 mainDateLabel.setText(inDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
 
         }
+
+
+               // ========================= EVENT HANDLERS =========================
+        /**
+         * Handles the Update Category button click.
+         */
+        @FXML
+        void button_UpdateCat(ActionEvent event) {
+                LocalDate workingDate = getWorkingDate();
+
+                if (!chkBox.isSelected()) {
+                        readFromDatabase(workingDate);
+                }
+                else {
+                        handleCsvFileImport(workingDate);
+                }
+
+                updateMainDateLabel(workingDate);
+        }
+
+
         // ========================= TABLE COLUMN SETUP
         // =========================
 
@@ -743,8 +756,6 @@ public class PrimaryController {
                 });
         }
 
-
-
         public void readFromDatabase(LocalDate inDate) {
                 Task<Void> task = new Task<Void>() {
                         @Override
@@ -757,26 +768,46 @@ public class PrimaryController {
                 new Thread(task).start();
         }
 
-        public void getTableRows(LocalDate inDate) {
-                // getActuals(inDate);
-                tableIncome.getItems().clear();
-                tableIncome.setItems(FXCollections.observableArrayList(ReadData.getTableAmounts(DB.INCOME, inDate)));
-                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, inDate)));
+        /**
+         * Loads table data for the specified date.
+         */
+        public void getTableRows(LocalDate date) {
+                try {
+                        // Load income data
+                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
+                        tableIncome.setRoot(incomeRoot);
+                        if (incomeRoot != null) {
+                                incomeRoot.setExpanded(true);
+                                Util.calculateTreeTotals(incomeRoot);
+                        }
+                        tableIncomeTotal.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, date)));
 
-                // get mandatory data
-                tableMandatory.getItems().clear();
-                tableMandatory.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.MANDATORY, inDate)));
-                tableMandatoryTotal
-                                .setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, inDate)));
+                        // Load mandatory data
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
+                        tableMandatory.setRoot(mandatoryRoot);
+                        if (mandatoryRoot != null) {
+                                mandatoryRoot.setExpanded(true);
+                                Util.calculateTreeTotals(mandatoryRoot);
+                        }
+                        tableMandatoryTotal.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, date)));
 
-                // get discretionary data
-                tableDiscretionary.getItems().clear();
-                tableDiscretionary.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableAmounts(DB.DISCRETIONARY, inDate)));
-                tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
+                        // Load discretionary data
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+                        tableDiscretionary.setRoot(discretionaryRoot);
+                        if (discretionaryRoot != null) {
+                                discretionaryRoot.setExpanded(true);
+                                Util.calculateTreeTotals(discretionaryRoot);
+                        }
+                        tableDiscretionaryTotal.setItems(
+                                        FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
 
+                }
+                catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error loading table data for date: " + date, e);
+                        showErrorAlert("Data Loading Error", "Failed to load table data for the selected date.");
+                }
         }
 
         public static void readActual(File file, LocalDate inDate) {
@@ -907,7 +938,7 @@ public class PrimaryController {
                 ReadData.findMissingCategories(inDate);
         }
 
-         // ========================= EDIT COMMIT HANDLERS
+        // ========================= EDIT COMMIT HANDLERS
         // =========================
 
         /**
@@ -956,9 +987,6 @@ public class PrimaryController {
                 }, "Error updating budget for item: " + item.getCategory());
         }
 
-
-
-        
         public void editLineItem(LineItem item) {
                 try {
                         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
@@ -1024,6 +1052,101 @@ public class PrimaryController {
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, inDate)));
                 getTableRows(inDate);
                 UIData.updateTableTotal(tables);
+        }
+
+        // ========================= CSV IMPORT METHODS
+        // =========================
+
+        private void handleCsvFileImport(LocalDate workingDate) {
+                try {
+                        File selectedFile = showFileChooser();
+                        if (selectedFile != null) {
+                                saveFilePathToStorage(selectedFile);
+                                readActual(selectedFile, workingDate);
+                                readFromDatabase(workingDate);
+                                resetImportState();
+                        }
+                }
+                catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error handling CSV file import", e);
+                        showErrorAlert("Import Error", "Failed to import CSV file.");
+                }
+        }
+
+
+        private File showFileChooser() {
+                String savedFilePath = loadFilePathFromStorage();
+                File initialDirectory = new File(savedFilePath);
+
+                if (!initialDirectory.exists() || !initialDirectory.canRead()) {
+                        initialDirectory = new File(DEFAULT_DIRECTORY);
+                }
+
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setInitialDirectory(initialDirectory);
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+
+                return fileChooser.showOpenDialog(null);
+        }
+
+                private void saveFilePathToStorage(File selectedFile) {
+                try (FileWriter writer = new FileWriter(FILE_PATH_STORAGE)) {
+                        writer.write(selectedFile.getParent());
+                }
+                catch (IOException e) {
+                        LOGGER.log(Level.WARNING, "Error saving file path to storage", e);
+                }
+        }
+
+
+        private String loadFilePathFromStorage() {
+                try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH_STORAGE))) {
+                        return reader.readLine();
+                }
+                catch (IOException e) {
+                        LOGGER.log(Level.WARNING, "Error retrieving file path from storage", e);
+                        return DEFAULT_DIRECTORY;
+                }
+        }
+
+        private void updateMainDateLabel(LocalDate date) {
+                mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
+        }
+
+        private void resetImportState() {
+                chkBox.setSelected(false);
+                btn_Update.setDisable(true);
+        }
+
+
+        // ========================= ASYNC TASK UTILITIES
+        // =========================
+
+        private void executeAsyncTask(Runnable backgroundTask, Runnable uiTask, String errorMessage) {
+                Task<Void> task = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                if (backgroundTask != null) {
+                                        backgroundTask.run();
+                                }
+                                return null;
+                        }
+
+                        @Override
+                        protected void succeeded() {
+                                if (uiTask != null) {
+                                        Platform.runLater(uiTask);
+                                }
+                        }
+
+                        @Override
+                        protected void failed() {
+                                LOGGER.log(Level.SEVERE, errorMessage, getException());
+                                Platform.runLater(() -> showErrorAlert("Operation Error", errorMessage));
+                        }
+                };
+
+                executorService.submit(task);
         }
 
 }
