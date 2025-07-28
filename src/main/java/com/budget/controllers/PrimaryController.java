@@ -593,35 +593,85 @@ public class PrimaryController {
 
         // ========================= CONTEXT MENU SETUP
         // =========================
+private void setupContextMenus() {
+    setupTreeTableRowFactory(tableIncome, false);       // No context menu
+    setupTreeTableRowFactory(tableMandatory, true);     // With context menu
+    setupTreeTableRowFactory(tableDiscretionary, true); // With context menu
+}
 
-        private void setupContextMenus() {
-                setupContextMenu(tableMandatory);
-                setupContextMenu(tableDiscretionary);
+private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasContextMenu) {
+    table.setRowFactory(tv -> {
+        TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
+            @Override
+            protected void updateItem(LineItem item, boolean empty) {
+                super.updateItem(item, empty);
+                
+                if (empty || item == null) {
+                    setStyle("");
+                } else {
+                    TreeItem<LineItem> treeItem = getTreeItem();
+                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                        // Parent category - light grey background
+                        setStyle("-fx-background-color: lightblue;");
+                    } else {
+                        // Leaf item - default background
+                        setStyle("");
+                    }
+                }
+            }
+        };
+        
+        // Add context menu only if requested
+        if (hasContextMenu) {
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem editItem = new MenuItem("Edit");
+            contextMenu.getItems().add(editItem);
+
+            row.setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+                    contextMenu.show(row, event.getScreenX(), event.getScreenY());
+                }
+            });
+
+            editItem.setOnAction(event -> {
+                LineItem item = row.getItem();
+                if (item != null) {
+                    editLineItem(item);
+                }
+            });
         }
 
-        private void setupContextMenu(TreeTableView<LineItem> table) {
-                table.setRowFactory(tv -> {
-                        TreeTableRow<LineItem> row = new TreeTableRow<>();
-                        ContextMenu contextMenu = new ContextMenu();
-                        MenuItem editItem = new MenuItem("Edit");
-                        contextMenu.getItems().add(editItem);
+        return row;
+    });
+}
+        // private void setupContextMenus() {
+        //         setupContextMenu(tableMandatory);
+        //         setupContextMenu(tableDiscretionary);
+        // }
 
-                        row.setOnMouseClicked(event -> {
-                                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                                        contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                                }
-                        });
+        // private void setupContextMenu(TreeTableView<LineItem> table) {
+        //         table.setRowFactory(tv -> {
+        //                 TreeTableRow<LineItem> row = new TreeTableRow<>();
+        //                 ContextMenu contextMenu = new ContextMenu();
+        //                 MenuItem editItem = new MenuItem("Edit");
+        //                 contextMenu.getItems().add(editItem);
 
-                        editItem.setOnAction(event -> {
-                                LineItem item = row.getItem();
-                                if (item != null) {
-                                        editLineItem(item);
-                                }
-                        });
+        //                 row.setOnMouseClicked(event -> {
+        //                         if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+        //                                 contextMenu.show(row, event.getScreenX(), event.getScreenY());
+        //                         }
+        //                 });
 
-                        return row;
-                });
-        }
+        //                 editItem.setOnAction(event -> {
+        //                         LineItem item = row.getItem();
+        //                         if (item != null) {
+        //                                 editLineItem(item);
+        //                         }
+        //                 });
+
+        //                 return row;
+        //         });
+        // }
 
         // ========================= DATA LOADING METHODS
         // =========================
