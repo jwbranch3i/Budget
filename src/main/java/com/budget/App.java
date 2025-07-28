@@ -1,10 +1,12 @@
 /**
- * The App class is the main class of the application.
- * It extends the Application class from the JavaFX library.
- * The start() method is overridden to set up the primary stage and scene of the application.
- * The init() method is overridden to initialize the data source and check the connection to the database.
- * The stop() method is overridden to close the data source when the application is stopped.
- * The main() method is the entry point of the application.
+ * The App class is the main entry point of the Budget application.
+ * It extends the JavaFX Application class and manages the application lifecycle.
+ * 
+ * This class handles:
+ * - Primary stage and scene setup
+ * - Database initialization and connection management
+ * - Application shutdown procedures
+ * - Error handling and logging
  */
 package com.budget;
 
@@ -18,49 +20,278 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+/**
+ * Main application class for the Budget application.
+ * Manages JavaFX lifecycle and database connections.
+ */
 public class App extends Application {
+    
     private static final Logger logger = LoggerFactory.getLogger(App.class);
-	
-	@Override
-	public void start(Stage primaryStage) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("primary.fxml"));
-			Parent root;
-
-			root = loader.load();
-
-			Scene scene = new Scene(root);
-  
-			scene.getStylesheets().add(getClass().getResource("testfile.css").toExternalForm());
-
-			primaryStage.setScene(scene);
-
-			primaryStage.show();
-		} catch (Exception e) {
-			logger.error("Error loading FXML", e);
-		}
-	}
-
-	@Override
-	public void init() throws Exception {
-		super.init();
-		if (!DataSource.getInstance().open()) {
-			System.out.println("FATAL ERROR: Couldn't connect to database");
-			Platform.exit();
-		}
-	}
-
-	@Override
-	public void stop() throws Exception {
-		super.stop();
-		DataSource.getInstance().close();
-	}
-
-	public static void main(String[] args) {
-		launch(args);
-		System.out.println("*** finish ***");
-	}
-
+    
+    // ========================= CONSTANTS =========================
+    
+    private static final String FXML_RESOURCE = "primary.fxml";
+    private static final String CSS_RESOURCE = "testfile.css";
+    private static final String APPLICATION_TITLE = "Budget Manager";
+    private static final String ICON_RESOURCE = "icon.png"; // Optional application icon
+    private static final int MIN_WINDOW_WIDTH = 800;
+    private static final int MIN_WINDOW_HEIGHT = 600;
+    
+    // Error messages
+    private static final String FATAL_DB_ERROR = "FATAL ERROR: Couldn't connect to database";
+    private static final String FXML_LOAD_ERROR = "Error loading FXML";
+    private static final String CSS_LOAD_ERROR = "Warning: Could not load CSS stylesheet";
+    private static final String DB_INIT_ERROR = "Database initialization failed";
+    private static final String SHUTDOWN_ERROR = "Error during application shutdown";
+    
+    // ========================= APPLICATION LIFECYCLE =========================
+    
+    /**
+     * Initializes the application before the start() method is called.
+     * Sets up database connection and performs pre-startup checks.
+     * 
+     * @throws Exception if initialization fails
+     */
+    @Override
+    public void init() throws Exception {
+        super.init();
+        logger.info("Initializing Budget application...");
+        
+        try {
+            // Initialize database connection
+            if (!DataSource.getInstance().open()) {
+                logger.error(FATAL_DB_ERROR);
+                throw new RuntimeException(DB_INIT_ERROR);
+            }
+            
+            logger.info("Database connection established successfully");
+            
+        } catch (Exception e) {
+            logger.error("Failed to initialize application", e);
+            // Show error dialog to user before exiting
+            Platform.runLater(() -> showFatalErrorDialog(DB_INIT_ERROR, e.getMessage()));
+            throw e;
+        }
+    }
+    
+    /**
+     * Starts the JavaFX application and sets up the primary stage.
+     * 
+     * @param primaryStage The primary stage for this application
+     */
+    @Override
+    public void start(Stage primaryStage) {
+        try {
+            logger.info("Starting Budget application UI...");
+            
+            // Configure primary stage
+            configurePrimaryStage(primaryStage);
+            
+            // Load FXML and create scene
+            Scene scene = createMainScene();
+            
+            // Set scene and show stage
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            
+            logger.info("Budget application started successfully");
+            
+        } catch (Exception e) {
+            logger.error(FXML_LOAD_ERROR, e);
+            showErrorDialog("Application Startup Error", 
+                           "Failed to start the application. Please check the logs for details.", 
+                           e.getMessage());
+            Platform.exit();
+        }
+    }
+    
+    /**
+     * Stops the application and performs cleanup operations.
+     * 
+     * @throws Exception if cleanup fails
+     */
+    @Override
+    public void stop() throws Exception {
+        try {
+            logger.info("Shutting down Budget application...");
+            
+            // Close database connection
+            DataSource.getInstance().close();
+            
+            logger.info("Budget application shutdown completed");
+            
+        } catch (Exception e) {
+            logger.error(SHUTDOWN_ERROR, e);
+            throw e;
+        } finally {
+            super.stop();
+        }
+    }
+    
+    // ========================= SETUP METHODS =========================
+    
+    /**
+     * Configures the primary stage with title, icon, and minimum size.
+     * 
+     * @param primaryStage The stage to configure
+     */
+    private void configurePrimaryStage(Stage primaryStage) {
+        primaryStage.setTitle(APPLICATION_TITLE);
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
+        
+        // Set application icon if available
+        try {
+            Image icon = new Image(getClass().getResourceAsStream(ICON_RESOURCE));
+            primaryStage.getIcons().add(icon);
+        } catch (Exception e) {
+            logger.debug("Application icon not found or could not be loaded: " + ICON_RESOURCE);
+        }
+        
+        // Configure close behavior
+        primaryStage.setOnCloseRequest(event -> {
+            logger.info("Application close requested");
+            Platform.exit();
+        });
+    }
+    
+    /**
+     * Creates the main scene by loading FXML and applying CSS.
+     * 
+     * @return The configured Scene
+     * @throws Exception if FXML loading fails
+     */
+    private Scene createMainScene() throws Exception {
+        // Load FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_RESOURCE));
+        if (loader.getLocation() == null) {
+            throw new RuntimeException("FXML resource not found: " + FXML_RESOURCE);
+        }
+        
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        
+        // Apply CSS stylesheet
+        applyCssStylesheet(scene);
+        
+        return scene;
+    }
+    
+    /**
+     * Applies CSS stylesheet to the scene.
+     * 
+     * @param scene The scene to apply CSS to
+     */
+    private void applyCssStylesheet(Scene scene) {
+        try {
+            String cssUrl = getClass().getResource(CSS_RESOURCE).toExternalForm();
+            scene.getStylesheets().add(cssUrl);
+            logger.debug("CSS stylesheet applied successfully: " + CSS_RESOURCE);
+            
+        } catch (Exception e) {
+            logger.warn(CSS_LOAD_ERROR + ": " + CSS_RESOURCE, e);
+            // Application can continue without CSS
+        }
+    }
+    
+    // ========================= ERROR HANDLING =========================
+    
+    /**
+     * Shows a fatal error dialog and exits the application.
+     * 
+     * @param title The error title
+     * @param message The error message
+     */
+    private void showFatalErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Fatal Error");
+        alert.setHeaderText(title);
+        alert.setContentText(message + "\n\nThe application will now exit.");
+        alert.showAndWait();
+        Platform.exit();
+    }
+    
+    /**
+     * Shows an error dialog to the user.
+     * 
+     * @param title The dialog title
+     * @param header The header text
+     * @param content The content text
+     */
+    private void showErrorDialog(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+    
+    // ========================= MAIN METHOD =========================
+    
+    /**
+     * Main entry point of the Budget application.
+     * 
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            logger.info("Budget application starting...");
+            
+            // Set system properties if needed
+            configureSystemProperties();
+            
+            // Launch JavaFX application
+            launch(args);
+            
+        } catch (Exception e) {
+            logger.error("Failed to start Budget application", e);
+            System.err.println("Failed to start Budget application: " + e.getMessage());
+            System.exit(1);
+        } finally {
+            logger.info("*** Budget application finished ***");
+        }
+    }
+    
+    /**
+     * Configures system properties for the application.
+     */
+    private static void configureSystemProperties() {
+        // Set JavaFX properties if needed
+        // System.setProperty("javafx.preloader", "com.budget.SplashScreenPreloader");
+        // System.setProperty("prism.lcdtext", "false"); // For better text rendering
+        
+        // Log system information
+        logger.debug("Java version: " + System.getProperty("java.version"));
+        logger.debug("JavaFX version: " + System.getProperty("javafx.version"));
+        logger.debug("Operating system: " + System.getProperty("os.name"));
+    }
+    
+    // ========================= UTILITY METHODS =========================
+    
+    /**
+     * Gets the current application instance.
+     * 
+     * @return The current App instance, or null if not available
+     */
+    // public static App getCurrentInstance() {
+    //     try {
+    //         return (App) Application.getUserAgentStylesheet();
+    //     } catch (Exception e) {
+    //         logger.debug("Could not get current application instance", e);
+    //         return null;
+    //     }
+    // }
+    
+    /**
+     * Checks if the application is running in development mode.
+     * 
+     * @return true if in development mode, false otherwise
+     */
+    public static boolean isDevelopmentMode() {
+        return "development".equals(System.getProperty("app.environment"));
+    }
 }

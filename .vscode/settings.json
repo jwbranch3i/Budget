@@ -5,4 +5,23 @@
     ],
     "java.format.settings.url": ".vscode/java-formatter.xml",
     "sqltools.useNodeRuntime": false,
+    
+    // Auto-import settings
+    "java.completion.importOrder": [
+        "java",
+        "javax",
+        "com",
+        "org"
+    ],
+    "java.saveActions.organizeImports": true,
+    "java.completion.favoriteStaticMembers": [
+        "org.junit.jupiter.api.Assertions.*",
+        "org.mockito.Mockito.*"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit"
+    },
+    "java.autobuild.enabled": true,
+    "java.completion.guessMethodArguments": "auto"
 }
