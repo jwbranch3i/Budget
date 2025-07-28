@@ -571,9 +571,40 @@ public class PrimaryController {
                                         javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
                 }
                 else {
-                        ((TreeTableColumn<LineItem, Double>) column)
-                                        .setCellFactory(javafx.scene.control.cell.TextFieldTreeTableCell
-                                                        .forTreeTableColumn(Util.getCurrencyConverter()));
+                        // Custom cell factory for budget columns that checks for children
+                        ((TreeTableColumn<LineItem, Double>) column).setCellFactory(tv -> {
+                            return new javafx.scene.control.cell.TextFieldTreeTableCell<LineItem, Double>(
+                                    Util.getCurrencyConverter()) {
+                                
+                                @Override
+                                public void startEdit() {
+                                    // Check if this tree item has children
+                                    TreeTableRow<LineItem> row = getTableRow();
+                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                        // Don't allow editing if item has children
+                                        return;
+                                    }
+                                    super.startEdit();
+                                }
+                                
+                                @Override
+                                public void updateItem(Double item, boolean empty) {
+                                    super.updateItem(item, empty);
+                                    
+                                    // Visual indication that parent items are not editable
+                                    TreeTableRow<LineItem> row = getTableRow();
+                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                    if (!empty && treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                        setStyle("-fx-text-fill: #888888;"); // Grey out parent items
+                                        setTooltip(new javafx.scene.control.Tooltip("Parent categories cannot be edited"));
+                                    } else {
+                                        setStyle("");
+                                        setTooltip(null);
+                                    }
+                                }
+                            };
+                        });
                 }
         }
 
