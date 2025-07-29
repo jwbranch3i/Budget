@@ -38,9 +38,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
@@ -52,6 +50,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -571,39 +570,48 @@ public class PrimaryController {
                                         javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
                 }
                 else {
-                        // Custom cell factory for budget columns that checks for children
+                        // Custom cell factory for budget columns that checks
+                        // for children
                         ((TreeTableColumn<LineItem, Double>) column).setCellFactory(tv -> {
-                            return new javafx.scene.control.cell.TextFieldTreeTableCell<LineItem, Double>(
-                                    Util.getCurrencyConverter()) {
-                                
-                                @Override
-                                public void startEdit() {
-                                    // Check if this tree item has children
-                                    TreeTableRow<LineItem> row = getTableRow();
-                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
-                                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-                                        // Don't allow editing if item has children
-                                        return;
-                                    }
-                                    super.startEdit();
-                                }
-                                
-                                @Override
-                                public void updateItem(Double item, boolean empty) {
-                                    super.updateItem(item, empty);
-                                    
-                                    // Visual indication that parent items are not editable
-                                    TreeTableRow<LineItem> row = getTableRow();
-                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
-                                    if (!empty && treeItem != null && !treeItem.getChildren().isEmpty()) {
-                                        setStyle("-fx-text-fill: #888888;"); // Grey out parent items
-                                        setTooltip(new javafx.scene.control.Tooltip("Parent categories cannot be edited"));
-                                    } else {
-                                        setStyle("");
-                                        setTooltip(null);
-                                    }
-                                }
-                            };
+                                return new javafx.scene.control.cell.TextFieldTreeTableCell<LineItem, Double>(
+                                                Util.getCurrencyConverter()) {
+
+                                        @Override
+                                        public void startEdit() {
+                                                // Check if this tree item has
+                                                // children
+                                                TreeTableRow<LineItem> row = getTableRow();
+                                                TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                                if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        // Don't allow editing
+                                                        // if item has children
+                                                        return;
+                                                }
+                                                super.startEdit();
+                                        }
+
+                                        @Override
+                                        public void updateItem(Double item, boolean empty) {
+                                                super.updateItem(item, empty);
+
+                                                // Visual indication that parent
+                                                // items are not editable
+                                                TreeTableRow<LineItem> row = getTableRow();
+                                                TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                                if (!empty && treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        setStyle("-fx-text-fill: #888888;"); // Grey
+                                                                                             // out
+                                                                                             // parent
+                                                                                             // items
+                                                        setTooltip(new javafx.scene.control.Tooltip(
+                                                                        "Parent categories cannot be edited"));
+                                                }
+                                                else {
+                                                        setStyle("");
+                                                        setTooltip(null);
+                                                }
+                                        }
+                                };
                         });
                 }
         }
@@ -624,88 +632,106 @@ public class PrimaryController {
 
         // ========================= CONTEXT MENU SETUP
         // =========================
-private void setupContextMenus() {
-    setupTreeTableRowFactory(tableIncome, false);       // No context menu
-    setupTreeTableRowFactory(tableMandatory, true);     // With context menu
-    setupTreeTableRowFactory(tableDiscretionary, true); // With context menu
-}
-
-private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasContextMenu) {
-    table.setRowFactory(tv -> {
-        TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
-            @Override
-            protected void updateItem(LineItem item, boolean empty) {
-                super.updateItem(item, empty);
-                
-                if (empty || item == null) {
-                    setStyle("");
-                } else {
-                    TreeItem<LineItem> treeItem = getTreeItem();
-                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-                        // Parent category - light blue background
-                        setStyle("-fx-background-color: lightblue;");
-                    } else {
-                        // Leaf item - default background
-                        setStyle("");
-                    }
-                }
-            }
-        };
-        
-        // Add context menu only if requested
-        if (hasContextMenu) {
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem editItem = new MenuItem("Edit");
-            contextMenu.getItems().add(editItem);
-
-            row.setOnMouseClicked(event -> {
-                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                    contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                }
-            });
-
-            editItem.setOnAction(event -> {
-                LineItem item = row.getItem();
-                if (item != null) {
-                    editLineItem(item);
-                }
-            });
+        private void setupContextMenus() {
+                setupTreeTableRowFactory(tableIncome, false); // No context menu
+                setupTreeTableRowFactory(tableMandatory, true); // With context
+                                                                // menu
+                setupTreeTableRowFactory(tableDiscretionary, true); // With
+                                                                    // context
+                                                                    // menu
         }
 
-        return row;
-    });
-}
-        // private void setupContextMenus() {
-        //         setupContextMenu(tableMandatory);
-        //         setupContextMenu(tableDiscretionary);
+        private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
+                table.setRowFactory(tv -> {
+                        TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
+                                @Override
+                                protected void updateItem(LineItem item, boolean empty) {
+                                        super.updateItem(item, empty);
+
+                                        if (empty || item == null) {
+                                                setStyle("");
+                                        }
+                                        else {
+                                                TreeItem<LineItem> treeItem = getTreeItem();
+                                                if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        // Parent category -
+                                                        // light blue background
+                                                        setStyle("-fx-background-color: lightblue;");
+                                                }
+                                                else {
+                                                        // Leaf item - default
+                                                        // background
+                                                        setStyle("");
+                                                }
+                                        }
+                                }
+                        };
+
+                        // Add right-click action to open secondary window
+                        if (hasRightClickAction) {
+                                row.setOnMouseClicked(event -> {
+                                        if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+                                                try {
+                                                        editLineItemDetail(event);
+                                                }
+                                                catch (IOException e) {
+                                                        LOGGER.log(Level.SEVERE, "Error opening secondary window", e);
+                                                        showErrorAlert("Window Error",
+                                                                        "Failed to open the category edit window.");
+                                                }
+                                        }
+                                });
+                        }
+
+                        return row;
+                });
+        }
+        // private void setupTreeTableRowFactory(TreeTableView<LineItem> table,
+        // boolean hasContextMenu) {
+        // table.setRowFactory(tv -> {
+        // TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
+        // @Override
+        // protected void updateItem(LineItem item, boolean empty) {
+        // super.updateItem(item, empty);
+
+        // if (empty || item == null) {
+        // setStyle("");
+        // } else {
+        // TreeItem<LineItem> treeItem = getTreeItem();
+        // if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+        // // Parent category - light blue background
+        // setStyle("-fx-background-color: lightblue;");
+        // } else {
+        // // Leaf item - default background
+        // setStyle("");
+        // }
+        // }
+        // }
+        // };
+
+        // // Add context menu only if requested
+        // if (hasContextMenu) {
+        // ContextMenu contextMenu = new ContextMenu();
+        // MenuItem editItem = new MenuItem("Edit");
+        // contextMenu.getItems().add(editItem);
+
+        // row.setOnMouseClicked(event -> {
+        // if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+        // contextMenu.show(row, event.getScreenX(), event.getScreenY());
+        // }
+        // });
+
+        // editItem.setOnAction(event -> {
+        // LineItem item = row.getItem();
+        // if (item != null) {
+        // editLineItem(item);
+        // }
+        // });
         // }
 
-        // private void setupContextMenu(TreeTableView<LineItem> table) {
-        //         table.setRowFactory(tv -> {
-        //                 TreeTableRow<LineItem> row = new TreeTableRow<>();
-        //                 ContextMenu contextMenu = new ContextMenu();
-        //                 MenuItem editItem = new MenuItem("Edit");
-        //                 contextMenu.getItems().add(editItem);
-
-        //                 row.setOnMouseClicked(event -> {
-        //                         if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-        //                                 contextMenu.show(row, event.getScreenX(), event.getScreenY());
-        //                         }
-        //                 });
-
-        //                 editItem.setOnAction(event -> {
-        //                         LineItem item = row.getItem();
-        //                         if (item != null) {
-        //                                 editLineItem(item);
-        //                         }
-        //                 });
-
-        //                 return row;
-        //         });
+        // return row;
+        // });
         // }
-
-        // ========================= DATA LOADING METHODS
-        // =========================
 
         private void initializeData() {
                 LocalDate currentDate = LocalDate.now();
@@ -856,7 +882,7 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                 try (FileReader fileReader = new FileReader(file); CSVReader csvReader = new CSVReader(fileReader)) {
 
                         LineItemCSV newLineItem;
-                    
+
                         String[] nextRecord;
                         String category;
                         String parent = "";
@@ -1086,29 +1112,49 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
         }
 
         /**
-         * Opens the edit item dialog for the specified line item.
+         * Opens the edit item detail dialog for the specified line item.
          */
-        public void editLineItem(LineItem item) {
-                try {
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
-                        Parent root = fxmlLoader.load();
+        private void editLineItemDetail(MouseEvent event) throws IOException {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
+                Parent root = fxmlLoader.load();
 
-                        EditItemController editItemController = fxmlLoader.getController();
-                        editItemController.setItem(item);
+                Stage stage = new Stage();
+                stage.setTitle(EDIT_CATEGORY_TITLE);
+                stage.setScene(new Scene(root));
+                stage.initModality(Modality.WINDOW_MODAL);
 
-                        Stage stage = new Stage();
-                        stage.setTitle(EDIT_ITEM_TITLE);
-                        stage.setScene(new Scene(root));
-                        stage.initModality(Modality.WINDOW_MODAL);
-                        stage.initOwner(myAnchorPane.getScene().getWindow());
-                        stage.showAndWait();
+                // Get the window from the event source
+                Node source = (Node) event.getSource();
+                stage.initOwner(source.getScene().getWindow());
 
-                }
-                catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, "Error opening edit item window", e);
-                        showErrorAlert("Window Error", "Failed to open the edit item window.");
-                }
+                stage.showAndWait();
+
+                // Refresh data after the window closes
+                refreshDataAfterEdit();
         }
+        // public void editLineItem(LineItem item) {
+        // try {
+        // FXMLLoader fxmlLoader = new
+        // FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
+        // Parent root = fxmlLoader.load();
+
+        // EditItemController editItemController = fxmlLoader.getController();
+        // editItemController.setItem(item);
+
+        // Stage stage = new Stage();
+        // stage.setTitle(EDIT_ITEM_TITLE);
+        // stage.setScene(new Scene(root));
+        // stage.initModality(Modality.WINDOW_MODAL);
+        // stage.initOwner(myAnchorPane.getScene().getWindow());
+        // stage.showAndWait();
+
+        // }
+        // catch (IOException e) {
+        // LOGGER.log(Level.SEVERE, "Error opening edit item window", e);
+        // showErrorAlert("Window Error", "Failed to open the edit item
+        // window.");
+        // }
+        // }
 
         // ========================= ASYNC TASK UTILITIES
         // =========================
