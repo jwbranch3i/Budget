@@ -642,7 +642,7 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                 } else {
                     TreeItem<LineItem> treeItem = getTreeItem();
                     if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-                        // Parent category - light grey background
+                        // Parent category - light blue background
                         setStyle("-fx-background-color: lightblue;");
                     } else {
                         // Leaf item - default background
