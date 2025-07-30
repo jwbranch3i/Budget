@@ -1115,11 +1115,25 @@ public class PrimaryController {
          * Opens the edit item detail dialog for the specified line item.
          */
         private void editLineItemDetail(MouseEvent event) throws IOException {
+                // Get the selected LineItem from the row that was right-clicked
+                @SuppressWarnings("unchecked")
+                TreeTableRow<LineItem> row = (TreeTableRow<LineItem>) event.getSource();
+                LineItem selectedItem = row.getItem();
+
+                if (selectedItem == null) {
+                        LOGGER.warning("No item selected for editing");
+                        return;
+                }
+
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
                 Parent root = fxmlLoader.load();
 
+                // Get the controller and pass the selected item
+                EditItemController editItemController = fxmlLoader.getController();
+                editItemController.setLineItem(selectedItem);
+
                 Stage stage = new Stage();
-                stage.setTitle(EDIT_CATEGORY_TITLE);
+                stage.setTitle(EDIT_ITEM_TITLE);
                 stage.setScene(new Scene(root));
                 stage.initModality(Modality.WINDOW_MODAL);
 
@@ -1129,33 +1143,13 @@ public class PrimaryController {
 
                 stage.showAndWait();
 
-                // Refresh data after the window closes
-                refreshDataAfterEdit();
+                // Check if changes were made and refresh if needed
+                if (editItemController.wasItemModified()) {
+                        refreshDataAfterEdit();
+                }
         }
-        // public void editLineItem(LineItem item) {
-        // try {
-        // FXMLLoader fxmlLoader = new
-        // FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
-        // Parent root = fxmlLoader.load();
 
-        // EditItemController editItemController = fxmlLoader.getController();
-        // editItemController.setItem(item);
-
-        // Stage stage = new Stage();
-        // stage.setTitle(EDIT_ITEM_TITLE);
-        // stage.setScene(new Scene(root));
-        // stage.initModality(Modality.WINDOW_MODAL);
-        // stage.initOwner(myAnchorPane.getScene().getWindow());
-        // stage.showAndWait();
-
-        // }
-        // catch (IOException e) {
-        // LOGGER.log(Level.SEVERE, "Error opening edit item window", e);
-        // showErrorAlert("Window Error", "Failed to open the edit item
-        // window.");
-        // }
-        // }
-
+ 
         // ========================= ASYNC TASK UTILITIES
         // =========================
 

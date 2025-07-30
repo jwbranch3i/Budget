@@ -17,7 +17,7 @@
    <children>
       <VBox alignment="CENTER" layoutX="172.0" layoutY="131.0" spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
-            <GridPane fx:id="gridpane" alignment="CENTER" gridLinesVisible="true">
+            <GridPane fx:id="mainGridPane" alignment="CENTER" gridLinesVisible="true">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -98,7 +98,7 @@
                         <Insets right="20.0" />
                      </GridPane.margin>
                      <children>
-                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Computed Bal:">
+                        <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Balance:">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -117,7 +117,7 @@
                         </Label>
                      </children>
                   </HBox>
-                  <Label fx:id="computed_LBL" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                  <Label fx:id="LBL_balance" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -125,7 +125,7 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <TextField fx:id="startBal_Field" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                  <TextField fx:id="TXTFIELD_startBal" GridPane.columnIndex="1" GridPane.rowIndex="6">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -133,7 +133,7 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </TextField>
-                  <Label fx:id="actual_LBL" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                  <Label fx:id="LBL_actual" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="5">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -141,7 +141,7 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="budget_LBL" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <Label fx:id="LBL_budget" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -149,7 +149,7 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="Category_LBL" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                  <Label fx:id="LBL_category" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -157,7 +157,7 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <Label fx:id="date_LBL" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <Label fx:id="LBL_date" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -165,7 +165,7 @@
                         <Insets left="10.0" />
                      </padding>
                   </Label>
-                  <Label fx:id="id_LBL" text="Label" GridPane.columnIndex="1">
+                  <Label fx:id="LBL_id" text="Label" GridPane.columnIndex="1">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -185,7 +185,7 @@
                         </Label>
                      </children>
                   </HBox>
-                  <CheckBox alignment="CENTER" mnemonicParsing="false" text="Include" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <CheckBox fx:id="CHKBOX_include" alignment="CENTER" mnemonicParsing="false" text="Include" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -197,8 +197,8 @@
             </GridPane>
             <HBox spacing="20.0">
                <children>
-                  <Button fx:id="btn_Cancel" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#button_cancel" prefWidth="65.0" text="Cancel" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="btn_Save" alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#button_saveStartBal" prefWidth="65.0" text="Save" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="BTN_cancel" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#button_cancel" prefWidth="65.0" text="Cancel" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="BTN_save" alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btn_saveAction" prefWidth="65.0" text="Save" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
          </children>
