@@ -18,12 +18,15 @@ public class LineItem {
     
     /** Default indentation for non-category items */
     private static final String CATEGORY_INDENT = " ".repeat(6);
+    private static final int INCOME = 0;
+    private static final int MANDATORY = 1;
+    private static final int DISCRETIONARY = 2;
     
     // ========================= FIELDS =========================
     
     private int id = 0;
     private int acct = 0;
-    private int type = 0;
+    private int type = INCOME;
 
     private boolean hide = false;
     private boolean includeInTotal = true;

@@ -62,7 +62,6 @@ public final class WriteData {
                 try (ResultSet rs = insertRecord.getGeneratedKeys()) {
                     if (rs.next()) {
                         returnItem.setId(rs.getInt(1));
-                        LOGGER.info("Successfully inserted category: " + item.getCategory() + " with ID: " + returnItem.getId());
                     } else {
                         LOGGER.warning("Category insert succeeded but no generated key returned");
                         returnItem.setId(-1);
@@ -252,7 +251,6 @@ public final class WriteData {
                 try (ResultSet rs = insertRecord.getGeneratedKeys()) {
                     if (rs.next()) {
                         returnActual.setId(rs.getInt(1));
-                        LOGGER.info("Successfully inserted actual record with ID: " + returnActual.getId());
                     } else {
                         LOGGER.warning("Actual insert succeeded but no generated key returned");
                     }
