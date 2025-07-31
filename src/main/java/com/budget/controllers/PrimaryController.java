@@ -19,6 +19,7 @@ import com.budget.dataModal.DB;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
 import com.budget.dataModal.ReadData;
+import com.budget.dataModal.RunningTotal;
 import com.budget.dataModal.UIData;
 import com.budget.dataModal.WriteData;
 import com.opencsv.CSVReader;
@@ -279,7 +280,7 @@ public class PrimaryController {
          * Handles the Update Category button click.
          */
         @FXML
-        void button_UpdateCat(ActionEvent event) {
+        void btn_Update(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
                 if (!chkBox.isSelected()) {
@@ -304,12 +305,15 @@ public class PrimaryController {
         /**
          * Handles the Update Balance button click.
          */
+
         @FXML
         void button_UpdateBalance(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
-                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> refreshDataForDate(workingDate),
-                                "Error updating balance");
+                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
+                        refreshDataForDate(workingDate);
+                        updateRunningTotalsAndShowWarnings(); // Add this line
+                }, "Error updating balance");
         }
 
         /**
@@ -828,6 +832,7 @@ public class PrimaryController {
                                 readActual(selectedFile, workingDate);
                                 readFromDatabase(workingDate);
                                 resetImportState();
+                                WriteData.updateAllRunningTotals(workingDate);
                         }
                 }
                 catch (Exception e) {
@@ -1073,6 +1078,8 @@ public class PrimaryController {
 
                 getTableRows(workingDate);
                 UIData.updateTableTotal(tables);
+
+                updateRunningTotalsAndShowWarnings();
         }
 
         private void refreshDataForDate(LocalDate date) {
@@ -1149,7 +1156,6 @@ public class PrimaryController {
                 }
         }
 
- 
         // ========================= ASYNC TASK UTILITIES
         // =========================
 
@@ -1221,4 +1227,72 @@ public class PrimaryController {
                         LOGGER.info("PrimaryController cleanup completed");
                 }
         }
+
+        // Add to your PrimaryController class
+
+        /**
+         * Updates running totals after data changes and shows warnings if
+         * needed.
+         */
+        private void updateRunningTotalsAndShowWarnings() {
+                LocalDate currentDate = getWorkingDate();
+
+                Task<List<RunningTotal>> task = new Task<List<RunningTotal>>() {
+                        @Override
+                        protected List<RunningTotal> call() throws Exception {
+                                // Update all running totals for current month
+                                boolean success = WriteData.updateAllRunningTotals(currentDate);
+                                if (!success) {
+                                        throw new RuntimeException("Failed to update running totals");
+                                }
+                                // Get negative totals for warnings
+                                return ReadData.getNegativeRunningTotals(currentDate);
+                        }
+
+                        @Override
+                        protected void succeeded() {
+                                List<RunningTotal> negativeTotals = getValue();
+                                if (negativeTotals != null && !negativeTotals.isEmpty()) {
+                                        showRunningTotalWarnings(negativeTotals);
+                                }
+                        }
+
+                        @Override
+                        protected void failed() {
+                                LOGGER.log(Level.SEVERE, "Error updating running totals", getException());
+                                Platform.runLater(() -> showErrorAlert("Operation Error", "Error updating running totals"));
+                        }
+                };
+
+                executorService.submit(task);
+        }
+
+        /**
+         * Shows warnings for negative running totals.
+         */
+        private void showRunningTotalWarnings(List<RunningTotal> negativeTotals) {
+                StringBuilder message = new StringBuilder();
+                message.append("The following categories have negative running totals:\n\n");
+
+                for (RunningTotal total : negativeTotals) {
+                        message.append(String.format("• %s: $%.2f\n", total.getCategoryName(),
+                                        total.getRunningTotal()));
+
+                        // Mark warning as issued
+                        WriteData.markWarningIssued(total.getCategoryId(), total.getMonthDate());
+                }
+
+                message.append("\nConsider adjusting your budget or spending for these categories.");
+
+                Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Budget Warning");
+                        alert.setHeaderText("Negative Running Totals Detected");
+                        alert.setContentText(message.toString());
+                        alert.setResizable(true);
+                        alert.getDialogPane().setPrefSize(400, 300);
+                        alert.showAndWait();
+                });
+        }
+
 }
