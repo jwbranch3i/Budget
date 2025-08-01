@@ -10,7 +10,7 @@ CREATE TABLE category (
     hide INTEGER DEFAULT (0) NOT NULL, 
 	acct INTEGER DEFAULT (0) NOT NULL, 
 	balance REAL DEFAULT (0) NOT NULL, 
-	default_maximum_amount REAL DEFAULT NULL);
+	default_maximum_amount REAL DEFAULT (0) NOT NULL);
 
 -- actual definition
 

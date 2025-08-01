@@ -1,6 +1,7 @@
 package com.budget;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.Locale;
 
 import com.budget.dataModal.LineItem;
@@ -161,4 +162,12 @@ public class Util {
         // If no children, the node keeps its own values (leaf node)
     }
 
+    public static String getMonthString(LocalDate date) {
+        return String.format("%02d", date.getMonthValue());
+    }
+
+    public static String getYearString(LocalDate date) {
+        return String.format("%04d", date.getYear());
+
+    }
 }

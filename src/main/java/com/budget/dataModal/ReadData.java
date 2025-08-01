@@ -16,6 +16,10 @@ import javafx.scene.control.TreeItem;
 
 public class ReadData {
     private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
+    // ========================= CONSTANTS =========================
+
+    /** Date formatter for database operations */
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
     /**
      * Finds the category of a LineItemCSV in the actual database table.
@@ -86,12 +90,11 @@ public class ReadData {
         TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
         Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
 
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
+        String dateString = date.format(DATE_FORMATTER);
+
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
-            ps.setInt(3, type);
+            ps.setString(1, dateString);
+            ps.setInt(2, type);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -344,78 +347,79 @@ public class ReadData {
         rootItem.setBudget(rootBudgetTotal);
     }
 
-
     // Add to your ReadData class
 
-/**
- * Gets all running totals for a specific month.
- */
-public static List<RunningTotal> getRunningTotalsForMonth(LocalDate monthDate) {
-    List<RunningTotal> totals = new ArrayList<>();
-    
-    if (!DataSource.getInstance().ensureConnection()) {
+    /**
+     * Gets all running totals for a specific month.
+     */
+    public static List<RunningTotal> getRunningTotalsForMonth(LocalDate monthDate) {
+        List<RunningTotal> totals = new ArrayList<>();
+
+        if (!DataSource.getInstance().ensureConnection()) {
+            return totals;
+        }
+
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH)) {
+            stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    RunningTotal total = new RunningTotal();
+                    total.setId(rs.getInt("id"));
+                    total.setCategoryId(rs.getInt("category_id"));
+                    total.setCategoryName(rs.getString("category"));
+                    total.setMonthDateFromString(rs.getString("month_date"));
+                    total.setPreviousBalance(rs.getDouble("previous_balance"));
+                    total.setCurrentDifference(rs.getDouble("current_difference"));
+                    total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
+                    total.setWarningIssued(rs.getBoolean("warning_issued"));
+
+                    totals.add(total);
+                }
+            }
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting running totals for month", e);
+        }
+
         return totals;
     }
-    
-    try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH)) {
-        stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                RunningTotal total = new RunningTotal();
-                total.setId(rs.getInt("id"));
-                total.setCategoryId(rs.getInt("category_id"));
-                total.setCategoryName(rs.getString("category"));
-                total.setMonthDateFromString(rs.getString("month_date"));
-                total.setPreviousBalance(rs.getDouble("previous_balance"));
-                total.setCurrentDifference(rs.getDouble("current_difference"));
-                total.setRunningTotal(rs.getDouble("running_total"));
-                total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
-                total.setWarningIssued(rs.getBoolean("warning_issued"));
-                
-                totals.add(total);
+
+    /**
+     * Gets categories with negative running totals for a specific month.
+     */
+    public static List<RunningTotal> getNegativeRunningTotals(LocalDate monthDate) {
+        List<RunningTotal> negatives = new ArrayList<>();
+
+        if (!DataSource.getInstance().ensureConnection()) {
+            return negatives;
+        }
+
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_NEGATIVE_TOTALS)) {
+            stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    RunningTotal total = new RunningTotal();
+                    total.setId(rs.getInt("id"));
+                    total.setCategoryId(rs.getInt("category_id"));
+                    total.setCategoryName(rs.getString("category"));
+                    total.setMonthDateFromString(rs.getString("month_date"));
+                    total.setPreviousBalance(rs.getDouble("previous_balance"));
+                    total.setCurrentDifference(rs.getDouble("current_difference"));
+                    total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
+                    total.setWarningIssued(rs.getBoolean("warning_issued"));
+
+                    negatives.add(total);
+                }
             }
         }
-    } catch (SQLException e) {
-        LOGGER.log(Level.SEVERE, "Error getting running totals for month", e);
-    }
-    
-    return totals;
-}
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting negative running totals", e);
+        }
 
-/**
- * Gets categories with negative running totals for a specific month.
- */
-public static List<RunningTotal> getNegativeRunningTotals(LocalDate monthDate) {
-    List<RunningTotal> negatives = new ArrayList<>();
-    
-    if (!DataSource.getInstance().ensureConnection()) {
         return negatives;
     }
-    
-    try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_NEGATIVE_TOTALS)) {
-        stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                RunningTotal total = new RunningTotal();
-                total.setId(rs.getInt("id"));
-                total.setCategoryId(rs.getInt("category_id"));
-                total.setCategoryName(rs.getString("category"));
-                total.setMonthDateFromString(rs.getString("month_date"));
-                total.setPreviousBalance(rs.getDouble("previous_balance"));
-                total.setCurrentDifference(rs.getDouble("current_difference"));
-                total.setRunningTotal(rs.getDouble("running_total"));
-                total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
-                total.setWarningIssued(rs.getBoolean("warning_issued"));
-                
-                negatives.add(total);
-            }
-        }
-    } catch (SQLException e) {
-        LOGGER.log(Level.SEVERE, "Error getting negative running totals", e);
-    }
-    
-    return negatives;
-}
 }
