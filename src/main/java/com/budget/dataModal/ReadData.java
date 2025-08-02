@@ -12,14 +12,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.Util;
+
 import javafx.scene.control.TreeItem;
 
 public class ReadData {
     private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
     // ========================= CONSTANTS =========================
-
-    /** Date formatter for database operations */
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
     /**
      * Finds the category of a LineItemCSV in the actual database table.
@@ -30,13 +29,12 @@ public class ReadData {
     public static LineItemCSV actualFindCategory(LineItemCSV item) {
         LineItemCSV returnItem = createCopyWithId(item, -1);
 
-        String monthString = String.format("%02d", item.getDate().getMonthValue());
-        String yearString = String.format("%04d", item.getDate().getYear());
+        // Use Util.formatDateForDatabase instead of local DATE_FORMATTER
+        String dateString = Util.formatDateForDatabase(item.getDate());
 
-        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY)) {
+        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY_BY_MONTH)) {
             findRecord.setInt(1, item.getId());
-            findRecord.setString(2, monthString);
-            findRecord.setString(3, yearString);
+            findRecord.setString(2, dateString);
 
             try (ResultSet rs = findRecord.executeQuery()) {
                 if (rs.next()) {
@@ -90,7 +88,8 @@ public class ReadData {
         TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
         Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
 
-        String dateString = date.format(DATE_FORMATTER);
+        // Use Util.formatDateForDatabase for consistent formatting
+        String dateString = Util.formatDateForDatabase(date);
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
             ps.setString(1, dateString);
@@ -235,11 +234,14 @@ public class ReadData {
     public static List<String> getYears() {
         List<String> years = new ArrayList<>();
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_AVAILABLE_YEARS);
                 ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                years.add(rs.getString("YEAR"));
+                String year = rs.getString("YEAR");
+                if (year != null) {
+                    years.add(year);
+                }
             }
 
             if (years.isEmpty()) {
@@ -360,7 +362,9 @@ public class ReadData {
         }
 
         try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH)) {
-            stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+            stmt.setString(1, Util.formatDateForDatabase(monthDate)); // Use
+                                                                      // Util
+                                                                      // method
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

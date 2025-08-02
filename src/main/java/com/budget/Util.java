@@ -2,6 +2,7 @@ package com.budget;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import com.budget.dataModal.LineItem;
@@ -17,7 +18,8 @@ import javafx.util.StringConverter;
  * Utility class for handling currency conversion and table cell formatting.
  */
 public class Util {
-
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
+ 
     /**
      * Returns a currency converter for use in table cells.
      * 
@@ -170,4 +172,34 @@ public class Util {
         return String.format("%04d", date.getYear());
 
     }
+
+    /**
+ * Formats a LocalDate to the standard database format (YYYY-MM).
+ * 
+ * @param date The LocalDate to format
+ * @return The formatted date string, or null if date is null
+ */
+public static String formatDateForDatabase(LocalDate date) {
+    return date != null ? date.format(DATE_FORMATTER) : null;
+}
+
+/**
+ * Validates that a date string is in the correct YYYY-MM format.
+ * 
+ * @param dateString The date string to validate
+ * @return true if the format is correct, false otherwise
+ */
+public static boolean isValidDateFormat(String dateString) {
+    if (dateString == null || dateString.length() != 7) {
+        return false;
+    }
+    
+    try {
+        LocalDate.parse(dateString + "-01"); // Add day to parse
+        return dateString.matches("\\d{4}-\\d{2}");
+    } catch (Exception e) {
+        return false;
+    }
+}
+
 }

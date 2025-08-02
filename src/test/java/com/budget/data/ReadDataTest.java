@@ -211,10 +211,9 @@ public class ReadDataTest {
         System.out.println("Years:");
         for (String item : result) {
             System.out.println(item);
-        }
+             assertNotNull(item);
+       }
 
-        // Assert the expected result
-        assertNotNull(result);
 
     }
 }

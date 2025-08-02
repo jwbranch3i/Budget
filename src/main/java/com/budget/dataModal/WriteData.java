@@ -20,12 +20,10 @@ public final class WriteData {
 
     // ========================= CONSTANTS =========================
 
-    /** Date formatter for database operations */
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-
+ 
     // Prevent instantiation
     private WriteData() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        throw new UnsupportedOperationException("This is a Utility class and cannot be instantiated");
     }
 
     // ========================= CATEGORY OPERATIONS =========================
@@ -200,7 +198,7 @@ public final class WriteData {
 
         try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE)) {
 
-            updateRecord.setString(1, item.getDate().toString());
+            updateRecord.setString(1, Util.formatDateForDatabase(item.getDate()));
             updateRecord.setDouble(2, item.getActual());
             updateRecord.setDouble(3, item.getBudget());
             updateRecord.setDouble(4, item.getStartBal());
@@ -211,15 +209,13 @@ public final class WriteData {
 
             if (success) {
                 LOGGER.fine("Successfully updated actual record for ID: " + item.getId());
-            }
-            else {
+            } else {
                 LOGGER.warning("Actual record update failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error updating actual record for ID: " + item.getId(), e);
             return false;
         }
@@ -257,7 +253,8 @@ public final class WriteData {
                 PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             insertRecord.setInt(1, existingCategory.getId());
-            insertRecord.setString(2, existingCategory.getDate().toString());
+            // Use Util.formatDateForDatabase instead of local method
+            insertRecord.setString(2, Util.formatDateForDatabase(existingCategory.getDate()));
             insertRecord.setDouble(3, existingCategory.getAmount());
 
             int rowsAffected = insertRecord.executeUpdate();
@@ -266,20 +263,17 @@ public final class WriteData {
                 try (ResultSet rs = insertRecord.getGeneratedKeys()) {
                     if (rs.next()) {
                         returnActual.setId(rs.getInt(1));
-                    }
-                    else {
+                    } else {
                         LOGGER.warning("Actual insert succeeded but no generated key returned");
                     }
                 }
-            }
-            else {
+            } else {
                 LOGGER.warning("Actual insert failed - no rows affected");
             }
 
             return returnActual;
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error inserting actual record for category ID: " + existingCategory.getId(), e);
             return returnActual;
         }
@@ -306,8 +300,8 @@ public final class WriteData {
 
         try (PreparedStatement getLastBudget = DataSource.getConn().prepareStatement(DB.UPDATE_TO_LAST_MONTH_BUDGET)) {
 
-            String currentDateStr = currentDate.format(DATE_FORMATTER);
-            String lastMonthDateStr = currentDate.minusMonths(1).format(DATE_FORMATTER);
+            String currentDateStr = Util.formatDateForDatabase(currentDate);
+            String lastMonthDateStr = Util.formatDateForDatabase(currentDate.minusMonths(1));
 
             getLastBudget.setString(1, lastMonthDateStr);
             getLastBudget.setString(2, currentDateStr);
@@ -357,8 +351,8 @@ public final class WriteData {
 
         try (PreparedStatement updateBalance = DataSource.getConn().prepareStatement(DB.UPDATE_BALANCE)) {
 
-            String currentDateStr = currentDate.format(DATE_FORMATTER);
-            String lastMonthDateStr = currentDate.minusMonths(1).format(DATE_FORMATTER);
+            String currentDateStr = Util.formatDateForDatabase(currentDate);
+            String lastMonthDateStr = Util.formatDateForDatabase(currentDate.minusMonths(1));
 
             updateBalance.setString(1, lastMonthDateStr);
             updateBalance.setString(2, currentDateStr);
@@ -503,18 +497,24 @@ public final class WriteData {
             // Insert or update the record
             try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_INSERT)) {
                 stmt.setInt(1, categoryId);
-                stmt.setString(2, monthDate.format(DATE_FORMATTER));
+                stmt.setString(2, Util.formatDateForDatabase(monthDate)); // Use Util method
                 stmt.setDouble(3, previousBalance);
                 stmt.setDouble(4, currentDifference);
                 stmt.setDouble(5, runningTotal);
-                stmt.setDouble(6, maximumAmount != null ? maximumAmount : 0.0);
+                
+                if (maximumAmount != null) {
+                    stmt.setDouble(6, maximumAmount);
+                } else {
+                    stmt.setNull(6, java.sql.Types.REAL);
+                }
+                
                 stmt.setBoolean(7, false);
 
                 int rowsAffected = stmt.executeUpdate();
 
                 if (rowsAffected > 0) {
                     LOGGER.fine("Updated running total for category " + categoryId + " in "
-                            + monthDate.format(DATE_FORMATTER) + ": " + runningTotal);
+                            + (Util.formatDateForDatabase(monthDate) + ": " + runningTotal));
                     return result;
                 }
                 else {
@@ -536,7 +536,7 @@ public final class WriteData {
     private static double getPreviousRunningTotal(int categoryId, LocalDate monthDate) {
         try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_PREVIOUS)) {
             stmt.setInt(1, categoryId);
-            stmt.setString(2, monthDate.format(DATE_FORMATTER));
+            stmt.setString(2, Util.formatDateForDatabase(monthDate));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -555,8 +555,8 @@ public final class WriteData {
      * Updates running totals for all categories in a given month. This should
      * be called after actual amounts are updated.
      */
-    public static boolean updateAllRunningTotals(LocalDate currentMonth) {
-        if (currentMonth == null) {
+    public static boolean updateAllRunningTotals(LocalDate monthDate) {
+        if (monthDate == null) {
             throw new IllegalArgumentException("Month date cannot be null");
         }
 
@@ -565,7 +565,8 @@ public final class WriteData {
             return false;
         }
 
-        String dateString = currentMonth.format(DATE_FORMATTER);
+        // Use Util.formatDateForDatabase for consistent formatting
+        String dateString = Util.formatDateForDatabase(monthDate);
         int updatedCount = 0;
         int warningCount = 0;
 
@@ -581,7 +582,7 @@ public final class WriteData {
                     Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
                     String categoryName = rs.getString("category");
 
-                    RunningTotal result = updateRunningTotal(categoryId, currentMonth, budget, actual, maxAmount);
+                    RunningTotal result = updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
 
                     if (result != null) {
                         updatedCount++;
@@ -626,7 +627,7 @@ public final class WriteData {
 
         try (PreparedStatement stmt = DataSource.getConn().prepareStatement(updateWarning)) {
             stmt.setInt(1, categoryId);
-            stmt.setString(2, monthDate.format(DATE_FORMATTER));
+            stmt.setString(2, Util.formatDateForDatabase(monthDate));
 
             return stmt.executeUpdate() > 0;
 
@@ -636,4 +637,7 @@ public final class WriteData {
             return false;
         }
     }
+
+    // Add this Utility method to the WriteData class
+
 }
