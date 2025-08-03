@@ -364,7 +364,7 @@ public final class DB {
                                 .append(CAT_TABLE).append(".").append(CAT_COL_ID);
 
                 // WHERE clause - Changed to use YYYY-MM format
-                query.append(" WHERE ").append(buildYearMonthFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE))
+                query.append(" WHERE ").append(ACTUAL_TABLE + "." + ACTUAL_COL_DATE)
                                 .append(" = ? AND ").append(CAT_TABLE).append(".").append(CAT_COL_TYPE).append(" = ?");
 
                 // ORDER BY clause

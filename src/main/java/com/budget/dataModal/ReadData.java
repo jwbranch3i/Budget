@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 import com.budget.Util;
 
 import javafx.scene.control.TreeItem;
-
+ 
 public class ReadData {
     private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
     // ========================= CONSTANTS =========================
@@ -291,7 +291,8 @@ public class ReadData {
         item.setId(rs.getInt("ID"));
         item.setType(type);
         item.hide(rs.getBoolean("HIDE"));
-        item.setDate(LocalDate.parse(rs.getString("DATE")));
+        String dateStr = rs.getString("DATE") + "-01";
+        item.setDate(LocalDate.parse(dateStr));
         item.isCategory(rs.getBoolean("MAIN_CATEGORY"));
         item.setParent(rs.getString("PARENT"));
         item.setCategory(rs.getString("CATEGORY"));

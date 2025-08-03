@@ -832,7 +832,7 @@ public class PrimaryController {
                                 readActual(selectedFile, workingDate);
                                 readFromDatabase(workingDate);
                                 resetImportState();
-                                WriteData.updateAllRunningTotals(workingDate);
+                             //   WriteData.updateAllRunningTotals(workingDate);
                         }
                 }
                 catch (Exception e) {

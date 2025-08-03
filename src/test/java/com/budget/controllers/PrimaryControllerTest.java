@@ -35,11 +35,11 @@ public class PrimaryControllerTest {
     @Test
     public void testGetTableRows() {
 
-        LocalDate inDate = LocalDate.of(2024, 8, 1);
+        LocalDate inDate = LocalDate.of(2025, 6, 1);
         // LocalDate inDate = LocalDate.of(2024, 9, 1);
 
         PrimaryController controller = new PrimaryController();
-        controller.initialize();
+      //  controller.initialize();
 
         controller.getTableRows(inDate);
     }

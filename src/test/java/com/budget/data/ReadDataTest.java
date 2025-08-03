@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.budget.Util;
 import com.budget.dataModal.Categories;
+import com.budget.dataModal.DB;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
@@ -154,6 +155,8 @@ public class ReadDataTest {
         LocalDate inDate = LocalDate.of(2025, 6, 1);
 
         TreeItem<LineItem> result;
+
+        String test = DB.GET_ACTUAL_AND_BUDGET_AMOUNTS;
 
         result = ReadData.getTableAmountsTree(tableType, inDate);
 
