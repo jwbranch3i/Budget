@@ -3,11 +3,11 @@ package com.budget.controllers;
 import java.io.File;
 import java.time.LocalDate;
 
+import com.budget.dataModal.DataSource;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.budget.dataModal.DataSource;
 
 import javafx.application.Platform;
 
@@ -29,7 +29,7 @@ public class PrimaryControllerTest {
     public void testReadActual() {
         File csvfile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\Oct2024.csv");
 
-        PrimaryController.readActual(csvfile, LocalDate.now());
+        PrimaryController.readCSVFile(csvfile, LocalDate.now());
     }
 
     @Test
@@ -42,5 +42,39 @@ public class PrimaryControllerTest {
       //  controller.initialize();
 
         controller.getTableRows(inDate);
+    }
+
+    @Test
+    public void testReadCSVFile_withValidFile() {
+        File csvFile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\aug2025.csv");
+        LocalDate date = LocalDate.of(2025, 8, 1);
+
+        // Should not throw any exceptions
+        PrimaryController.readCSVFile(csvFile, date);
+    }
+
+    @Test
+    public void testReadCSVFile_withNonExistentFile() {
+        File csvFile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\NonExistent.csv");
+        LocalDate date = LocalDate.of(2024, 10, 1);
+
+        try {
+            PrimaryController.readCSVFile(csvFile, date);
+        } catch (Exception e) {
+            // Should handle internally, not throw
+            assert false : "readCSVFile should not throw exception for non-existent file";
+        }
+    }
+
+    @Test
+    public void testReadCSVFile_withNullFile() {
+        LocalDate date = LocalDate.of(2024, 10, 1);
+
+        try {
+            PrimaryController.readCSVFile(null, date);
+        } catch (Exception e) {
+            // Should handle internally, not throw
+            assert false : "readCSVFile should not throw exception for null file";
+        }
     }
 }

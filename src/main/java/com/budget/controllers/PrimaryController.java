@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 
 import com.budget.Util;
 import com.budget.dataModal.DB;
+import com.budget.dataModal.DatabaseDataResult;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
 import com.budget.dataModal.ReadData;
@@ -183,8 +185,8 @@ public class PrimaryController {
         private VBox categoryBox;
         @FXML
         private AnchorPane myAnchorPane;
-        @FXML
-        private ProgressIndicator progressIndicator;
+       // @FXML
+       // private ProgressIndicator progressIndicator;
         @FXML
         private ComboBox<String> yearBox;
         @FXML
@@ -321,12 +323,12 @@ public class PrimaryController {
          */
         @FXML
         void readHeadingsButton(ActionEvent event) {
-                progressIndicator.setVisible(true);
-                progressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                // progressIndicator.setVisible(true);
+                // progressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 
-                // TODO: Implement actual heading reading logic
+                // // TODO: Implement actual heading reading logic
 
-                progressIndicator.setVisible(false);
+                // progressIndicator.setVisible(false);
         }
 
         /**
@@ -770,13 +772,90 @@ public class PrimaryController {
          * Reads data from database for the specified date.
          */
         public void readFromDatabase(LocalDate date) {
-                executeAsyncTask(() -> {
-                        // No background processing needed for this operation
-                        // All database operations will happen on the UI thread
-                }, () -> {
-                        getTableRows(date);
-                        UIData.updateTableTotal(tables);
-                }, "Error reading data from database");
+                // Show loading indicator
+                setLoadingState(true);
+
+                CompletableFuture.supplyAsync(() -> loadDatabaseData(date), executorService).thenAcceptAsync(data -> {
+                        Platform.runLater(() -> {
+                                updateUIWithData(data);
+                                setLoadingState(false);
+                        });
+                }).exceptionally(throwable -> {
+                        LOGGER.log(Level.SEVERE, "Error reading data from database", throwable);
+                        Platform.runLater(() -> {
+                                setLoadingState(false);
+                                showErrorAlert("Database Error",
+                                                "Failed to load data from database: " + throwable.getMessage());
+                        });
+                        return null;
+                });
+        }
+
+        /**
+         * Loads all required data from database (background thread safe).
+         */
+        private DatabaseDataResult loadDatabaseData(LocalDate date) {
+                try {
+                        // Load all data in background thread
+                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+
+                        LineItem incomeTotals = ReadData.getTotals(DB.INCOME, date);
+                        LineItem mandatoryTotals = ReadData.getTotals(DB.MANDATORY, date);
+                        LineItem discretionaryTotals = ReadData.getTotals(DB.DISCRETIONARY, date);
+
+                        // Calculate tree totals in background
+                        if (incomeRoot != null) {
+                                Util.calculateTreeTotals(incomeRoot);
+                        }
+                        if (mandatoryRoot != null) {
+                                Util.calculateTreeTotals(mandatoryRoot);
+                        }
+                        if (discretionaryRoot != null) {
+                                Util.calculateTreeTotals(discretionaryRoot);
+                        }
+
+                        return new DatabaseDataResult(incomeRoot, mandatoryRoot, discretionaryRoot, incomeTotals,
+                                        mandatoryTotals, discretionaryTotals);
+
+                }
+                catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error loading database data for date: " + date, e);
+                        throw new RuntimeException("Failed to load database data", e);
+                }
+        }
+
+        private void setLoadingState(boolean loading) {
+             //   progressIndicator.setVisible(loading);
+                btn_Update.setDisable(loading);
+                // Disable other relevant controls during loading
+        }
+
+        private void updateUIWithData(DatabaseDataResult data) {
+                // Update all UI components
+                updateTreeTables(data);
+                updateTotalTables(data);
+                UIData.updateTableTotal(tables);
+        }
+
+        private void updateTreeTables(DatabaseDataResult data) {
+                setTreeTableRoot(tableIncome, data.getIncomeRoot());
+                setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
+                setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
+        }
+
+        private void setTreeTableRoot(TreeTableView<LineItem> table, TreeItem<LineItem> root) {
+                table.setRoot(root);
+                if (root != null) {
+                        root.setExpanded(true);
+                }
+        }
+
+        private void updateTotalTables(DatabaseDataResult data) {
+                tableIncomeTotal.setItems(FXCollections.observableArrayList(data.getIncomeTotals()));
+                tableMandatoryTotal.setItems(FXCollections.observableArrayList(data.getMandatoryTotals()));
+                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(data.getDiscretionaryTotals()));
         }
 
         /**
@@ -829,10 +908,44 @@ public class PrimaryController {
                         File selectedFile = showFileChooser();
                         if (selectedFile != null) {
                                 saveFilePathToStorage(selectedFile);
-                                readActual(selectedFile, workingDate);
-                                readFromDatabase(workingDate);
-                                resetImportState();
-                             //   WriteData.updateAllRunningTotals(workingDate);
+
+                                // Run readCSVFile in a background thread, then
+                                // call readFromDatabase after completion
+                                Task<Void> importTask = new Task<Void>() {
+                                        @Override
+                                        protected Void call() throws Exception {
+                                                readCSVFile(selectedFile, workingDate);
+                                                return null;
+                                        }
+
+                                        @Override
+                                        protected void succeeded() {
+                                                Platform.runLater(() -> {
+                                                        readFromDatabase(workingDate);
+                                                        resetImportState();
+                                                        // WriteData.updateAllRunningTotals(workingDate);
+                                                });
+                                        }
+
+                                        @Override
+                                        protected void failed() {
+                                                LOGGER.log(Level.SEVERE, "Error reading CSV file in background",
+                                                                getException());
+                                                Platform.runLater(() -> showErrorAlert("Import Error",
+                                                                "Failed to import CSV file."));
+                                        }
+                                };
+                                executorService.submit(importTask);
+                                // Remove the direct calls to readCSVFile,
+                                // readFromDatabase, and resetImportState below
+                                // readCSVFile(selectedFile, workingDate);
+                                // readFromDatabase(workingDate);
+                                // resetImportState();
+                                // WriteData.updateAllRunningTotals(workingDate);
+                        }
+                        else {
+                                LOGGER.log(Level.WARNING, "No file selected for import");
+                                showErrorAlert("File Selection Error", "No file was selected for import.");
                         }
                 }
                 catch (Exception e) {
@@ -883,7 +996,7 @@ public class PrimaryController {
         /**
          * Reads actual data from CSV file.
          */
-        public static void readActual(File file, LocalDate date) {
+        public static void readCSVFile(File file, LocalDate date) {
                 try (FileReader fileReader = new FileReader(file); CSVReader csvReader = new CSVReader(fileReader)) {
 
                         LineItemCSV newLineItem;
@@ -1260,7 +1373,8 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, "Error updating running totals", getException());
-                                Platform.runLater(() -> showErrorAlert("Operation Error", "Error updating running totals"));
+                                Platform.runLater(() -> showErrorAlert("Operation Error",
+                                                "Error updating running totals"));
                         }
                 };
 

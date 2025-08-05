@@ -32,7 +32,7 @@ public class ReadData {
         // Use Util.formatDateForDatabase instead of local DATE_FORMATTER
         String dateString = Util.formatDateForDatabase(item.getDate());
 
-        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY_BY_MONTH)) {
+        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_RECORD_BY_ID_AND_DATE)) {
             findRecord.setInt(1, item.getId());
             findRecord.setString(2, dateString);
 
@@ -176,12 +176,12 @@ public class ReadData {
      */
     public static List<LineItemCSV> findMissingCategories(LocalDate date) {
         List<LineItemCSV> items = new ArrayList<>();
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
+    
+
+        String dateString = Util.formatDateForDatabase(date);
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
+            ps.setString(1, dateString);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

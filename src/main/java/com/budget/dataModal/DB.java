@@ -182,8 +182,8 @@ public final class DB {
                         + "FROM " + ACTUAL_TABLE + " ORDER BY YEAR ASC";
 
         // Get all line items for this month
-        String query = "SELECT a.id, a.budget, a.actual, c.default_maximum_amount, c.category " + "FROM actual a "
-                        + "JOIN category c ON a.category = c.id " + "WHERE a.date LIKE ? || '%'";
+        // String query = "SELECT a.id, a.budget, a.actual, c.default_maximum_amount, c.category " + "FROM actual a "
+        //                 + "JOIN category c ON a.category = c.id " + "WHERE a.date LIKE ? || '%'";
 
         /**
          * Get all line items for this month.
@@ -210,8 +210,7 @@ public final class DB {
         public static final String FIND_MISSING_CATEGORIES = "SELECT "
                         + String.join(", ", CAT_COL_ID, CAT_COL_TYPE, CAT_COL_PARENT, CAT_COL_CATEGORY) + " FROM "
                         + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY + " FROM "
-                        + ACTUAL_TABLE + " WHERE " + buildDateFilter(ACTUAL_COL_DATE, "month") + " = ? AND "
-                        + buildDateFilter(ACTUAL_COL_DATE, "year") + " = ?)";
+                        + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
 
         /**
          * Get totals for specific type and date. Parameters: month, year, type
@@ -336,7 +335,7 @@ public final class DB {
          * Builds a year-month filter for date comparisons (YYYY-MM format).
          */
         private static String buildYearMonthFilter(String dateColumn) {
-                return "STRFTIME('%Y-%m', " + dateColumn + ")";
+                return " " + dateColumn + " ";
         }
 
         /**
@@ -404,10 +403,10 @@ public final class DB {
          * Find actual record by category and date using YYYY-MM format.
          * Parameters: category, year-month (YYYY-MM)
          */
-        public static final String ACTUAL_FIND_CATEGORY_BY_MONTH = buildSelectQuery(
+        public static final String ACTUAL_FIND_RECORD_BY_ID_AND_DATE = buildSelectQuery(
                         new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
                         ACTUAL_TABLE,
-                        ACTUAL_COL_CATEGORY + " = ? AND " + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?");
+                        ACTUAL_COL_CATEGORY + " = ? AND " + ACTUAL_COL_DATE + " = ?");
 
         /**
          * Find categories not present in actual table for given year-month.
