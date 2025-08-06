@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import java.util.logging.Logger;
 
 import com.budget.Util;
 import com.budget.dataModal.DB;
+import com.budget.dataModal.DataSource;
 import com.budget.dataModal.DatabaseDataResult;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
@@ -291,6 +295,7 @@ public class PrimaryController {
                         WriteData.updateAllRunningTotals(workingDate);
                 }
 
+                WriteData.updateAllRunningTotals(workingDate);
                 updateMainDateLabel(workingDate);
         }
 
@@ -1301,69 +1306,263 @@ public class PrimaryController {
         // Add to your PrimaryController class
 
         /**
-         * Updates running totals after data changes and shows warnings if
-         * needed.
+         * Updates running totals for the current month and all following months.
+         * This cascades changes through all future months since each month's 
+         * running total depends on the previous month's ending balance.
+         * 
+         * @param startDate The month to start updating from (current month)
+         * @return true if all updates were successful, false otherwise
          */
-        private void updateRunningTotalsAndShowWarnings() {
-                LocalDate currentDate = getWorkingDate();
+        public static boolean updateRunningTotalsFromMonth(LocalDate startDate) {
+                if (startDate == null) {
+                        throw new IllegalArgumentException("Start date cannot be null");
+                }
 
-                Task<List<RunningTotal>> task = new Task<List<RunningTotal>>() {
-                        @Override
-                        protected List<RunningTotal> call() throws Exception {
-                                // Update all running totals for current month
-                                boolean success = WriteData.updateAllRunningTotals(currentDate);
-                                if (!success) {
-                                        throw new RuntimeException("Failed to update running totals");
-                                }
-                                // Get negative totals for warnings
-                                return ReadData.getNegativeRunningTotals(currentDate);
+                if (!DataSource.getInstance().ensureConnection()) {
+                        LOGGER.severe("Database connection not available for cascading running totals update");
+                        return false;
+                }
+
+                // Get all months that need updating (current month and all future months)
+                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startDate);
+                
+                if (monthsToUpdate.isEmpty()) {
+                        LOGGER.info("No months found to update from " + Util.formatDateForDatabase(startDate));
+                        return true;
+                }
+
+                LOGGER.info("Starting cascading running totals update from " + Util.formatDateForDatabase(startDate) 
+                                + " for " + monthsToUpdate.size() + " months");
+
+                int totalUpdatedCategories = 0;
+                int totalWarnings = 0;
+                
+                // Process each month in chronological order
+                for (LocalDate monthDate : monthsToUpdate) {
+                        LOGGER.info("Updating running totals for month: " + Util.formatDateForDatabase(monthDate));
+                        
+                        MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+                        
+                        if (!result.isSuccess()) {
+                                LOGGER.severe("Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
+                                return false;
                         }
+                        
+                        totalUpdatedCategories += result.getUpdatedCount();
+                        totalWarnings += result.getWarningCount();
+                        
+                        LOGGER.fine("Month " + Util.formatDateForDatabase(monthDate) + " - Updated: " 
+                                   + result.getUpdatedCount() + " categories, Warnings: " + result.getWarningCount());
+                }
 
-                        @Override
-                        protected void succeeded() {
-                                List<RunningTotal> negativeTotals = getValue();
-                                if (negativeTotals != null && !negativeTotals.isEmpty()) {
-                                        showRunningTotalWarnings(negativeTotals);
-                                }
-                        }
+                LOGGER.info("Cascading running totals update completed. Total categories updated: " 
+                            + totalUpdatedCategories + ", Total warnings: " + totalWarnings);
 
-                        @Override
-                        protected void failed() {
-                                LOGGER.log(Level.SEVERE, "Error updating running totals", getException());
-                                Platform.runLater(() -> showErrorAlert("Operation Error",
-                                                "Error updating running totals"));
-                        }
-                };
-
-                executorService.submit(task);
+                return true;
         }
 
         /**
-         * Shows warnings for negative running totals.
+         * Gets all months that have actual data from the start date onwards.
          */
-        private void showRunningTotalWarnings(List<RunningTotal> negativeTotals) {
-                StringBuilder message = new StringBuilder();
-                message.append("The following categories have negative running totals:\n\n");
+        private static List<LocalDate> getMonthsToUpdate(LocalDate startDate) {
+                List<LocalDate> months = new ArrayList<>();
+                String startDateStr = Util.formatDateForDatabase(startDate);
+                
+                String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " +
+                               "FROM actual " + 
+                               "WHERE STRFTIME('%Y-%m', date) >= ? " +
+                               "ORDER BY month_date";
+                
+                try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
+                        stmt.setString(1, startDateStr);
+                        
+                        try (ResultSet rs = stmt.executeQuery()) {
+                                while (rs.next()) {
+                                        String monthStr = rs.getString("month_date");
+                                        LocalDate monthDate = LocalDate.parse(monthStr + "-01");
+                                        months.add(monthDate);
+                                }
+                        }
+                }
+                catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error getting months to update from " + startDateStr, e);
+                }
+                
+                return months;
+        }
 
-                for (RunningTotal total : negativeTotals) {
-                        message.append(String.format("• %s: $%.2f\n", total.getCategoryName(),
-                                        total.getRunningTotal()));
+        /**
+         * Updates running totals for a single month and returns detailed results.
+         */
+        private static MonthUpdateResult updateRunningTotalsForSingleMonth(LocalDate monthDate) {
+                String dateString = Util.formatDateForDatabase(monthDate);
+                int updatedCount = 0;
+                int warningCount = 0;
+                List<String> warnings = new ArrayList<>();
 
-                        // Mark warning as issued
-                        WriteData.markWarningIssued(total.getCategoryId(), total.getMonthDate());
+                try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_LINE_ITEMS_FOR_MONTH)) {
+                        stmt.setString(1, dateString);
+
+                        try (ResultSet rs = stmt.executeQuery()) {
+                                while (rs.next()) {
+                                        int categoryId = rs.getInt("id");
+                                        double budget = rs.getDouble("budget");
+                                        double actual = rs.getDouble("actual");
+                                        Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
+                                        String categoryName = rs.getString("category");
+
+                                        RunningTotal result = updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
+
+                                        if (result != null) {
+                                                updatedCount++;
+
+                                                // Check for warnings
+                                                if (result.needsWarning()) {
+                                                        warningCount++;
+                                                        String warningMsg = "NEGATIVE RUNNING TOTAL: Category '" + categoryName
+                                                                        + "' has a negative running total of " + result.getRunningTotal()
+                                                                        + " in month " + dateString;
+                                                        warnings.add(warningMsg);
+                                                        LOGGER.warning(warningMsg);
+                                                }
+
+                                                if (result.isOverMaximum()) {
+                                                        warningCount++;
+                                                        String warningMsg = "OVER MAXIMUM: Category '" + categoryName + "' running total ("
+                                                                        + result.getRunningTotal() + ") exceeds maximum (" + result.getMaximumAmount()
+                                                                        + ") in month " + dateString;
+                                                        warnings.add(warningMsg);
+                                                        LOGGER.warning(warningMsg);
+                                                }
+                                        }
+                                }
+                        }
+                        
+                        return new MonthUpdateResult(true, updatedCount, warningCount, warnings);
+                        
+                } catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error updating running totals for month " + dateString, e);
+                        return new MonthUpdateResult(false, updatedCount, warningCount, warnings);
+                }
+        }
+
+        /**
+         * Updates running totals from current month forward when actual amounts change.
+         * This is the main entry point that should be called after any actual amount updates.
+         */
+        public static boolean cascadeRunningTotalsUpdate(LocalDate changedMonth) {
+                if (changedMonth == null) {
+                        throw new IllegalArgumentException("Changed month cannot be null");
                 }
 
-                message.append("\nConsider adjusting your budget or spending for these categories.");
+                LOGGER.info("Cascading running totals update triggered by changes in: " 
+                                + Util.formatDateForDatabase(changedMonth));
 
-                Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.WARNING);
-                        alert.setTitle("Budget Warning");
-                        alert.setHeaderText("Negative Running Totals Detected");
-                        alert.setContentText(message.toString());
-                        alert.setResizable(true);
-                        alert.getDialogPane().setPrefSize(400, 300);
-                        alert.showAndWait();
+                return performTransactionSafeBatch(() -> {
+                        if (!updateRunningTotalsFromMonth(changedMonth)) {
+                                throw new RuntimeException("Failed to update cascading running totals");
+                        }
                 });
         }
 
+        /**
+         * Updates running totals for all categories in the current month only.
+         * This is the existing method renamed for clarity.
+         */
+        public static boolean updateCurrentMonthRunningTotals(LocalDate monthDate) {
+                return updateAllRunningTotals(monthDate);
+        }
+
+        /**
+         * Result object for month update operations.
+         */
+        private static class MonthUpdateResult {
+                private final boolean success;
+                private final int updatedCount;
+                private final int warningCount;
+                private final List<String> warnings;
+
+                public MonthUpdateResult(boolean success, int updatedCount, int warningCount, List<String> warnings) {
+                        this.success = success;
+                        this.updatedCount = updatedCount;
+                        this.warningCount = warningCount;
+                        this.warnings = new ArrayList<>(warnings);
+                }
+
+                public boolean isSuccess() { return success; }
+                public int getUpdatedCount() { return updatedCount; }
+                public int getWarningCount() { return warningCount; }
+                public List<String> getWarnings() { return warnings; }
+        }
+
+        /**
+         * Convenience method to update running totals from current system month forward.
+         */
+        public static boolean updateRunningTotalsFromNow() {
+                LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
+                return updateRunningTotalsFromMonth(currentMonth);
+        }
+
+        /**
+         * Updates running totals for a specific date range.
+         */
+        public static boolean updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth) {
+                if (startMonth == null || endMonth == null) {
+                        throw new IllegalArgumentException("Start and end months cannot be null");
+                }
+                
+                if (startMonth.isAfter(endMonth)) {
+                        throw new IllegalArgumentException("Start month cannot be after end month");
+                }
+
+                LOGGER.info("Updating running totals for date range: " 
+                                + Util.formatDateForDatabase(startMonth) + " to " 
+                                + Util.formatDateForDatabase(endMonth));
+
+                // Get months in the specified range
+                List<LocalDate> monthsInRange = new ArrayList<>();
+                LocalDate current = startMonth.withDayOfMonth(1);
+                LocalDate end = endMonth.withDayOfMonth(1);
+                
+                while (!current.isAfter(end)) {
+                        monthsInRange.add(current);
+                        current = current.plusMonths(1);
+                }
+                
+                // Filter to only include months that have actual data
+                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startMonth)
+                    .stream()
+                    .filter(month -> !month.isAfter(endMonth))
+                    .collect(java.util.stream.Collectors.toList());
+
+                if (monthsToUpdate.isEmpty()) {
+                        LOGGER.info("No months with data found in specified range");
+                        return true;
+                }
+
+                return performTransactionSafeBatch(() -> {
+                        for (LocalDate monthDate : monthsToUpdate) {
+                                MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+                                if (!result.isSuccess()) {
+                                        throw new RuntimeException("Failed to update running totals for month: " 
+                                                                 + Util.formatDateForDatabase(monthDate));
+                                }
+                        }
+                });
+        }
+
+        // ========================= NEW METHOD =========================
+
+        // In PrimaryController, call this after any actual amount updates
+        private void handleActualAmountUpdate(LocalDate monthChanged) {
+                executeAsyncTask(
+                                () -> WriteData.cascadeRunningTotalsUpdate(monthChanged),
+                                () -> {
+                                        // Refresh UI after running totals update
+                                        readFromDatabase(getWorkingDate());
+                                        updateRunningTotalWarnings();
+                                },
+                                "Error updating running totals"
+                );
+        }
 }
