@@ -42,8 +42,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
@@ -185,8 +183,8 @@ public class PrimaryController {
         private VBox categoryBox;
         @FXML
         private AnchorPane myAnchorPane;
-       // @FXML
-       // private ProgressIndicator progressIndicator;
+        // @FXML
+        // private ProgressIndicator progressIndicator;
         @FXML
         private ComboBox<String> yearBox;
         @FXML
@@ -290,6 +288,7 @@ public class PrimaryController {
                 }
                 else {
                         handleCsvFileImport(workingDate);
+                        WriteData.updateAllRunningTotals(workingDate);
                 }
 
                 updateMainDateLabel(workingDate);
@@ -427,6 +426,9 @@ public class PrimaryController {
                 hideTableHeaders(tableIncomeTotal);
                 hideTableHeaders(tableMandatoryTotal);
                 hideTableHeaders(tableDiscretionaryTotal);
+
+                // Hide root nodes in tree tables
+                hideRootNodes();
         }
 
         private void hideTableHeaders(TableView<LineItem> table) {
@@ -441,6 +443,12 @@ public class PrimaryController {
                                 }
                         }
                 });
+        }
+
+        private void hideRootNodes() {
+                tableIncome.setShowRoot(false);
+                tableMandatory.setShowRoot(false);
+                tableDiscretionary.setShowRoot(false);
         }
 
         private void setupTableRows() {
@@ -692,52 +700,6 @@ public class PrimaryController {
                         return row;
                 });
         }
-        // private void setupTreeTableRowFactory(TreeTableView<LineItem> table,
-        // boolean hasContextMenu) {
-        // table.setRowFactory(tv -> {
-        // TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
-        // @Override
-        // protected void updateItem(LineItem item, boolean empty) {
-        // super.updateItem(item, empty);
-
-        // if (empty || item == null) {
-        // setStyle("");
-        // } else {
-        // TreeItem<LineItem> treeItem = getTreeItem();
-        // if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-        // // Parent category - light blue background
-        // setStyle("-fx-background-color: lightblue;");
-        // } else {
-        // // Leaf item - default background
-        // setStyle("");
-        // }
-        // }
-        // }
-        // };
-
-        // // Add context menu only if requested
-        // if (hasContextMenu) {
-        // ContextMenu contextMenu = new ContextMenu();
-        // MenuItem editItem = new MenuItem("Edit");
-        // contextMenu.getItems().add(editItem);
-
-        // row.setOnMouseClicked(event -> {
-        // if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-        // contextMenu.show(row, event.getScreenX(), event.getScreenY());
-        // }
-        // });
-
-        // editItem.setOnAction(event -> {
-        // LineItem item = row.getItem();
-        // if (item != null) {
-        // editLineItem(item);
-        // }
-        // });
-        // }
-
-        // return row;
-        // });
-        // }
 
         private void initializeData() {
                 LocalDate currentDate = LocalDate.now();
@@ -827,7 +789,7 @@ public class PrimaryController {
         }
 
         private void setLoadingState(boolean loading) {
-             //   progressIndicator.setVisible(loading);
+                // progressIndicator.setVisible(loading);
                 btn_Update.setDisable(loading);
                 // Disable other relevant controls during loading
         }
@@ -936,12 +898,7 @@ public class PrimaryController {
                                         }
                                 };
                                 executorService.submit(importTask);
-                                // Remove the direct calls to readCSVFile,
-                                // readFromDatabase, and resetImportState below
-                                // readCSVFile(selectedFile, workingDate);
-                                // readFromDatabase(workingDate);
-                                // resetImportState();
-                                // WriteData.updateAllRunningTotals(workingDate);
+
                         }
                         else {
                                 LOGGER.log(Level.WARNING, "No file selected for import");

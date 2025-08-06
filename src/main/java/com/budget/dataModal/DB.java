@@ -81,7 +81,7 @@ public final class DB {
 
         // Column names
         public static final String ACTUAL_COL_ID = "id";
-        public static final String ACTUAL_COL_CATEGORY = "category";
+        public static final String ACTUAL_COL_CATEGORY_ID = "category_id";
         public static final String ACTUAL_COL_DATE = "date";
         public static final String ACTUAL_COL_ACTUAL = "actual";
         public static final String ACTUAL_COL_BUDGET = "budget";
@@ -142,14 +142,14 @@ public final class DB {
          * year
          */
         public static final String ACTUAL_FIND_CATEGORY = buildSelectQuery(
-                        new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
-                        ACTUAL_TABLE, ACTUAL_COL_CATEGORY + " = ? AND " + buildDateFilter(ACTUAL_COL_DATE, "month")
+                        new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY_ID, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
+                        ACTUAL_TABLE, ACTUAL_COL_CATEGORY_ID + " = ? AND " + buildDateFilter(ACTUAL_COL_DATE, "month")
                                         + " = ? AND " + buildDateFilter(ACTUAL_COL_DATE, "year") + " = ?");
 
         /**
          * Insert new actual record. Parameters: category, date, actual
          */
-        public static final String ACTUAL_INSERT_RECORD = "INSERT INTO " + ACTUAL_TABLE + " (" + ACTUAL_COL_CATEGORY
+        public static final String ACTUAL_INSERT_RECORD = "INSERT INTO " + ACTUAL_TABLE + " (" + ACTUAL_COL_CATEGORY_ID
                         + ", " + ACTUAL_COL_DATE + ", " + ACTUAL_COL_ACTUAL + ", " + ACTUAL_COL_BUDGET
                         + ") VALUES(?, ?, ?, 0)";
 
@@ -172,7 +172,7 @@ public final class DB {
          */
         public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL " + "FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
+                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
                         + " = " + CAT_TABLE + "." + CAT_COL_ID + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
 
         /**
@@ -192,8 +192,8 @@ public final class DB {
                         + ", " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ", " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ", " + CAT_TABLE + "." + CAT_COL_DEFAULT_MAXIMUM_AMOUNT + ", " + CAT_TABLE + "."
                         + CAT_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " JOIN " + CAT_TABLE + " ON " + ACTUAL_TABLE
-                        + "." + ACTUAL_COL_CATEGORY + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE
-                        + "." + ACTUAL_COL_DATE + " LIKE ? || '%'";
+                        + "." + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE
+                        + "." + ACTUAL_COL_DATE + " = ? ";
 
         // ========================= COMPLEX QUERIES =========================
 
@@ -209,7 +209,7 @@ public final class DB {
          */
         public static final String FIND_MISSING_CATEGORIES = "SELECT "
                         + String.join(", ", CAT_COL_ID, CAT_COL_TYPE, CAT_COL_PARENT, CAT_COL_CATEGORY) + " FROM "
-                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY + " FROM "
+                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID + " FROM "
                         + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
 
         /**
@@ -217,7 +217,7 @@ public final class DB {
          */
         public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
                         + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL " + "FROM " + CAT_TABLE
-                        + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " = "
+                        + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " = "
                         + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
                         + buildDateFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE, "month") + " = ? AND "
                         + buildDateFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE, "year") + " = ? AND " + CAT_TABLE + "."
@@ -231,7 +231,7 @@ public final class DB {
          */
         public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
                         + " = COALESCE((" + "SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a "
-                        + "WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY + " AND "
+                        + "WHERE a." + ACTUAL_COL_CATEGORY_ID + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " AND "
                         + buildYearMonthFilter("a." + ACTUAL_COL_DATE) + " = ?), 0) " + "WHERE "
                         + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?";
 
@@ -241,8 +241,8 @@ public final class DB {
          */
         public static final String UPDATE_BALANCE = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_STARTBAL
                         + " = COALESCE((" + "SELECT " + ACTUAL_COL_STARTBAL + " - " + ACTUAL_COL_ACTUAL + " FROM "
-                        + ACTUAL_TABLE + " AS a " + "WHERE a." + ACTUAL_COL_CATEGORY + " = " + ACTUAL_TABLE + "."
-                        + ACTUAL_COL_CATEGORY + " AND " + buildYearMonthFilter("a." + ACTUAL_COL_DATE) + " = ?), 0) "
+                        + ACTUAL_TABLE + " AS a " + "WHERE a." + ACTUAL_COL_CATEGORY_ID + " = " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " AND " + buildYearMonthFilter("a." + ACTUAL_COL_DATE) + " = ?), 0) "
                         + "WHERE " + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?";
 
         // ========================= UTILITY METHODS =========================
@@ -359,7 +359,7 @@ public final class DB {
 
                 // FROM clause with JOIN
                 query.append(" FROM ").append(CAT_TABLE).append(" INNER JOIN ").append(ACTUAL_TABLE).append(" ON ")
-                                .append(ACTUAL_TABLE).append(".").append(ACTUAL_COL_CATEGORY).append(" = ")
+                                .append(ACTUAL_TABLE).append(".").append(ACTUAL_COL_CATEGORY_ID).append(" = ")
                                 .append(CAT_TABLE).append(".").append(CAT_COL_ID);
 
                 // WHERE clause - Changed to use YYYY-MM format
@@ -404,9 +404,9 @@ public final class DB {
          * Parameters: category, year-month (YYYY-MM)
          */
         public static final String ACTUAL_FIND_RECORD_BY_ID_AND_DATE = buildSelectQuery(
-                        new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
+                        new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY_ID, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
                         ACTUAL_TABLE,
-                        ACTUAL_COL_CATEGORY + " = ? AND " + ACTUAL_COL_DATE + " = ?");
+                        ACTUAL_COL_CATEGORY_ID + " = ? AND " + ACTUAL_COL_DATE + " = ?");
 
         /**
          * Find categories not present in actual table for given year-month.
@@ -414,7 +414,7 @@ public final class DB {
          */
         public static final String FIND_MISSING_CATEGORIES_BY_MONTH = "SELECT "
                         + String.join(", ", CAT_COL_ID, CAT_COL_TYPE, CAT_COL_PARENT, CAT_COL_CATEGORY) + " FROM "
-                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY + " FROM "
+                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID + " FROM "
                         + ACTUAL_TABLE + " WHERE " + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?)";
 
         /**
@@ -423,7 +423,7 @@ public final class DB {
          */
         public static final String GET_TOTALS_BY_MONTH = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ") AS ATOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL " + "FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY
+                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
                         + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
                         + buildYearMonthFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE) + " = ? AND " + CAT_TABLE + "."
                         + CAT_COL_TYPE + " = ? AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
