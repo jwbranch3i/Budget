@@ -427,4 +427,36 @@ public final class DB {
                         + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
                         + buildYearMonthFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE) + " = ? AND " + CAT_TABLE + "."
                         + CAT_COL_TYPE + " = ? AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+
+        // Add these constants to your DB.java class
+
+        public static final String RUNNING_TOTAL_INSERT_WITH_MODIFIED = 
+            "INSERT OR REPLACE INTO category_running_totals " +
+            "(category_id, month_date, previous_balance, current_difference, running_total, modified_running_total, maximum_amount, warning_issued) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        public static final String RUNNING_TOTAL_GET_PREVIOUS_WITH_MODIFIED = 
+            "SELECT COALESCE(modified_running_total, running_total) as effective_total " +
+            "FROM category_running_totals " +
+            "WHERE category_id = ? AND month_date < ? " +
+            "ORDER BY month_date DESC LIMIT 1";
+
+        public static final String RUNNING_TOTAL_UPDATE_MODIFIED = 
+            "UPDATE category_running_totals " +
+            "SET modified_running_total = ? " +
+            "WHERE category_id = ? AND month_date = ?";
+
+        public static final String RUNNING_TOTAL_GET_ALL_FOR_MONTH_WITH_MODIFIED = 
+            "SELECT rt.*, c.category, c.default_maximum_amount, " +
+            "COALESCE(rt.modified_running_total, rt.running_total) as effective_total " +
+            "FROM category_running_totals rt " +
+            "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id " +
+            "WHERE rt.month_date = ? ORDER BY c.category";
+
+        public static final String RUNNING_TOTAL_GET_NEGATIVE_TOTALS_WITH_MODIFIED = 
+            "SELECT rt.*, c.category, " +
+            "COALESCE(rt.modified_running_total, rt.running_total) as effective_total " +
+            "FROM category_running_totals rt " +
+            "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id " +
+            "WHERE rt.month_date = ? AND COALESCE(rt.modified_running_total, rt.running_total) < 0";
 }

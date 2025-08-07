@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.budget.Util;
+import com.budget.controllers.PrimaryController;
 
 /**
  * Utility class for database write operations. Provides methods for inserting
@@ -19,7 +20,6 @@ public final class WriteData {
 
     // ========================= CONSTANTS =========================
 
- 
     // Prevent instantiation
     private WriteData() {
         throw new UnsupportedOperationException("This is a Utility class and cannot be instantiated");
@@ -208,13 +208,15 @@ public final class WriteData {
 
             if (success) {
                 LOGGER.fine("Successfully updated actual record for ID: " + item.getId());
-            } else {
+            }
+            else {
                 LOGGER.warning("Actual record update failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
 
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error updating actual record for ID: " + item.getId(), e);
             return false;
         }
@@ -262,17 +264,20 @@ public final class WriteData {
                 try (ResultSet rs = insertRecord.getGeneratedKeys()) {
                     if (rs.next()) {
                         returnActual.setId(rs.getInt(1));
-                    } else {
+                    }
+                    else {
                         LOGGER.warning("Actual insert succeeded but no generated key returned");
                     }
                 }
-            } else {
+            }
+            else {
                 LOGGER.warning("Actual insert failed - no rows affected");
             }
 
             return returnActual;
 
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error inserting actual record for category ID: " + existingCategory.getId(), e);
             return returnActual;
         }
@@ -463,65 +468,74 @@ public final class WriteData {
      */
     public static RunningTotal updateRunningTotal(int categoryId, LocalDate monthDate, double budgetAmount,
             double actualAmount, Double maximumAmount) {
-        if (monthDate == null) {
-            throw new IllegalArgumentException("Month date cannot be null");
-        }
-
         if (!DataSource.getInstance().ensureConnection()) {
             LOGGER.severe("Database connection not available for running total update");
             return null;
         }
 
         try {
-            // Get previous month's running total
-            double previousBalance = getPreviousRunningTotal(categoryId, monthDate.minusMonths(1));
+            // Get previous month's effective running total (modified if
+            // available, otherwise calculated)
+            double previousBalance = getPreviousEffectiveRunningTotal(categoryId, monthDate);
 
-            // Calculate current difference (budget - actual)
+            // Calculate current difference and new running total
             double currentDifference = budgetAmount - actualAmount;
+            double newRunningTotal = previousBalance + currentDifference;
 
-            // Calculate new running total
-            double runningTotal = previousBalance + currentDifference;
+            // Create RunningTotal object
+            RunningTotal runningTotal = new RunningTotal();
+            runningTotal.setCategoryId(categoryId);
+            runningTotal.setMonthDate(monthDate);
+            runningTotal.setPreviousBalance(previousBalance);
+            runningTotal.setCurrentDifference(currentDifference);
+            runningTotal.setRunningTotal(newRunningTotal);
+            runningTotal.setMaximumAmount(maximumAmount);
+            runningTotal.setWarningIssued(false);
+            // Don't set modifiedRunningTotal - let it be null for calculated
+            // values
 
-            // Check if warning needed
-            boolean warningNeeded = runningTotal < 0;
-
-            RunningTotal result = new RunningTotal(categoryId, monthDate);
-            result.setPreviousBalance(previousBalance);
-            result.setCurrentDifference(currentDifference);
-            result.setRunningTotal(runningTotal);
-            result.setMaximumAmount(maximumAmount);
-            result.setWarningIssued(false); // Will be set to true when warning
-                                            // is shown
-
-            // Insert or update the record
-            try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_INSERT)) {
+            // Insert/update the record
+            try (PreparedStatement stmt = DataSource.getConn()
+                    .prepareStatement(DB.RUNNING_TOTAL_INSERT_WITH_MODIFIED)) {
                 stmt.setInt(1, categoryId);
-                stmt.setString(2, Util.formatDateForDatabase(monthDate)); // Use Util method
+                stmt.setString(2, Util.formatDateForDatabase(monthDate));
                 stmt.setDouble(3, previousBalance);
                 stmt.setDouble(4, currentDifference);
-                stmt.setDouble(5, runningTotal);
-                
-                if (maximumAmount != null) {
-                    stmt.setDouble(6, maximumAmount);
-                } else {
+                stmt.setDouble(5, newRunningTotal);
+
+                // Keep existing modified value if it exists, otherwise set to
+                // null
+                Double existingModified = getExistingModifiedRunningTotal(categoryId, monthDate);
+                if (existingModified != null) {
+                    stmt.setDouble(6, existingModified);
+                    runningTotal.setModifiedRunningTotal(existingModified);
+                }
+                else {
                     stmt.setNull(6, java.sql.Types.REAL);
                 }
-                
-                stmt.setBoolean(7, false);
+
+                if (maximumAmount != null) {
+                    stmt.setDouble(7, maximumAmount);
+                }
+                else {
+                    stmt.setNull(7, java.sql.Types.REAL);
+                }
+
+                stmt.setBoolean(8, false);
 
                 int rowsAffected = stmt.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    LOGGER.fine("Updated running total for category " + categoryId + " in "
-                            + (Util.formatDateForDatabase(monthDate) + ": " + runningTotal));
-                    return result;
+                    LOGGER.fine("Successfully updated running total for category " + categoryId + " in month "
+                            + Util.formatDateForDatabase(monthDate));
+                    return runningTotal;
                 }
                 else {
-                    LOGGER.warning("Failed to update running total for category " + categoryId);
+                    LOGGER.warning("Running total update failed - no rows affected");
                     return null;
                 }
-            }
 
+            }
         }
         catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error updating running total for category " + categoryId, e);
@@ -530,113 +544,94 @@ public final class WriteData {
     }
 
     /**
-     * Gets the running total for a category from the previous month.
+     * Gets the effective running total from the previous month (modified if
+     * available, otherwise calculated).
      */
-    private static double getPreviousRunningTotal(int categoryId, LocalDate monthDate) {
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_PREVIOUS)) {
+    private static double getPreviousEffectiveRunningTotal(int categoryId, LocalDate monthDate) {
+        try (PreparedStatement stmt = DataSource.getConn()
+                .prepareStatement(DB.RUNNING_TOTAL_GET_PREVIOUS_WITH_MODIFIED)) {
             stmt.setInt(1, categoryId);
             stmt.setString(2, Util.formatDateForDatabase(monthDate));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getDouble("running_total");
+                    return rs.getDouble("effective_total");
                 }
             }
         }
         catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "Error getting previous running total for category " + categoryId, e);
+            LOGGER.log(Level.WARNING, "Error getting previous effective running total for category " + categoryId, e);
         }
 
         return 0.0; // Default to 0 if no previous data
     }
 
     /**
-     * Updates running totals for all categories in a given month. This should
-     * be called after actual amounts are updated.
+     * Gets existing modified running total for a category/month, or null if not
+     * modified.
      */
-    public static boolean updateAllRunningTotals(LocalDate monthDate) {
-        if (monthDate == null) {
-            throw new IllegalArgumentException("Month date cannot be null");
-        }
+    private static Double getExistingModifiedRunningTotal(int categoryId, LocalDate monthDate) {
+        String query = "SELECT modified_running_total FROM category_running_totals "
+                + "WHERE category_id = ? AND month_date = ?";
 
-        if (!DataSource.getInstance().ensureConnection()) {
-            LOGGER.severe("Database connection not available for running totals update");
-            return false;
-        }
-
-        // Use Util.formatDateForDatabase for consistent formatting
-        String dateString = Util.formatDateForDatabase(monthDate);
-        int updatedCount = 0;
-        int warningCount = 0;
-
-        // Get all line items for this month
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_LINE_ITEMS_FOR_MONTH)) {
-            stmt.setString(1, dateString);
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
+            stmt.setInt(1, categoryId);
+            stmt.setString(2, Util.formatDateForDatabase(monthDate));
 
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    int categoryId = rs.getInt("id");
-                    double budget = rs.getDouble("budget");
-                    double actual = rs.getDouble("actual");
-                    Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
-                    String categoryName = rs.getString("category");
-
-                    RunningTotal result = updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
-
-                    if (result != null) {
-                        updatedCount++;
-
-                        // Check for warnings
-                        if (result.needsWarning()) {
-                            warningCount++;
-                            LOGGER.warning("NEGATIVE RUNNING TOTAL: Category '" + categoryName
-                                    + "' has a negative running total of " + result.getRunningTotal());
-                        }
-
-                        if (result.isOverMaximum()) {
-                            LOGGER.warning("OVER MAXIMUM: Category '" + categoryName + "' running total ("
-                                    + result.getRunningTotal() + ") exceeds maximum (" + result.getMaximumAmount()
-                                    + ")");
-                        }
-                    }
+                if (rs.next()) {
+                    return rs.getObject("modified_running_total", Double.class);
                 }
             }
         }
         catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating all running totals for " + dateString, e);
-            return false;
+            LOGGER.log(Level.WARNING, "Error getting existing modified running total", e);
         }
 
-        LOGGER.info("Updated " + updatedCount + " running totals for " + dateString + " ("
-                + warningCount + " warnings issued)");
-
-        return true;
+        return null;
     }
 
     /**
-     * Marks warning as issued for a specific running total.
+     * Manually sets a modified running total for a category in a specific
+     * month.
      */
-    public static boolean markWarningIssued(int categoryId, LocalDate monthDate) {
+    public static boolean setModifiedRunningTotal(int categoryId, LocalDate monthDate, Double modifiedTotal) {
         if (!DataSource.getInstance().ensureConnection()) {
+            LOGGER.severe("Database connection not available for modified running total update");
             return false;
         }
 
-        String updateWarning = "UPDATE category_running_totals SET warning_issued = TRUE "
-                + "WHERE category_id = ? AND month_date = ?";
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_UPDATE_MODIFIED)) {
+            if (modifiedTotal != null) {
+                stmt.setDouble(1, modifiedTotal);
+            }
+            else {
+                stmt.setNull(1, java.sql.Types.REAL);
+            }
+            stmt.setInt(2, categoryId);
+            stmt.setString(3, Util.formatDateForDatabase(monthDate));
 
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(updateWarning)) {
-            stmt.setInt(1, categoryId);
-            stmt.setString(2, Util.formatDateForDatabase(monthDate));
+            int rowsAffected = stmt.executeUpdate();
 
-            return stmt.executeUpdate() > 0;
+            if (rowsAffected > 0) {
+                LOGGER.info("Successfully updated modified running total for category " + categoryId + " in month "
+                        + Util.formatDateForDatabase(monthDate));
+
+                // Cascade update to future months since their calculations
+                // depend on this change
+                PrimaryController.cascadeRunningTotalsUpdate(monthDate.plusMonths(1));
+
+                return true;
+            }
+            else {
+                LOGGER.warning("Modified running total update failed - no rows affected");
+                return false;
+            }
 
         }
         catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "Error marking warning as issued", e);
+            LOGGER.log(Level.SEVERE, "Error updating modified running total", e);
             return false;
         }
     }
-
-    // Add this Utility method to the WriteData class
-
 }

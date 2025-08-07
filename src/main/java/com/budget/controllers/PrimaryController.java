@@ -292,10 +292,9 @@ public class PrimaryController {
                 }
                 else {
                         handleCsvFileImport(workingDate);
-                        WriteData.updateAllRunningTotals(workingDate);
                 }
 
-                WriteData.updateAllRunningTotals(workingDate);
+                updateRunningTotalsFromMonth(workingDate);
                 updateMainDateLabel(workingDate);
         }
 
@@ -318,7 +317,7 @@ public class PrimaryController {
 
                 executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
                         refreshDataForDate(workingDate);
-                        updateRunningTotalsAndShowWarnings(); // Add this line
+                      //  updateRunningTotalsAndShowWarnings(); // Add this line
                 }, "Error updating balance");
         }
 
@@ -1154,7 +1153,7 @@ public class PrimaryController {
                 getTableRows(workingDate);
                 UIData.updateTableTotal(tables);
 
-                updateRunningTotalsAndShowWarnings();
+             //   updateRunningTotalsAndShowWarnings();
         }
 
         private void refreshDataForDate(LocalDate date) {
@@ -1272,6 +1271,7 @@ public class PrimaryController {
         }
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
+                //TODO: possible removal - showConfirmationAlert()
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(title);
                 alert.setHeaderText(null);
@@ -1411,7 +1411,7 @@ public class PrimaryController {
                                         Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
                                         String categoryName = rs.getString("category");
 
-                                        RunningTotal result = updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
+                                        RunningTotal result = WriteData.updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
 
                                         if (result != null) {
                                                 updatedCount++;
@@ -1458,7 +1458,7 @@ public class PrimaryController {
                 LOGGER.info("Cascading running totals update triggered by changes in: " 
                                 + Util.formatDateForDatabase(changedMonth));
 
-                return performTransactionSafeBatch(() -> {
+                return WriteData.performTransactionSafeBatch(() -> {
                         if (!updateRunningTotalsFromMonth(changedMonth)) {
                                 throw new RuntimeException("Failed to update cascading running totals");
                         }
@@ -1470,13 +1470,15 @@ public class PrimaryController {
          * This is the existing method renamed for clarity.
          */
         public static boolean updateCurrentMonthRunningTotals(LocalDate monthDate) {
-                return updateAllRunningTotals(monthDate);
+                //TODO : maybe remove this method, 'updateCurrentMonthRunningTotals()' as it is not used in the current codebase
+                //return updateAllRunningTotals(monthDate);
+                return true; // Placeholder for future implementation
         }
 
         /**
          * Result object for month update operations.
          */
-        private static class MonthUpdateResult {
+        public static class MonthUpdateResult {
                 private final boolean success;
                 private final int updatedCount;
                 private final int warningCount;
@@ -1540,7 +1542,7 @@ public class PrimaryController {
                         return true;
                 }
 
-                return performTransactionSafeBatch(() -> {
+                return WriteData.performTransactionSafeBatch(() -> {
                         for (LocalDate monthDate : monthsToUpdate) {
                                 MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
                                 if (!result.isSuccess()) {
@@ -1555,14 +1557,45 @@ public class PrimaryController {
 
         // In PrimaryController, call this after any actual amount updates
         private void handleActualAmountUpdate(LocalDate monthChanged) {
+                //TODO: possible removal - handleActualAmountUpdate()
                 executeAsyncTask(
-                                () -> WriteData.cascadeRunningTotalsUpdate(monthChanged),
+                                () -> cascadeRunningTotalsUpdate(monthChanged),
                                 () -> {
                                         // Refresh UI after running totals update
                                         readFromDatabase(getWorkingDate());
-                                        updateRunningTotalWarnings();
+                                       //updateRunningTotalWarnings();
                                 },
                                 "Error updating running totals"
+                );
+        }
+
+        /**
+         * Allows user to manually modify a running total.
+         */
+        public void modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal) {
+                executeAsyncTask(
+                                () -> WriteData.setModifiedRunningTotal(categoryId, monthDate, newTotal),
+                                () -> {
+                                        // Refresh UI after modification
+                                        //updateRunningTotalWarnings();
+                                        readFromDatabase(getWorkingDate());
+                                },
+                                "Error modifying running total"
+                );
+        }
+
+        /**
+         * Clears manual modification for a running total.
+         */
+        public void clearRunningTotalModification(int categoryId, LocalDate monthDate) {
+                executeAsyncTask(
+                                () -> WriteData.setModifiedRunningTotal(categoryId, monthDate, null),
+                                () -> {
+                                        // Refresh UI after clearing modification
+                                        //updateRunningTotalWarnings();
+                                        readFromDatabase(getWorkingDate());
+                                },
+                                "Error clearing running total modification"
                 );
         }
 }

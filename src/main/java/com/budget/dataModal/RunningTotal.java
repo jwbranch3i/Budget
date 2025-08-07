@@ -19,6 +19,7 @@ public class RunningTotal {
     private double runningTotal;
     private Double maximumAmount; // Optional
     private boolean warningIssued;
+    private Double modifiedRunningTotal;
     
     // Constructors
     public RunningTotal() {}
@@ -64,17 +65,46 @@ public class RunningTotal {
     public boolean isWarningIssued() { return warningIssued; }
     public void setWarningIssued(boolean warningIssued) { this.warningIssued = warningIssued; }
     
+    public Double getModifiedRunningTotal() {
+        return modifiedRunningTotal;
+    }
+    
+    public void setModifiedRunningTotal(Double modifiedRunningTotal) {
+        this.modifiedRunningTotal = modifiedRunningTotal;
+    }
+    
+    /**
+     * Gets the effective running total - uses modified if available, otherwise original.
+     */
+    public double getEffectiveRunningTotal() {
+        return isModified() ? modifiedRunningTotal : runningTotal;
+    }
+    
+    /**
+     * Checks if this running total has been manually modified.
+     */
+    public boolean isModified() {
+        return modifiedRunningTotal != null;
+    }
+    
+    /**
+     * Clears the manual modification, reverting to calculated running total.
+     */
+    public void clearModification() {
+        this.modifiedRunningTotal = null;
+    }
+    
     // Utility methods
     public boolean isNegative() {
         return runningTotal < 0;
     }
     
     public boolean isOverMaximum() {
-        return maximumAmount != null && runningTotal > maximumAmount;
+        return maximumAmount != null && getEffectiveRunningTotal() > maximumAmount;
     }
     
     public boolean needsWarning() {
-        return isNegative() && !warningIssued;
+        return getEffectiveRunningTotal() < 0.0 && !warningIssued;
     }
     
     public void calculateRunningTotal() {

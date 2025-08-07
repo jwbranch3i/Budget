@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -353,7 +352,7 @@ public class ReadData {
     // Add to your ReadData class
 
     /**
-     * Gets all running totals for a specific month.
+     * Gets all running totals for a specific month, using effective totals.
      */
     public static List<RunningTotal> getRunningTotalsForMonth(LocalDate monthDate) {
         List<RunningTotal> totals = new ArrayList<>();
@@ -362,10 +361,8 @@ public class ReadData {
             return totals;
         }
 
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH)) {
-            stmt.setString(1, Util.formatDateForDatabase(monthDate)); // Use
-                                                                      // Util
-                                                                      // method
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH_WITH_MODIFIED)) {
+            stmt.setString(1, Util.formatDateForDatabase(monthDate));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -377,6 +374,7 @@ public class ReadData {
                     total.setPreviousBalance(rs.getDouble("previous_balance"));
                     total.setCurrentDifference(rs.getDouble("current_difference"));
                     total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setModifiedRunningTotal(rs.getObject("modified_running_total", Double.class));
                     total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
                     total.setWarningIssued(rs.getBoolean("warning_issued"));
 
@@ -392,7 +390,7 @@ public class ReadData {
     }
 
     /**
-     * Gets categories with negative running totals for a specific month.
+     * Gets categories with negative effective running totals for a specific month.
      */
     public static List<RunningTotal> getNegativeRunningTotals(LocalDate monthDate) {
         List<RunningTotal> negatives = new ArrayList<>();
@@ -401,8 +399,8 @@ public class ReadData {
             return negatives;
         }
 
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_NEGATIVE_TOTALS)) {
-            stmt.setString(1, monthDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_GET_NEGATIVE_TOTALS_WITH_MODIFIED)) {
+            stmt.setString(1, Util.formatDateForDatabase(monthDate));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -414,6 +412,7 @@ public class ReadData {
                     total.setPreviousBalance(rs.getDouble("previous_balance"));
                     total.setCurrentDifference(rs.getDouble("current_difference"));
                     total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setModifiedRunningTotal(rs.getObject("modified_running_total", Double.class));
                     total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
                     total.setWarningIssued(rs.getBoolean("warning_issued"));
 
