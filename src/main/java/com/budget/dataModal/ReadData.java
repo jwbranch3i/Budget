@@ -202,6 +202,7 @@ public class ReadData {
     /**
      * Get totals for a specific type and date.
      */
+    //TODO - make sure total correct
     public static LineItem getTotals(int type, LocalDate date) {
         LineItem newItem = new LineItem();
         String monthString = String.format("%02d", date.getMonthValue());

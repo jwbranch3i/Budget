@@ -49,12 +49,12 @@
             </AnchorPane>
             <AnchorPane style="-fx-border-color: black;">
                <children>
-                  <TableView fx:id="tableTotal" prefHeight="200.0">
+                  <TableView fx:id="tableGrandTotal" prefHeight="200.0">
                     <columns>
-                      <TableColumn fx:id="tableTotal_Category" prefWidth="200.0" />
-                      <TableColumn fx:id="tableTotal_Actual" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="tableTotal_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="tableTotal_Diff" prefWidth="75.0" text="Diff" />
+                      <TableColumn fx:id="tableGrandTotal_Category" prefWidth="200.0" />
+                      <TableColumn fx:id="tableGrandTotal_Actual" prefWidth="75.0" text="Actual" />
+                        <TableColumn fx:id="tableGrandTotal_Budget" prefWidth="75.0" text="Budget" />
+                        <TableColumn fx:id="tableGrandTotal_Diff" prefWidth="75.0" text="Diff" />
                     </columns>
                   </TableView>
                </children>

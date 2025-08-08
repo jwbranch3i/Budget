@@ -44,7 +44,8 @@ public final class UIData {
      * @param tables ArrayList containing [income, mandatory, discretionary, total] tables
      * @throws IllegalArgumentException if tables list doesn't have exactly 4 elements
      */
-    public static void updateTableTotal(ArrayList<TableView<LineItem>> tables) {
+    //TODO - make sure update is correct
+    public static void updateTableGrandTotal(ArrayList<TableView<LineItem>> tables) {
         validateTablesInput(tables);
         updateTableTotal(tables.get(0), tables.get(1), tables.get(2), tables.get(3));
     }

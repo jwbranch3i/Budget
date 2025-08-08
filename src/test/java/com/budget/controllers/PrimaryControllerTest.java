@@ -41,7 +41,7 @@ public class PrimaryControllerTest {
         PrimaryController controller = new PrimaryController();
       //  controller.initialize();
 
-        controller.getTableRows(inDate);
+        controller.readFromDatabase(inDate);
     }
 
     @Test

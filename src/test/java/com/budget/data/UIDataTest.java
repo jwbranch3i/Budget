@@ -2,13 +2,13 @@ package com.budget.data;
 
 import java.time.LocalDate;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.budget.controllers.PrimaryController;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.UIData;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import javafx.application.Platform;
 
@@ -33,9 +33,9 @@ public class UIDataTest {
 
         PrimaryController controller = new PrimaryController();
         controller.initialize();
-        controller.getTableRows(inDate);
+        controller.readFromDatabase(inDate);
 
-        UIData.updateTableTotal(controller.getTables());
+        UIData.updateTableGrandTotal(controller.getTotalTablesList());
         
         System.out.println("testUpdateTableTotal - *** finish ***");
     }

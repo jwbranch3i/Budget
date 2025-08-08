@@ -172,15 +172,15 @@ public class PrimaryController {
 
         // Totals Table Components
         @FXML
-        private TableView<LineItem> tableTotal;
+        private TableView<LineItem> tableGrandTotal;
         @FXML
-        private TableColumn<LineItem, String> tableTotal_Category;
+        private TableColumn<LineItem, String> tableGrandTotal_Category;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Actual;
+        private TableColumn<LineItem, Double> tableGrandTotal_Actual;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Budget;
+        private TableColumn<LineItem, Double> tableGrandTotal_Budget;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Diff;
+        private TableColumn<LineItem, Double> tableGrandTotal_Diff;
 
         // UI Components
         @FXML
@@ -209,7 +209,7 @@ public class PrimaryController {
         // ========================= DATA STRUCTURES =========================
 
         /** Array of tables for UIData total table update */
-        private final ArrayList<TableView<LineItem>> tables = new ArrayList<>();
+        private final ArrayList<TableView<LineItem>> totalTablesList = new ArrayList<>();
 
         // ========================= INITIALIZATION =========================
 
@@ -223,8 +223,9 @@ public class PrimaryController {
 
                         // Initialize controller extension
                         @SuppressWarnings("unused")
-                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal,
-                                        tableTotal_Category, tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
+                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableGrandTotal,
+                                        tableGrandTotal_Category, tableGrandTotal_Actual, tableGrandTotal_Budget,
+                                        tableGrandTotal_Diff);
 
                         // Apply styles
                         applyStyles();
@@ -240,7 +241,7 @@ public class PrimaryController {
 
                         // Setup table headers and rows
                         setupTableHeaders();
-                        setupTableRows();
+                        setupTotalTableRow();
 
                         // Setup table columns
                         setupTableColumns();
@@ -253,6 +254,9 @@ public class PrimaryController {
 
                         // Initialize data
                         initializeData();
+
+                        // Setup shutdown hook for cleanup
+                        setupShutdownHook();
 
                         LOGGER.info("PrimaryController initialization completed successfully");
 
@@ -288,7 +292,7 @@ public class PrimaryController {
                 LocalDate workingDate = getWorkingDate();
 
                 if (!chkBox.isSelected()) {
-                        readFromDatabase(workingDate);
+                        updateTables();
                 }
                 else {
                         handleCsvFileImport(workingDate);
@@ -317,21 +321,9 @@ public class PrimaryController {
 
                 executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
                         refreshDataForDate(workingDate);
-                      //  updateRunningTotalsAndShowWarnings(); // Add this line
+                        // updateRunningTotalsAndShowWarnings(); // Add this
+                        // line
                 }, "Error updating balance");
-        }
-
-        /**
-         * Handles reading headings (placeholder implementation).
-         */
-        @FXML
-        void readHeadingsButton(ActionEvent event) {
-                // progressIndicator.setVisible(true);
-                // progressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-
-                // // TODO: Implement actual heading reading logic
-
-                // progressIndicator.setVisible(false);
         }
 
         /**
@@ -342,14 +334,33 @@ public class PrimaryController {
                 // TODO: Implement view switching logic
         }
 
-        // ========================= SETUP METHODS =========================
+        // ========================= SETUP AND SHUTDOWN METHODS
+        // =========================
+        
+        private void setupShutdownHook() {
+                // Add shutdown hook to current stage
+                Platform.runLater(() -> {
+                        Stage stage = (Stage) btn_Update.getScene().getWindow();
+                        if (stage != null) {
+                                stage.setOnCloseRequest(event -> {
+                                        LOGGER.info("Application closing - cleaning up resources");
+                                        cleanup();
+                                });
+                        }
+                });
+
+                // Also add JVM shutdown hook as backup
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                        LOGGER.info("JVM shutdown detected - cleaning up PrimaryController");
+                        cleanup();
+                }));
+        }
 
         private void applyStyles() {
                 tableIncomeTotal.getStyleClass().add("table-view-total");
                 tableMandatoryTotal.getStyleClass().add("table-view-total");
                 tableDiscretionaryTotal.getStyleClass().add("table-view-total");
                 myAnchorPane.getStyleClass().add("catBox");
-                tableIncomeTotal.getStyleClass().add("total-table");
         }
 
         private void setupInitialState() {
@@ -358,10 +369,10 @@ public class PrimaryController {
         }
 
         private void setupTableReferences() {
-                tables.add(tableIncomeTotal);
-                tables.add(tableMandatoryTotal);
-                tables.add(tableDiscretionaryTotal);
-                tables.add(tableTotal);
+                totalTablesList.add(tableIncomeTotal);
+                totalTablesList.add(tableMandatoryTotal);
+                totalTablesList.add(tableDiscretionaryTotal);
+                totalTablesList.add(tableGrandTotal);
         }
 
         private void setupChoiceBoxes() {
@@ -455,7 +466,7 @@ public class PrimaryController {
                 tableDiscretionary.setShowRoot(false);
         }
 
-        private void setupTableRows() {
+        private void setupTotalTableRow() {
                 addTotalRowToTable(tableIncomeTotal, 1.0, 1.0);
                 addTotalRowToTable(tableMandatoryTotal, 0.0, 0.0);
                 addTotalRowToTable(tableDiscretionaryTotal, 0.0, 0.0);
@@ -546,17 +557,17 @@ public class PrimaryController {
         }
 
         private void setupTotalTableColumns() {
-                tableTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
-                tableTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                tableGrandTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
+                tableGrandTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
-                tableTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
+                tableGrandTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
-                tableTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
+                tableGrandTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
-                tableTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
+                tableGrandTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
         }
 
         @SuppressWarnings("unchecked")
@@ -717,10 +728,9 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 Platform.runLater(() -> {
-                                        getTableRows(currentDate);
-                                        calculateAllTreeTotals();
-                                        UIData.updateTableTotal(tables);
+                                        updateTables();
                                         updateMainDateLabel(currentDate);
+                                        updateRunningTotalsFromMonth(currentDate);
                                 });
                         }
 
@@ -801,8 +811,7 @@ public class PrimaryController {
         private void updateUIWithData(DatabaseDataResult data) {
                 // Update all UI components
                 updateTreeTables(data);
-                updateTotalTables(data);
-                UIData.updateTableTotal(tables);
+                UIData.updateTableGrandTotal(totalTablesList);
         }
 
         private void updateTreeTables(DatabaseDataResult data) {
@@ -815,54 +824,6 @@ public class PrimaryController {
                 table.setRoot(root);
                 if (root != null) {
                         root.setExpanded(true);
-                }
-        }
-
-        private void updateTotalTables(DatabaseDataResult data) {
-                tableIncomeTotal.setItems(FXCollections.observableArrayList(data.getIncomeTotals()));
-                tableMandatoryTotal.setItems(FXCollections.observableArrayList(data.getMandatoryTotals()));
-                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(data.getDiscretionaryTotals()));
-        }
-
-        /**
-         * Loads table data for the specified date.
-         */
-        public void getTableRows(LocalDate date) {
-                try {
-                        // Load income data
-                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
-                        tableIncome.setRoot(incomeRoot);
-                        if (incomeRoot != null) {
-                                incomeRoot.setExpanded(true);
-                                Util.calculateTreeTotals(incomeRoot);
-                        }
-                        tableIncomeTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, date)));
-
-                        // Load mandatory data
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
-                        tableMandatory.setRoot(mandatoryRoot);
-                        if (mandatoryRoot != null) {
-                                mandatoryRoot.setExpanded(true);
-                                Util.calculateTreeTotals(mandatoryRoot);
-                        }
-                        tableMandatoryTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, date)));
-
-                        // Load discretionary data
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
-                        tableDiscretionary.setRoot(discretionaryRoot);
-                        if (discretionaryRoot != null) {
-                                discretionaryRoot.setExpanded(true);
-                                Util.calculateTreeTotals(discretionaryRoot);
-                        }
-                        tableDiscretionaryTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
-
-                }
-                catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Error loading table data for date: " + date, e);
-                        showErrorAlert("Data Loading Error", "Failed to load table data for the selected date.");
                 }
         }
 
@@ -887,7 +848,8 @@ public class PrimaryController {
                                         @Override
                                         protected void succeeded() {
                                                 Platform.runLater(() -> {
-                                                        readFromDatabase(workingDate);
+                                                        // readFromDatabase(workingDate);
+                                                        updateTables();
                                                         resetImportState();
                                                         // WriteData.updateAllRunningTotals(workingDate);
                                                 });
@@ -1093,7 +1055,7 @@ public class PrimaryController {
                         Util.calculateTreeTotals(treeTable.getRoot());
                         totalTable.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(dbType, item.getDate())));
-                        UIData.updateTableTotal(tables);
+                        UIData.updateTableGrandTotal(totalTablesList);
                         treeTable.refresh();
                         treeTable.requestFocus();
                 }, "Error updating budget for item: " + item.getCategory());
@@ -1136,8 +1098,9 @@ public class PrimaryController {
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
 
-                getTableRows(workingDate);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(workingDate);
+                readFromDatabase(workingDate);
+                UIData.updateTableGrandTotal(totalTablesList);
         }
 
         private void refreshDataAfterEdit() {
@@ -1150,10 +1113,11 @@ public class PrimaryController {
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
 
-                getTableRows(workingDate);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(workingDate);
+                readFromDatabase(workingDate);
+                UIData.updateTableGrandTotal(totalTablesList);
 
-             //   updateRunningTotalsAndShowWarnings();
+                // updateRunningTotalsAndShowWarnings();
         }
 
         private void refreshDataForDate(LocalDate date) {
@@ -1162,8 +1126,9 @@ public class PrimaryController {
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
 
-                getTableRows(date);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(date);
+                readFromDatabase(date);
+                UIData.updateTableGrandTotal(totalTablesList);
                 tableIncome.refresh();
         }
 
@@ -1271,7 +1236,7 @@ public class PrimaryController {
         }
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
-                //TODO: possible removal - showConfirmationAlert()
+                // TODO: possible removal - showConfirmationAlert()
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(title);
                 alert.setHeaderText(null);
@@ -1286,8 +1251,8 @@ public class PrimaryController {
 
         // ========================= GETTERS =========================
 
-        public ArrayList<TableView<LineItem>> getTables() {
-                return tables;
+        public ArrayList<TableView<LineItem>> getTotalTablesList() {
+                return totalTablesList;
         }
 
         // ========================= CLEANUP =========================
@@ -1306,9 +1271,9 @@ public class PrimaryController {
         // Add to your PrimaryController class
 
         /**
-         * Updates running totals for the current month and all following months.
-         * This cascades changes through all future months since each month's 
-         * running total depends on the previous month's ending balance.
+         * Updates running totals for the current month and all following
+         * months. This cascades changes through all future months since each
+         * month's running total depends on the previous month's ending balance.
          * 
          * @param startDate The month to start updating from (current month)
          * @return true if all updates were successful, false otherwise
@@ -1323,40 +1288,43 @@ public class PrimaryController {
                         return false;
                 }
 
-                // Get all months that need updating (current month and all future months)
+                // Get all months that need updating (current month and all
+                // future months)
                 List<LocalDate> monthsToUpdate = getMonthsToUpdate(startDate);
-                
+
                 if (monthsToUpdate.isEmpty()) {
                         LOGGER.info("No months found to update from " + Util.formatDateForDatabase(startDate));
                         return true;
                 }
 
-                LOGGER.info("Starting cascading running totals update from " + Util.formatDateForDatabase(startDate) 
+                LOGGER.info("Starting cascading running totals update from " + Util.formatDateForDatabase(startDate)
                                 + " for " + monthsToUpdate.size() + " months");
 
                 int totalUpdatedCategories = 0;
                 int totalWarnings = 0;
-                
+
                 // Process each month in chronological order
                 for (LocalDate monthDate : monthsToUpdate) {
                         LOGGER.info("Updating running totals for month: " + Util.formatDateForDatabase(monthDate));
-                        
+
                         MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
-                        
+
                         if (!result.isSuccess()) {
-                                LOGGER.severe("Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
+                                LOGGER.severe("Failed to update running totals for month: "
+                                                + Util.formatDateForDatabase(monthDate));
                                 return false;
                         }
-                        
+
                         totalUpdatedCategories += result.getUpdatedCount();
                         totalWarnings += result.getWarningCount();
-                        
-                        LOGGER.fine("Month " + Util.formatDateForDatabase(monthDate) + " - Updated: " 
-                                   + result.getUpdatedCount() + " categories, Warnings: " + result.getWarningCount());
+
+                        LOGGER.fine("Month " + Util.formatDateForDatabase(monthDate) + " - Updated: "
+                                        + result.getUpdatedCount() + " categories, Warnings: "
+                                        + result.getWarningCount());
                 }
 
-                LOGGER.info("Cascading running totals update completed. Total categories updated: " 
-                            + totalUpdatedCategories + ", Total warnings: " + totalWarnings);
+                LOGGER.info("Cascading running totals update completed. Total categories updated: "
+                                + totalUpdatedCategories + ", Total warnings: " + totalWarnings);
 
                 return true;
         }
@@ -1367,15 +1335,13 @@ public class PrimaryController {
         private static List<LocalDate> getMonthsToUpdate(LocalDate startDate) {
                 List<LocalDate> months = new ArrayList<>();
                 String startDateStr = Util.formatDateForDatabase(startDate);
-                
-                String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " +
-                               "FROM actual " + 
-                               "WHERE STRFTIME('%Y-%m', date) >= ? " +
-                               "ORDER BY month_date";
-                
+
+                String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " + "FROM actual "
+                                + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
+
                 try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
                         stmt.setString(1, startDateStr);
-                        
+
                         try (ResultSet rs = stmt.executeQuery()) {
                                 while (rs.next()) {
                                         String monthStr = rs.getString("month_date");
@@ -1387,12 +1353,13 @@ public class PrimaryController {
                 catch (SQLException e) {
                         LOGGER.log(Level.SEVERE, "Error getting months to update from " + startDateStr, e);
                 }
-                
+
                 return months;
         }
 
         /**
-         * Updates running totals for a single month and returns detailed results.
+         * Updates running totals for a single month and returns detailed
+         * results.
          */
         private static MonthUpdateResult updateRunningTotalsForSingleMonth(LocalDate monthDate) {
                 String dateString = Util.formatDateForDatabase(monthDate);
@@ -1400,7 +1367,8 @@ public class PrimaryController {
                 int warningCount = 0;
                 List<String> warnings = new ArrayList<>();
 
-                try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_LINE_ITEMS_FOR_MONTH)) {
+                try (PreparedStatement stmt = DataSource.getConn()
+                                .prepareStatement(DB.ACTUAL_GET_LINE_ITEMS_FOR_MONTH)) {
                         stmt.setString(1, dateString);
 
                         try (ResultSet rs = stmt.executeQuery()) {
@@ -1411,7 +1379,8 @@ public class PrimaryController {
                                         Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
                                         String categoryName = rs.getString("category");
 
-                                        RunningTotal result = WriteData.updateRunningTotal(categoryId, monthDate, budget, actual, maxAmount);
+                                        RunningTotal result = WriteData.updateRunningTotal(categoryId, monthDate,
+                                                        budget, actual, maxAmount);
 
                                         if (result != null) {
                                                 updatedCount++;
@@ -1419,43 +1388,49 @@ public class PrimaryController {
                                                 // Check for warnings
                                                 if (result.needsWarning()) {
                                                         warningCount++;
-                                                        String warningMsg = "NEGATIVE RUNNING TOTAL: Category '" + categoryName
-                                                                        + "' has a negative running total of " + result.getRunningTotal()
-                                                                        + " in month " + dateString;
+                                                        String warningMsg = "NEGATIVE RUNNING TOTAL: Category '"
+                                                                        + categoryName
+                                                                        + "' has a negative running total of "
+                                                                        + result.getRunningTotal() + " in month "
+                                                                        + dateString;
                                                         warnings.add(warningMsg);
                                                         LOGGER.warning(warningMsg);
                                                 }
 
                                                 if (result.isOverMaximum()) {
                                                         warningCount++;
-                                                        String warningMsg = "OVER MAXIMUM: Category '" + categoryName + "' running total ("
-                                                                        + result.getRunningTotal() + ") exceeds maximum (" + result.getMaximumAmount()
-                                                                        + ") in month " + dateString;
+                                                        String warningMsg = "OVER MAXIMUM: Category '" + categoryName
+                                                                        + "' running total (" + result.getRunningTotal()
+                                                                        + ") exceeds maximum ("
+                                                                        + result.getMaximumAmount() + ") in month "
+                                                                        + dateString;
                                                         warnings.add(warningMsg);
                                                         LOGGER.warning(warningMsg);
                                                 }
                                         }
                                 }
                         }
-                        
+
                         return new MonthUpdateResult(true, updatedCount, warningCount, warnings);
-                        
-                } catch (SQLException e) {
+
+                }
+                catch (SQLException e) {
                         LOGGER.log(Level.SEVERE, "Error updating running totals for month " + dateString, e);
                         return new MonthUpdateResult(false, updatedCount, warningCount, warnings);
                 }
         }
 
         /**
-         * Updates running totals from current month forward when actual amounts change.
-         * This is the main entry point that should be called after any actual amount updates.
+         * Updates running totals from current month forward when actual amounts
+         * change. This is the main entry point that should be called after any
+         * actual amount updates.
          */
         public static boolean cascadeRunningTotalsUpdate(LocalDate changedMonth) {
                 if (changedMonth == null) {
                         throw new IllegalArgumentException("Changed month cannot be null");
                 }
 
-                LOGGER.info("Cascading running totals update triggered by changes in: " 
+                LOGGER.info("Cascading running totals update triggered by changes in: "
                                 + Util.formatDateForDatabase(changedMonth));
 
                 return WriteData.performTransactionSafeBatch(() -> {
@@ -1470,8 +1445,10 @@ public class PrimaryController {
          * This is the existing method renamed for clarity.
          */
         public static boolean updateCurrentMonthRunningTotals(LocalDate monthDate) {
-                //TODO : maybe remove this method, 'updateCurrentMonthRunningTotals()' as it is not used in the current codebase
-                //return updateAllRunningTotals(monthDate);
+                // TODO : maybe remove this method,
+                // 'updateCurrentMonthRunningTotals()' as it is not used in the
+                // current codebase
+                // return updateAllRunningTotals(monthDate);
                 return true; // Placeholder for future implementation
         }
 
@@ -1491,14 +1468,26 @@ public class PrimaryController {
                         this.warnings = new ArrayList<>(warnings);
                 }
 
-                public boolean isSuccess() { return success; }
-                public int getUpdatedCount() { return updatedCount; }
-                public int getWarningCount() { return warningCount; }
-                public List<String> getWarnings() { return warnings; }
+                public boolean isSuccess() {
+                        return success;
+                }
+
+                public int getUpdatedCount() {
+                        return updatedCount;
+                }
+
+                public int getWarningCount() {
+                        return warningCount;
+                }
+
+                public List<String> getWarnings() {
+                        return warnings;
+                }
         }
 
         /**
-         * Convenience method to update running totals from current system month forward.
+         * Convenience method to update running totals from current system month
+         * forward.
          */
         public static boolean updateRunningTotalsFromNow() {
                 LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
@@ -1512,30 +1501,28 @@ public class PrimaryController {
                 if (startMonth == null || endMonth == null) {
                         throw new IllegalArgumentException("Start and end months cannot be null");
                 }
-                
+
                 if (startMonth.isAfter(endMonth)) {
                         throw new IllegalArgumentException("Start month cannot be after end month");
                 }
 
-                LOGGER.info("Updating running totals for date range: " 
-                                + Util.formatDateForDatabase(startMonth) + " to " 
+                LOGGER.info("Updating running totals for date range: " + Util.formatDateForDatabase(startMonth) + " to "
                                 + Util.formatDateForDatabase(endMonth));
 
                 // Get months in the specified range
                 List<LocalDate> monthsInRange = new ArrayList<>();
                 LocalDate current = startMonth.withDayOfMonth(1);
                 LocalDate end = endMonth.withDayOfMonth(1);
-                
+
                 while (!current.isAfter(end)) {
                         monthsInRange.add(current);
                         current = current.plusMonths(1);
                 }
-                
+
                 // Filter to only include months that have actual data
-                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startMonth)
-                    .stream()
-                    .filter(month -> !month.isAfter(endMonth))
-                    .collect(java.util.stream.Collectors.toList());
+                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startMonth).stream()
+                                .filter(month -> !month.isAfter(endMonth))
+                                .collect(java.util.stream.Collectors.toList());
 
                 if (monthsToUpdate.isEmpty()) {
                         LOGGER.info("No months with data found in specified range");
@@ -1546,8 +1533,8 @@ public class PrimaryController {
                         for (LocalDate monthDate : monthsToUpdate) {
                                 MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
                                 if (!result.isSuccess()) {
-                                        throw new RuntimeException("Failed to update running totals for month: " 
-                                                                 + Util.formatDateForDatabase(monthDate));
+                                        throw new RuntimeException("Failed to update running totals for month: "
+                                                        + Util.formatDateForDatabase(monthDate));
                                 }
                         }
                 });
@@ -1557,45 +1544,33 @@ public class PrimaryController {
 
         // In PrimaryController, call this after any actual amount updates
         private void handleActualAmountUpdate(LocalDate monthChanged) {
-                //TODO: possible removal - handleActualAmountUpdate()
-                executeAsyncTask(
-                                () -> cascadeRunningTotalsUpdate(monthChanged),
-                                () -> {
-                                        // Refresh UI after running totals update
-                                        readFromDatabase(getWorkingDate());
-                                       //updateRunningTotalWarnings();
-                                },
-                                "Error updating running totals"
-                );
+                // TODO: possible removal - handleActualAmountUpdate()
+                executeAsyncTask(() -> cascadeRunningTotalsUpdate(monthChanged), () -> {
+                        // Refresh UI after running totals update
+                        readFromDatabase(getWorkingDate());
+                        // updateRunningTotalWarnings();
+                }, "Error updating running totals");
         }
 
         /**
          * Allows user to manually modify a running total.
          */
         public void modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal) {
-                executeAsyncTask(
-                                () -> WriteData.setModifiedRunningTotal(categoryId, monthDate, newTotal),
-                                () -> {
-                                        // Refresh UI after modification
-                                        //updateRunningTotalWarnings();
-                                        readFromDatabase(getWorkingDate());
-                                },
-                                "Error modifying running total"
-                );
+                executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, newTotal), () -> {
+                        // Refresh UI after modification
+                        // updateRunningTotalWarnings();
+                        readFromDatabase(getWorkingDate());
+                }, "Error modifying running total");
         }
 
         /**
          * Clears manual modification for a running total.
          */
         public void clearRunningTotalModification(int categoryId, LocalDate monthDate) {
-                executeAsyncTask(
-                                () -> WriteData.setModifiedRunningTotal(categoryId, monthDate, null),
-                                () -> {
-                                        // Refresh UI after clearing modification
-                                        //updateRunningTotalWarnings();
-                                        readFromDatabase(getWorkingDate());
-                                },
-                                "Error clearing running total modification"
-                );
+                executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, null), () -> {
+                        // Refresh UI after clearing modification
+                        // updateRunningTotalWarnings();
+                        readFromDatabase(getWorkingDate());
+                }, "Error clearing running total modification");
         }
 }
