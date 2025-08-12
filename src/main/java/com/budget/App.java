@@ -7,7 +7,6 @@
  */
 package com.budget;
 
-import com.budget.controllers.PrimaryController;
 import com.budget.dataModal.DataSource;
 
 import org.slf4j.Logger;
@@ -86,7 +85,17 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+            // Initialize global logging settings based on environment
+            initializeLogging();
+            
             logger.info("Starting Budget application UI...");
+
+            System.out.println(GlobalVariables.getLoggingLevel());
+            GlobalVariables.setWarnLogging();
+
+            logger.info ("*********************** this is the test");
+            logger.warn("********************This is a warning message for testing purposes");
+            logger.error("********************This is an error message for testing purposes");
  
             // Configure primary stage
             configurePrimaryStage(primaryStage);
@@ -99,6 +108,12 @@ public class App extends Application {
             primaryStage.show();
 
             logger.info("Budget application started successfully");
+            
+            // Print debug info if in debug mode
+            if (GlobalVariables.isDebugMode()) {
+                logger.debug("Application startup completed in debug mode");
+                GlobalVariables.printCurrentSettings();
+            }
 
         }
         catch (Exception e) {
@@ -287,5 +302,38 @@ public class App extends Application {
      */
     public static boolean isDevelopmentMode() {
         return "development".equals(System.getProperty("app.environment"));
+    }
+    
+    /**
+     * Initialize logging settings based on environment and system properties.
+     * Can be controlled via system properties or environment variables.
+     */
+    private void initializeLogging() {
+        try {
+            // Check for system property to set log level
+            String logLevel = System.getProperty("app.log.level");
+            
+            if (logLevel != null && !logLevel.trim().isEmpty()) {
+                // Use system property if provided
+                GlobalVariables.setLoggingLevel(logLevel);
+                logger.info("Logging level set from system property: " + logLevel);
+            } else if (isDevelopmentMode()) {
+                // Development mode - enable debug logging
+                GlobalVariables.enableDebugLogging();
+                logger.info("Development mode detected - Debug logging enabled");
+            } else {
+                // Production mode - use INFO level
+                GlobalVariables.setInfoLogging();
+                logger.info("Production mode - Info logging enabled");
+            }
+            
+            // Log the current settings
+            logger.info("Application logging initialized - Level: " + GlobalVariables.getLoggingLevel());
+            
+        } catch (Exception e) {
+            logger.warn("Failed to initialize custom logging settings, using defaults: " + e.getMessage());
+            // Fallback to safe defaults
+            GlobalVariables.setInfoLogging();
+        }
     }
 }

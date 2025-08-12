@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.GlobalVariables;
 import com.budget.Util;
 import com.budget.dataModal.DB;
 import com.budget.dataModal.DataSource;
@@ -219,7 +220,9 @@ public class PrimaryController {
         @FXML
         public void initialize() {
                 try {
-                        LOGGER.info("Initializing PrimaryController");
+                        // Initialize global logging settings first
+                        GlobalVariables.enableDebugLogging();
+                        LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
                         // Initialize controller extension
                         @SuppressWarnings("unused")
@@ -258,7 +261,19 @@ public class PrimaryController {
                         // Setup shutdown hook for cleanup
                         setupShutdownHook();
 
+                        // Setup keyboard shortcuts for debugging
+                        setupKeyboardShortcuts();
+
                         LOGGER.info("PrimaryController initialization completed successfully");
+                        
+                        // Debug information when in debug mode
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Initialization details:");
+                                LOGGER.fine("- Tables initialized: Income, Mandatory, Discretionary");
+                                LOGGER.fine("- Context menus setup completed");
+                                LOGGER.fine("- Selection listeners active");
+                                GlobalVariables.printCurrentSettings();
+                        }
 
                 }
                 catch (Exception e) {
@@ -275,8 +290,14 @@ public class PrimaryController {
         @FXML
         void button_EditCat(ActionEvent event) {
                 try {
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Edit Category button clicked");
+                        }
                         openEditCategoryWindow(event);
                         refreshDataAfterEdit();
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Edit Category window closed, data refreshed");
+                        }
                 }
                 catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Error opening edit category window", e);
@@ -354,6 +375,73 @@ public class PrimaryController {
                         LOGGER.info("JVM shutdown detected - cleaning up PrimaryController");
                         cleanup();
                 }));
+        }
+
+        /**
+         * Setup keyboard shortcuts for debugging and logging control
+         */
+        private void setupKeyboardShortcuts() {
+                Platform.runLater(() -> {
+                        Stage stage = (Stage) btn_Update.getScene().getWindow();
+                        if (stage != null && stage.getScene() != null) {
+                                stage.getScene().setOnKeyPressed(event -> {
+                                        // Ctrl+Shift+D to toggle debug logging
+                                        if (event.isControlDown() && event.isShiftDown()) {
+                                                switch (event.getCode()) {
+                                                case D:
+                                                        toggleDebugLogging();
+                                                        event.consume();
+                                                        break;
+                                                case T:
+                                                        // Ctrl+Shift+T to enable trace logging
+                                                        GlobalVariables.enableTraceLogging();
+                                                        showLoggingStatusMessage("Trace logging enabled");
+                                                        event.consume();
+                                                        break;
+                                                case I:
+                                                        // Ctrl+Shift+I to set info logging
+                                                        GlobalVariables.setInfoLogging();
+                                                        showLoggingStatusMessage("Info logging enabled");
+                                                        event.consume();
+                                                        break;
+                                                case S:
+                                                        // Ctrl+Shift+S to show current settings
+                                                        GlobalVariables.printCurrentSettings();
+                                                        event.consume();
+                                                        break;
+                                                default:
+                                                        break;
+                                                }
+                                        }
+                                });
+                        }
+                });
+        }
+
+        /**
+         * Toggle debug logging on/off
+         */
+        private void toggleDebugLogging() {
+                if (GlobalVariables.isDebugMode()) {
+                        GlobalVariables.setInfoLogging();
+                        showLoggingStatusMessage("Debug logging disabled - Info level active");
+                        LOGGER.info("Debug logging disabled via keyboard shortcut");
+                } else {
+                        GlobalVariables.enableDebugLogging();
+                        showLoggingStatusMessage("Debug logging enabled");
+                        LOGGER.fine("Debug logging enabled via keyboard shortcut");
+                }
+        }
+
+        /**
+         * Show a brief status message about logging changes
+         */
+        private void showLoggingStatusMessage(String message) {
+                System.out.println("LOGGING: " + message + " - Current level: " + GlobalVariables.getLoggingLevel());
+                
+                // You could also show this in a status bar or temporary tooltip if you have one
+                // For now, we'll just print to console and log it
+                LOGGER.info("Logging status: " + message);
         }
 
         private void applyStyles() {
