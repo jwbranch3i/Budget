@@ -306,8 +306,6 @@ public class EditItemController {
         populateUIFromItem();
         hasUnsavedChanges = false;
         updateSaveButtonState();
-
-        LOGGER.info("Item set for editing: " + item.getCategory() + " (ID: " + item.getId() + ")");
     }
 
     private void populateUIFromItem() {
@@ -412,8 +410,7 @@ public class EditItemController {
 
     private void handleSaveSuccess() {
         hasUnsavedChanges = false;
-        LOGGER.info("Item saved successfully: " + item.getCategory());
-
+    
         // Show brief success message
         showInfoAlert("Success", SAVE_SUCCESS_MESSAGE);
 

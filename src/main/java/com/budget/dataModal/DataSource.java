@@ -72,14 +72,12 @@ public class DataSource {
     public boolean open() {
         try {
             if (conn != null && !conn.isClosed()) {
-                LOGGER.info("Database connection already exists");
                 return true;
             }
             
             conn = DriverManager.getConnection(CONNECTION_STRING);
             conn.setAutoCommit(true); // Explicitly set auto-commit mode
             
-            LOGGER.info("Successfully connected to database: " + DB_NAME);
             return true;
             
         } catch (SQLException e) {
@@ -96,7 +94,6 @@ public class DataSource {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
                 conn = null;
-                LOGGER.info("Database connection closed successfully");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Could not close database connection", e);
@@ -150,12 +147,6 @@ public class DataSource {
             
             int rowsAffected = ps.executeUpdate();
             boolean success = rowsAffected > 0;
-            
-            if (success) {
-                LOGGER.info("Successfully inserted category: " + item.getCategory());
-            } else {
-                LOGGER.warning("No rows affected when inserting category: " + item.getCategory());
-            }
             
             return success;
             
@@ -213,11 +204,9 @@ public class DataSource {
         }
         
         try (Statement statement = conn.createStatement()) {
-            int rowsDeleted = statement.executeUpdate(DB.DELETE_ALL_CATEGORY);
+            statement.executeUpdate(DB.DELETE_ALL_CATEGORY);
             
-            LOGGER.info("Deleted " + rowsDeleted + " category records");
             return true;
-            
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error deleting all category records", e);
             return false;
@@ -315,29 +304,6 @@ public class DataSource {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error executing row count query: " + query, e);
             return -1;
-        }
-    }
-    
-    /**
-     * Tests the database connection by executing a simple query.
-     * 
-     * @return true if the connection test was successful, false otherwise
-     */
-    public boolean testConnection() {
-        if (!ensureConnection()) {
-            return false;
-        }
-        
-        try (Statement statement = conn.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT 1")) {
-            
-            boolean hasResult = rs.next();
-            LOGGER.info("Database connection test: " + (hasResult ? "PASSED" : "FAILED"));
-            return hasResult;
-            
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Database connection test failed", e);
-            return false;
         }
     }
 }

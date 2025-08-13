@@ -221,7 +221,7 @@ public class PrimaryController {
         public void initialize() {
                 try {
                         // Initialize global logging settings first
-                        GlobalVariables.enableDebugLogging();
+                       //GlobalVariables.enableDebugLogging();
                         LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
                         // Initialize controller extension
@@ -263,17 +263,6 @@ public class PrimaryController {
 
                         // Setup keyboard shortcuts for debugging
                         setupKeyboardShortcuts();
-
-                        LOGGER.info("PrimaryController initialization completed successfully");
-                        
-                        // Debug information when in debug mode
-                        if (GlobalVariables.isDebugMode()) {
-                                LOGGER.fine("Initialization details:");
-                                LOGGER.fine("- Tables initialized: Income, Mandatory, Discretionary");
-                                LOGGER.fine("- Context menus setup completed");
-                                LOGGER.fine("- Selection listeners active");
-                                GlobalVariables.printCurrentSettings();
-                        }
 
                 }
                 catch (Exception e) {

@@ -66,8 +66,6 @@ public class App extends Application {
                 throw new RuntimeException(DB_INIT_ERROR);
             }
 
-            logger.info("Database connection established successfully");
-
         }
         catch (Exception e) {
             logger.error("Failed to initialize application", e);
@@ -87,16 +85,14 @@ public class App extends Application {
         try {
             // Initialize global logging settings based on environment
             initializeLogging();
-            
+
             logger.info("Starting Budget application UI...");
 
-            System.out.println(GlobalVariables.getLoggingLevel());
-            GlobalVariables.setWarnLogging();
+            // GlobalVariables.enableDebugLogging();
+            GlobalVariables.setInfoLogging();
+            // GlobalVariables.setWarnLogging();
+            // GlobalVariables.setErrorLogging();
 
-            logger.info ("*********************** this is the test");
-            logger.warn("********************This is a warning message for testing purposes");
-            logger.error("********************This is an error message for testing purposes");
- 
             // Configure primary stage
             configurePrimaryStage(primaryStage);
 
@@ -107,8 +103,6 @@ public class App extends Application {
             primaryStage.setScene(scene);
             primaryStage.show();
 
-            logger.info("Budget application started successfully");
-            
             // Print debug info if in debug mode
             if (GlobalVariables.isDebugMode()) {
                 logger.debug("Application startup completed in debug mode");
@@ -132,11 +126,9 @@ public class App extends Application {
     @Override
     public void stop() throws Exception {
         try {
-            logger.info("Shutting down Budget application...");
-
             // Close database connection
             DataSource.getInstance().close();
-            
+
             logger.info("Budget application shutdown completed");
 
         }
@@ -260,9 +252,6 @@ public class App extends Application {
         try {
             logger.info("Budget application starting...");
 
-            // Set system properties if needed
-            configureSystemProperties();
-
             // Launch JavaFX application
             launch(args);
 
@@ -277,22 +266,6 @@ public class App extends Application {
         }
     }
 
-    /**
-     * Configures system properties for the application.
-     */
-    private static void configureSystemProperties() {
-        // Set JavaFX properties if needed
-        // System.setProperty("javafx.preloader",
-        // "com.budget.SplashScreenPreloader");
-        // System.setProperty("prism.lcdtext", "false"); // For better text
-        // rendering
-
-        // Log system information
-        logger.debug("Java version: " + System.getProperty("java.version"));
-        logger.debug("JavaFX version: " + System.getProperty("javafx.version"));
-        logger.debug("Operating system: " + System.getProperty("os.name"));
-    }
-
     // ========================= UTILITY METHODS =========================
 
     /**
@@ -303,7 +276,7 @@ public class App extends Application {
     public static boolean isDevelopmentMode() {
         return "development".equals(System.getProperty("app.environment"));
     }
-    
+
     /**
      * Initialize logging settings based on environment and system properties.
      * Can be controlled via system properties or environment variables.
@@ -312,25 +285,28 @@ public class App extends Application {
         try {
             // Check for system property to set log level
             String logLevel = System.getProperty("app.log.level");
-            
+
             if (logLevel != null && !logLevel.trim().isEmpty()) {
                 // Use system property if provided
                 GlobalVariables.setLoggingLevel(logLevel);
                 logger.info("Logging level set from system property: " + logLevel);
-            } else if (isDevelopmentMode()) {
+            }
+            else if (isDevelopmentMode()) {
                 // Development mode - enable debug logging
                 GlobalVariables.enableDebugLogging();
                 logger.info("Development mode detected - Debug logging enabled");
-            } else {
+            }
+            else {
                 // Production mode - use INFO level
                 GlobalVariables.setInfoLogging();
                 logger.info("Production mode - Info logging enabled");
             }
-            
+
             // Log the current settings
             logger.info("Application logging initialized - Level: " + GlobalVariables.getLoggingLevel());
-            
-        } catch (Exception e) {
+
+        }
+        catch (Exception e) {
             logger.warn("Failed to initialize custom logging settings, using defaults: " + e.getMessage());
             // Fallback to safe defaults
             GlobalVariables.setInfoLogging();

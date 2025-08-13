@@ -82,8 +82,6 @@ public class SecondaryController {
             setupTableColumns();
             loadCategoriesData();
             
-            LOGGER.info("SecondaryController initialization completed successfully");
-            
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during SecondaryController initialization", e);
             showErrorAlert("Initialization Error", "Failed to initialize the category editor properly.");
@@ -125,9 +123,7 @@ public class SecondaryController {
             // Close the window
             Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
             stage.close();
-            
-            LOGGER.info("Category editing completed");
-            
+             
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error finishing edit", e);
             showErrorAlert("Save Error", "Error occurred while saving changes.");
