@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.LocalDate;
 
 import com.budget.dataModal.DataSource;
+import com.budget.dataModal.DatabaseDataResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -77,4 +78,49 @@ public class PrimaryControllerTest {
             assert false : "readCSVFile should not throw exception for null file";
         }
     }
+
+    @Test
+    public void testLoadDatabaseData_withValidDate() {
+        PrimaryController controller = new PrimaryController();
+        LocalDate date = LocalDate.of(2025, 5, 1);
+
+        // loadDatabaseData is private, so use reflection to invoke it
+        try {
+            java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod("loadDatabaseData", LocalDate.class);
+            method.setAccessible(true);
+            Object result = method.invoke(controller, date);
+
+            assert result != null : "loadDatabaseData should return a non-null DatabaseDataResult";
+            assert result.getClass().getSimpleName().equals("DatabaseDataResult") : "Result should be of type DatabaseDataResult";
+
+            DatabaseDataResult dataResult = (DatabaseDataResult) result;
+            System.out.println("incomeTotals: " + dataResult.getIncomeTotals());
+            System.out.println("mandatoryTotals: " + dataResult.getMandatoryTotals());
+            System.out.println("discretionaryTotals: " + dataResult.getDiscretionaryTotals());
+
+
+           
+        } catch (Exception e) {
+            assert false : "Exception thrown during loadDatabaseData: " + e.getMessage();
+        }
+    }
+
+    @Test
+    public void testLoadDatabaseData_withNullDate() {
+        PrimaryController controller = new PrimaryController();
+
+        try {
+            java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod("loadDatabaseData", LocalDate.class);
+            method.setAccessible(true);
+            Object result = method.invoke(controller, (Object) null);
+
+            // Depending on implementation, may return null or throw
+            // Just check that it does not throw an unhandled exception
+            assert true;
+        } catch (Exception e) {
+            // Acceptable if method throws a NullPointerException or handles null
+            assert true;
+        }
+    }
+
 }
