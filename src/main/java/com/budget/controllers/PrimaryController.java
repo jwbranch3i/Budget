@@ -221,7 +221,7 @@ public class PrimaryController {
         public void initialize() {
                 try {
                         // Initialize global logging settings first
-                        // GlobalVariables.enableDebugLogging();
+                        GlobalVariables.enableDebugLogging();
                         LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
                         // Initialize controller extension
@@ -244,7 +244,7 @@ public class PrimaryController {
 
                         // Setup table headers and rows
                         setupTableHeaders();
-                      //  setupTotalTableRow();
+                        setupTotalTableRow();
 
                         // Setup table columns
                         setupTableColumns();
@@ -263,6 +263,17 @@ public class PrimaryController {
 
                         // Setup keyboard shortcuts for debugging
                         setupKeyboardShortcuts();
+
+                        LOGGER.info("PrimaryController initialization completed successfully");
+                        
+                        // Debug information when in debug mode
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Initialization details:");
+                                LOGGER.fine("- Tables initialized: Income, Mandatory, Discretionary");
+                                LOGGER.fine("- Context menus setup completed");
+                                LOGGER.fine("- Selection listeners active");
+                                GlobalVariables.printCurrentSettings();
+                        }
 
                 }
                 catch (Exception e) {
@@ -346,7 +357,7 @@ public class PrimaryController {
 
         // ========================= SETUP AND SHUTDOWN METHODS
         // =========================
-
+        
         private void setupShutdownHook() {
                 // Add shutdown hook to current stage
                 Platform.runLater(() -> {
@@ -382,22 +393,19 @@ public class PrimaryController {
                                                         event.consume();
                                                         break;
                                                 case T:
-                                                        // Ctrl+Shift+T to
-                                                        // enable trace logging
+                                                        // Ctrl+Shift+T to enable trace logging
                                                         GlobalVariables.enableTraceLogging();
                                                         showLoggingStatusMessage("Trace logging enabled");
                                                         event.consume();
                                                         break;
                                                 case I:
-                                                        // Ctrl+Shift+I to set
-                                                        // info logging
+                                                        // Ctrl+Shift+I to set info logging
                                                         GlobalVariables.setInfoLogging();
                                                         showLoggingStatusMessage("Info logging enabled");
                                                         event.consume();
                                                         break;
                                                 case S:
-                                                        // Ctrl+Shift+S to show
-                                                        // current settings
+                                                        // Ctrl+Shift+S to show current settings
                                                         GlobalVariables.printCurrentSettings();
                                                         event.consume();
                                                         break;
@@ -418,8 +426,7 @@ public class PrimaryController {
                         GlobalVariables.setInfoLogging();
                         showLoggingStatusMessage("Debug logging disabled - Info level active");
                         LOGGER.info("Debug logging disabled via keyboard shortcut");
-                }
-                else {
+                } else {
                         GlobalVariables.enableDebugLogging();
                         showLoggingStatusMessage("Debug logging enabled");
                         LOGGER.fine("Debug logging enabled via keyboard shortcut");
@@ -431,9 +438,8 @@ public class PrimaryController {
          */
         private void showLoggingStatusMessage(String message) {
                 System.out.println("LOGGING: " + message + " - Current level: " + GlobalVariables.getLoggingLevel());
-
-                // You could also show this in a status bar or temporary tooltip
-                // if you have one
+                
+                // You could also show this in a status bar or temporary tooltip if you have one
                 // For now, we'll just print to console and log it
                 LOGGER.info("Logging status: " + message);
         }
@@ -548,19 +554,19 @@ public class PrimaryController {
                 tableDiscretionary.setShowRoot(false);
         }
 
-        // private void setupTotalTableRow() {
-        //         addTotalRowToTable(tableIncomeTotal, 1.0, 1.0);
-        //         addTotalRowToTable(tableMandatoryTotal, 0.0, 0.0);
-        //         addTotalRowToTable(tableDiscretionaryTotal, 0.0, 0.0);
-        // }
+        private void setupTotalTableRow() {
+                addTotalRowToTable(tableIncomeTotal, 1.0, 1.0);
+                addTotalRowToTable(tableMandatoryTotal, 0.0, 0.0);
+                addTotalRowToTable(tableDiscretionaryTotal, 0.0, 0.0);
+        }
 
-        // private void addTotalRowToTable(TableView<LineItem> table, double actual, double budget) {
-        //         LineItem totalItem = new LineItem();
-        //         totalItem.setCategory(TOTAL_LABEL);
-        //         totalItem.setActual(actual);
-        //         totalItem.setBudget(budget);
-        //         table.getItems().add(totalItem);
-        // }
+        private void addTotalRowToTable(TableView<LineItem> table, double actual, double budget) {
+                LineItem totalItem = new LineItem();
+                totalItem.setCategory(TOTAL_LABEL);
+                totalItem.setActual(actual);
+                totalItem.setBudget(budget);
+                table.getItems().add(totalItem);
+        }
 
         private void setupSelectionListeners() {
                 setupClearSelectionListener(tableIncome, tableMandatory, tableDiscretionary);
@@ -835,19 +841,7 @@ public class PrimaryController {
 
                 CompletableFuture.supplyAsync(() -> loadDatabaseData(date), executorService).thenAcceptAsync(data -> {
                         Platform.runLater(() -> {
-                                setTreeTableRoot(tableIncome, data.getIncomeRoot());
-                                setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
-                                setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
-
-                                tableIncomeTotal.getItems().clear();
-                                tableMandatoryTotal.getItems().clear();
-                                tableDiscretionaryTotal.getItems().clear();
-
-                                
-                                tableIncomeTotal.getItems().add(data.getIncomeTotals());
-                                tableMandatoryTotal.getItems().add(data.getMandatoryTotals());
-                                tableDiscretionaryTotal.getItems().add(data.getDiscretionaryTotals());
-
+                                updateUIWithData(data);
                                 setLoadingState(false);
                         });
                 }).exceptionally(throwable -> {
@@ -871,9 +865,9 @@ public class PrimaryController {
                         TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
                         TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
 
-                        // LineItem incomeTotals = ReadData.getTotals(DB.INCOME, date);
-                        // LineItem mandatoryTotals = ReadData.getTotals(DB.MANDATORY, date);
-                        // LineItem discretionaryTotals = ReadData.getTotals(DB.DISCRETIONARY, date);
+                        LineItem incomeTotals = ReadData.getTotals(DB.INCOME, date);
+                        LineItem mandatoryTotals = ReadData.getTotals(DB.MANDATORY, date);
+                        LineItem discretionaryTotals = ReadData.getTotals(DB.DISCRETIONARY, date);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -886,11 +880,8 @@ public class PrimaryController {
                                 Util.calculateTreeTotals(discretionaryRoot);
                         }
 
-                        // return new DatabaseDataResult(incomeRoot,
-                        // mandatoryRoot, discretionaryRoot, incomeTotals,
-                        // mandatoryTotals, discretionaryTotals);
-
-                        return new DatabaseDataResult(incomeRoot, mandatoryRoot, discretionaryRoot);
+                        return new DatabaseDataResult(incomeRoot, mandatoryRoot, discretionaryRoot, incomeTotals,
+                                        mandatoryTotals, discretionaryTotals);
 
                 }
                 catch (Exception e) {
@@ -905,16 +896,17 @@ public class PrimaryController {
                 // Disable other relevant controls during loading
         }
 
-        // private void updateUIWithData(DatabaseDataResult data) {
-        //         // Update all UI components
-        //         updateTreeTables(data);
-        // }
+        private void updateUIWithData(DatabaseDataResult data) {
+                // Update all UI components
+                updateTreeTables(data);
+                UIData.updateTableGrandTotal(totalTablesList);
+        }
 
-        // private void updateTreeTables(DatabaseDataResult data) {
-        //         setTreeTableRoot(tableIncome, data.getIncomeRoot());
-        //         setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
-        //         setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
-        // }
+        private void updateTreeTables(DatabaseDataResult data) {
+                setTreeTableRoot(tableIncome, data.getIncomeRoot());
+                setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
+                setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
+        }
 
         private void setTreeTableRoot(TreeTableView<LineItem> table, TreeItem<LineItem> root) {
                 table.setRoot(root);
