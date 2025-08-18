@@ -31,7 +31,6 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.Stage;
-
 /**
  * Controller for the category editing window. Provides functionality to edit
  * category properties including type, parent, and visibility.
@@ -45,6 +44,8 @@ public class SecondaryController {
     private static final String INCOME_TYPE = "Income";
     private static final String MANDATORY_TYPE = "Mandatory";
     private static final String DISCRETIONARY_TYPE = "Discretionary";
+
+    // ========================= FIELDS =========================
 
     // ========================= THREAD POOL =========================
 
@@ -87,7 +88,7 @@ public class SecondaryController {
             setupWindowCloseHandler();
             initializeTypeMap();
             setupTableColumns();
-            loadCategoriesData();
+            loadCategoryTreeData();
 
         }
         catch (Exception e) {
@@ -192,14 +193,8 @@ public class SecondaryController {
                 super.updateItem(item, empty);
 
                 // FIX: Use getTreeTableRow() instead of getTableRow()
-                if (empty || getTreeTableRow() == null || getTreeTableRow().getItem() == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-
-                TreeItem<Categories> treeItem = getTreeTableRow().getTreeItem();
-                if (treeItem == null || treeItem.getValue() == null) {
+                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex()) : null;
+                if (empty || treeItem == null || treeItem.getValue() == null) {
                     setGraphic(null);
                     setText(null);
                     return;
@@ -214,11 +209,12 @@ public class SecondaryController {
                         setupCheckBoxListener(checkBox, category);
                     }
 
-                    checkBox.setSelected(category.isHide());
+                    checkBox.setSelected(category.hide());
                     setGraphic(checkBox);
                     setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                     setAlignment(Pos.CENTER);
-                } else {
+                }
+                else {
                     setGraphic(null);
                     setText(null);
                 }
@@ -226,7 +222,7 @@ public class SecondaryController {
 
             private void setupCheckBoxListener(CheckBox checkBox, Categories category) {
                 checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue != null && category.isHide() != newValue) {
+                    if (newValue != null && category.hide() != newValue) {
                         updateCategoryHideStatus(category, newValue);
                     }
                 });
@@ -242,12 +238,12 @@ public class SecondaryController {
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (empty || getTreeTableRow() == null || getTreeTableRow().getItem() == null) {
+                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex()) : null;
+                if (empty || treeItem == null || treeItem.getValue() == null) {
                     setGraphic(null);
                     return;
                 }
 
-                TreeItem<Categories> treeItem = getTreeTableRow().getTreeItem();
                 Categories category = treeItem.getValue();
 
                 // Only show combo box for root items (no parent)
@@ -298,7 +294,6 @@ public class SecondaryController {
             category.setParent(newParent);
             updateCategoryInDatabase(category, "parent");
             // Reload data to rebuild tree structure
-            loadCategoriesData();
         }
     }
 
@@ -317,7 +312,7 @@ public class SecondaryController {
     // =========================
 
     private void updateCategoryHideStatus(Categories category, boolean hideStatus) {
-        category.setHide(hideStatus);
+        category.hide(hideStatus);
         updateCategoryInDatabase(category, "hide status");
     }
 
@@ -335,137 +330,92 @@ public class SecondaryController {
 
     // ========================= DATA LOADING =========================
 
-    private void loadCategoriesData() {
+    private void loadCategoryTreeData() {
         executeAsyncTask(() -> {
+            // Background thread - load data
             try {
-                List<Categories> categories = ReadData.getCategories();
-                if (categories == null) {
-                    LOGGER.warning("ReadData.getCategories() returned null");
-                    return new ArrayList<Categories>();
-                }
-                return categories;
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error in ReadData.getCategories()", e);
+                return ReadData.getCategories();
+            }
+            catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error loading categories", e);
                 throw e;
             }
         }, (categories) -> {
-            try {
-                TreeItem<Categories> root = buildCategoryTree(categories);
-                catTable.setRoot(root);
-                expandAllNodes(root);
-                LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error building/setting tree", e);
-                showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
-            }
-        }, "Error loading categories from database");
+            // UI thread - build and display tree
+            Platform.runLater(() -> {
+                try {
+                    TreeItem<Categories> root = buildCategoryTreeStructure(categories);
+                    catTable.setRoot(root);
+                    catTable.setShowRoot(false);
+                    expandAllNodes(root);
+                    LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
+                }
+                catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error building category tree", e);
+                    showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
+                }
+            });
+        }, "Error loading categories");
     }
 
-    public TreeItem<Categories> buildCategoryTree(List<Categories> categories) {
-        System.out.println("buildCategoryTree called with: " + (categories != null ? categories.size() : "null") + " categories");
-
-        // Add comprehensive null checks
-        if (categories == null) {
-            LOGGER.warning("Categories list is null, returning empty tree");
+    private TreeItem<Categories> buildCategoryTreeStructure(List<Categories> categories) {
+        if (categories == null || categories.isEmpty()) {
             return new TreeItem<>();
         }
 
-        if (categories.isEmpty()) {
-            LOGGER.info("Categories list is empty, returning empty tree");
-            return new TreeItem<>();
-        }
-
-        // Debug logging
-        if (categories != null) {
-            for (int i = 0; i < categories.size(); i++) {
-                Categories cat = categories.get(i);
-                if (cat == null) {
-                    System.out.println("Category " + i + ": NULL CATEGORY OBJECT");
-                } else {
-                    System.out.println("Category " + i + ": " + cat.getCategory() + " - " + cat.getParent());
-                }
-            }
-        }
-
-        TreeItem<Categories> root = new TreeItem<>(); // Don't give root a dummy category
+        // Create root node
+        TreeItem<Categories> root = new TreeItem<>();
         Map<String, TreeItem<Categories>> categoryMap = new HashMap<>();
 
-        // First pass: create all tree items and map them
-        for (int i = 0; i < categories.size(); i++) {
-            Categories category = categories.get(i);
-            
-            // Check for null category
-            if (category == null) {
-                LOGGER.warning("Null category found at index " + i + ", skipping");
-                continue;
-            }
-            
-            // Check for null category name
-            if (category.getCategory() == null || category.getCategory().trim().isEmpty()) {
-                LOGGER.warning("Category with null/empty name found at index " + i + ", skipping");
-                continue;
-            }
-            
-            try {
+        // First pass: Create all TreeItems
+        for (Categories category : categories) {
+            if (category != null && category.getCategory() != null) {
                 TreeItem<Categories> item = new TreeItem<>(category);
                 categoryMap.put(category.getCategory(), item);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error creating TreeItem for category: " + category.getCategory(), e);
             }
         }
 
-        // Second pass: build parent-child relationships
+        // Second pass: Build parent-child relationships
         for (Categories category : categories) {
-            // Add null check here - THIS IS LINE 372 AREA
-            if (category == null) {
-                LOGGER.warning("Null category found in second pass, skipping");
-                continue;
-            }
-            
-            if (category.getCategory() == null) {
-                LOGGER.warning("Category with null name found in second pass, skipping");
-                continue;
-            }
-            
-            TreeItem<Categories> item = categoryMap.get(category.getCategory());
-            
-            if (item == null) {
-                LOGGER.warning("TreeItem not found for category: " + category.getCategory());
+            if (category == null || category.getCategory() == null) {
                 continue;
             }
 
-            try {
-                if (category.getParent() == null || category.getParent().trim().isEmpty()) {
-                    // Root item
-                    root.getChildren().add(item);
-                } else {
-                    // Child item - find parent
-                    TreeItem<Categories> parent = categoryMap.get(category.getParent());
-                    if (parent != null) {
-                        parent.getChildren().add(item);
-                    } else {
-                        LOGGER.warning("Parent '" + category.getParent() + "' not found for category: " + category.getCategory());
-                        // Parent not found, add as root item
-                        root.getChildren().add(item);
-                    }
+            TreeItem<Categories> item = categoryMap.get(category.getCategory());
+            if (item == null) {
+                continue;
+            }
+
+            String parentName = category.getParent();
+            if (parentName == null || parentName.trim().isEmpty()) {
+                // Root level category
+                root.getChildren().add(item);
+            }
+            else {
+                // Child category - find its parent
+                TreeItem<Categories> parentItem = categoryMap.get(parentName.trim());
+                if (parentItem != null) {
+                    parentItem.getChildren().add(item);
                 }
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error processing category relationships for: " + category.getCategory(), e);
+                else {
+                    // Parent not found, add as root
+                    root.getChildren().add(item);
+                }
             }
         }
 
-        LOGGER.info("Built tree with " + root.getChildren().size() + " root categories");
         return root;
     }
 
-    private void expandAllNodes(TreeItem<Categories> item) {
+    private void expandAllNodes(TreeItem<?> item) {
         if (item != null && !item.isLeaf()) {
             item.setExpanded(true);
-            for (TreeItem<Categories> child : item.getChildren()) {
+            for (TreeItem<?> child : item.getChildren()) {
                 expandAllNodes(child);
             }
         }
     }
+
 
     // ========================= UTILITY METHODS =========================
 
@@ -559,12 +509,6 @@ public class SecondaryController {
 
     // ========================= PUBLIC API =========================
 
-    /**
-     * Refreshes the categories table with latest data from database.
-     */
-    public void refreshCategories() {
-        loadCategoriesData();
-    }
 
     /**
      * Gets the currently selected category.
@@ -631,4 +575,5 @@ public class SecondaryController {
         Categories category = treeItem.getValue();
         return category.getParent() == null || category.getParent().trim().isEmpty();
     }
+
 }

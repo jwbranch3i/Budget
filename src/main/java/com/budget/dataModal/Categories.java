@@ -67,7 +67,7 @@ public class Categories {
      */
     public Categories(Categories other) {
         this.id = other.id;
-        this.setHide(other.isHide());
+        this.hide(other.hide());
         this.setIncludeInTotal(other.isIncludeInTotal());
         this.type.set(other.type.get());
         this.parent.set(other.parent.get());
@@ -123,7 +123,7 @@ public class Categories {
      * 
      * @return true if hidden, false otherwise
      */
-    public boolean isHide() {
+    public boolean hide() {
         return hide;
     }
 
@@ -132,7 +132,7 @@ public class Categories {
      * 
      * @param hide true to hide, false to show
      */
-    public void setHide(boolean hide) {
+    public void hide(boolean hide) {
         this.hide = hide;
     }
 
@@ -324,7 +324,7 @@ public class Categories {
         
         Categories that = (Categories) obj;
         return id == that.id &&
-               isHide() == that.isHide() &&
+               hide() == that.hide() &&
                isIncludeInTotal() == that.isIncludeInTotal() &&
                getType() == that.getType() &&
                getAcct() == that.getAcct() &&
@@ -340,7 +340,7 @@ public class Categories {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + (isHide() ? 1 : 0);
+        result = 31 * result + (hide() ? 1 : 0);
         result = 31 * result + (isIncludeInTotal() ? 1 : 0);
         result = 31 * result + getType();
         result = 31 * result + getAcct();
@@ -358,7 +358,7 @@ public class Categories {
     public String toString() {
         return String.format("Categories{id=%d, hide=%s, includeInTotal=%s, type=%d (%s), " +
                            "parent='%s', category='%s', acct=%d}",
-                           getId(), isHide(), isIncludeInTotal(), getType(), getTypeName(),
+                           getId(), hide(), isIncludeInTotal(), getType(), getTypeName(),
                            getParent(), getCategory(), getAcct());
     }
 }

@@ -48,6 +48,8 @@ public class DatabaseDataResult {
         return discretionaryRoot;
     }
 
+
+
     public LineItem getIncomeTotals() {
         return incomeTotals;
     }

@@ -202,7 +202,6 @@ public class ReadData {
     /**
      * Get totals for a specific type and date.
      */
-    //TODO - make sure total correct
     public static LineItem getTotals(int type, LocalDate date) {
         LineItem newItem = new LineItem();
         String monthString = String.format("%02d", date.getMonthValue());
@@ -316,24 +315,13 @@ public class ReadData {
         Categories category = new Categories();
         category.setId(rs.getInt("ID"));
         category.setIncludeInTotal(rs.getBoolean("INCLUDE_IN_TOTAL"));
-        category.setHide(rs.getBoolean("HIDE"));
+        category.hide(rs.getBoolean("HIDE"));
         category.setType(rs.getInt("TYPE"));
         category.setParent(rs.getString("PARENT"));
         category.setCategory(rs.getString("CATEGORY"));
         return category;
     }
 
-    private static LineItem createParentLineItem(LineItem childItem) {
-        LineItem parent = new LineItem();
-        parent.setCategory(childItem.getParent());
-        parent.setType(childItem.getType());
-        parent.setDate(childItem.getDate());
-        parent.setParent(childItem.getParent());
-        parent.isCategory(true);
-        parent.setActual(0.0);
-        parent.setBudget(0.0);
-        return parent;
-    }
 
     private static void calculateRootTotals(TreeItem<LineItem> rootNode) {
         LineItem rootItem = rootNode.getValue();

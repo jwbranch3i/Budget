@@ -1,10 +1,7 @@
 package com.budget.data;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,7 +10,6 @@ import com.budget.dataModal.Categories;
 import com.budget.dataModal.DB;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.LineItem;
-import com.budget.dataModal.LineItemCSV;
 import com.budget.dataModal.ReadData;
 
 import org.junit.AfterClass;
@@ -50,7 +46,7 @@ public class ReadDataTest {
 
         TreeItem<LineItem> result;
 
-        String test = DB.GET_ACTUAL_AND_BUDGET_AMOUNTS;
+      //  String test = DB.GET_ACTUAL_AND_BUDGET_AMOUNTS;
 
         result = ReadData.getTableAmountsTree(tableType, inDate);
 

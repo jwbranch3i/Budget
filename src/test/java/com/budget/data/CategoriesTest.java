@@ -13,7 +13,7 @@ public class CategoriesTest {
     public void testDefaultConstructor() {
         Categories category = new Categories();
         assertEquals(0, category.getId());
-        assertFalse(category.isHide());
+        assertFalse(category.hide());
         assertTrue(category.isIncludeInTotal());
         assertEquals(0, category.getType());
         assertEquals("", category.getParent());
@@ -36,7 +36,7 @@ public class CategoriesTest {
     public void testSettersAndGetters() {
         Categories category = new Categories();
         category.setId(1);
-        category.setHide(true);
+        category.hide(true);
         category.setIncludeInTotal(false);
         category.setType(2);
         category.setParent("New Parent");
@@ -44,7 +44,7 @@ public class CategoriesTest {
         category.setAcct(3);
 
         assertEquals(1, category.getId());
-        assertTrue(category.isHide());
+        assertTrue(category.hide());
         assertFalse(category.isIncludeInTotal());
         assertEquals(2, category.getType());
         assertEquals("New Parent", category.getParent());

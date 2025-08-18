@@ -265,7 +265,7 @@ public class PrimaryController {
                         setupKeyboardShortcuts();
 
                         LOGGER.info("PrimaryController initialization completed successfully");
-                        
+
                         // Debug information when in debug mode
                         if (GlobalVariables.isDebugMode()) {
                                 LOGGER.fine("Initialization details:");
@@ -347,17 +347,10 @@ public class PrimaryController {
                 }, "Error updating balance");
         }
 
-        /**
-         * Switches to secondary view (placeholder implementation).
-         */
-        @FXML
-        private void switchToSecondary() throws IOException {
-                // TODO: Implement view switching logic
-        }
 
         // ========================= SETUP AND SHUTDOWN METHODS
         // =========================
-        
+
         private void setupShutdownHook() {
                 // Add shutdown hook to current stage
                 Platform.runLater(() -> {
@@ -393,19 +386,22 @@ public class PrimaryController {
                                                         event.consume();
                                                         break;
                                                 case T:
-                                                        // Ctrl+Shift+T to enable trace logging
+                                                        // Ctrl+Shift+T to
+                                                        // enable trace logging
                                                         GlobalVariables.enableTraceLogging();
                                                         showLoggingStatusMessage("Trace logging enabled");
                                                         event.consume();
                                                         break;
                                                 case I:
-                                                        // Ctrl+Shift+I to set info logging
+                                                        // Ctrl+Shift+I to set
+                                                        // info logging
                                                         GlobalVariables.setInfoLogging();
                                                         showLoggingStatusMessage("Info logging enabled");
                                                         event.consume();
                                                         break;
                                                 case S:
-                                                        // Ctrl+Shift+S to show current settings
+                                                        // Ctrl+Shift+S to show
+                                                        // current settings
                                                         GlobalVariables.printCurrentSettings();
                                                         event.consume();
                                                         break;
@@ -426,7 +422,8 @@ public class PrimaryController {
                         GlobalVariables.setInfoLogging();
                         showLoggingStatusMessage("Debug logging disabled - Info level active");
                         LOGGER.info("Debug logging disabled via keyboard shortcut");
-                } else {
+                }
+                else {
                         GlobalVariables.enableDebugLogging();
                         showLoggingStatusMessage("Debug logging enabled");
                         LOGGER.fine("Debug logging enabled via keyboard shortcut");
@@ -438,8 +435,9 @@ public class PrimaryController {
          */
         private void showLoggingStatusMessage(String message) {
                 System.out.println("LOGGING: " + message + " - Current level: " + GlobalVariables.getLoggingLevel());
-                
-                // You could also show this in a status bar or temporary tooltip if you have one
+
+                // You could also show this in a status bar or temporary tooltip
+                // if you have one
                 // For now, we'll just print to console and log it
                 LOGGER.info("Logging status: " + message);
         }
@@ -1234,9 +1232,11 @@ public class PrimaryController {
         }
 
         private void openEditCategoryWindow(ActionEvent event) throws IOException {
+
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/secondary.fxml"));
                 Parent root = fxmlLoader.load();
 
+           
                 Stage stage = new Stage();
                 stage.setTitle(EDIT_CATEGORY_TITLE);
                 stage.setScene(new Scene(root));
@@ -1324,7 +1324,6 @@ public class PrimaryController {
         }
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
-                // TODO: possible removal - showConfirmationAlert()
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(title);
                 alert.setHeaderText(null);
@@ -1528,17 +1527,6 @@ public class PrimaryController {
                 });
         }
 
-        /**
-         * Updates running totals for all categories in the current month only.
-         * This is the existing method renamed for clarity.
-         */
-        public static boolean updateCurrentMonthRunningTotals(LocalDate monthDate) {
-                // TODO : maybe remove this method,
-                // 'updateCurrentMonthRunningTotals()' as it is not used in the
-                // current codebase
-                // return updateAllRunningTotals(monthDate);
-                return true; // Placeholder for future implementation
-        }
 
         /**
          * Result object for month update operations.
@@ -1632,7 +1620,6 @@ public class PrimaryController {
 
         // In PrimaryController, call this after any actual amount updates
         private void handleActualAmountUpdate(LocalDate monthChanged) {
-                // TODO: possible removal - handleActualAmountUpdate()
                 executeAsyncTask(() -> cascadeRunningTotalsUpdate(monthChanged), () -> {
                         // Refresh UI after running totals update
                         readFromDatabase(getWorkingDate());

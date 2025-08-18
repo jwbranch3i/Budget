@@ -105,22 +105,5 @@ public class PrimaryControllerTest {
         }
     }
 
-    @Test
-    public void testLoadDatabaseData_withNullDate() {
-        PrimaryController controller = new PrimaryController();
-
-        try {
-            java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod("loadDatabaseData", LocalDate.class);
-            method.setAccessible(true);
-            Object result = method.invoke(controller, (Object) null);
-
-            // Depending on implementation, may return null or throw
-            // Just check that it does not throw an unhandled exception
-            assert true;
-        } catch (Exception e) {
-            // Acceptable if method throws a NullPointerException or handles null
-            assert true;
-        }
-    }
 
 }

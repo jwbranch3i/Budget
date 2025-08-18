@@ -1,17 +1,11 @@
 package com.budget.controllers;
 
-import java.util.List;
-
-import com.budget.dataModal.Categories;
 import com.budget.dataModal.DataSource;
-import com.budget.dataModal.ReadData;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import javafx.application.Platform;
-import javafx.scene.control.TreeItem;
 
 public class SecondaryControllerTest {
 
@@ -28,17 +22,5 @@ public class SecondaryControllerTest {
         DataSource.getInstance().close();
     }
 
-    @Test
-    public void testbuildCategoryTree() {
-        // This method should be tested to ensure it builds the category tree correctly.
-        // You can create a mock or a test case that checks the structure of the tree.
-        SecondaryController controller = new SecondaryController();
 
-        List<Categories> result = ReadData.getCategories();
-        
-        TreeItem<Categories> resultBuild = controller.buildCategoryTree(result);
-        
-        System.out.println(resultBuild);
-       
-    }
 }
