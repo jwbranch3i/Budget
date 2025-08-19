@@ -332,42 +332,39 @@ public class SecondaryController {
 
     private void loadCategoryTreeData() {
         executeAsyncTask(() -> {
-            // Background thread - load data
-            try {
-                return ReadData.getCategories();
-            }
-            catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error loading categories", e);
-                throw e;
-            }
+            // Background thread - just load data
+            return ReadData.getCategories();
         }, (categories) -> {
             // UI thread - build and display tree
-            Platform.runLater(() -> {
-                try {
-                    TreeItem<Categories> root = buildCategoryTreeStructure(categories);
-                    catTable.setRoot(root);
-                    catTable.setShowRoot(false);
-                    expandAllNodes(root);
-                    LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
-                }
-                catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Error building category tree", e);
-                    showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
-                }
-            });
+            try {
+                // Remove the extra Platform.runLater - it's not needed here
+                // since executeAsyncTask already handles UI thread switching
+                TreeItem<Categories> root = buildCategoryTreeStructure(categories);
+                catTable.setRoot(root);
+                catTable.setShowRoot(false);
+                expandAllNodes(root);
+                LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error building category tree", e);
+                showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
+            }
         }, "Error loading categories");
     }
 
     private TreeItem<Categories> buildCategoryTreeStructure(List<Categories> categories) {
+        // Verify we're on the UI thread
+        if (!Platform.isFxApplicationThread()) {
+            throw new IllegalStateException("buildCategoryTreeStructure must be called on JavaFX Application Thread");
+        }
+
         if (categories == null || categories.isEmpty()) {
             return new TreeItem<>();
         }
 
-        // Create root node
         TreeItem<Categories> root = new TreeItem<>();
         Map<String, TreeItem<Categories>> categoryMap = new HashMap<>();
 
-        // First pass: Create all TreeItems
+        // Create all TreeItems first
         for (Categories category : categories) {
             if (category != null && category.getCategory() != null) {
                 TreeItem<Categories> item = new TreeItem<>(category);
@@ -375,8 +372,8 @@ public class SecondaryController {
             }
         }
 
-        // Second pass: Build parent-child relationships
-        for (Categories category : categories) {
+        // Build relationships in a separate loop to avoid concurrent modification
+        for (Categories category : new ArrayList<>(categories)) {  // Create a copy of the list
             if (category == null || category.getCategory() == null) {
                 continue;
             }
@@ -388,18 +385,19 @@ public class SecondaryController {
 
             String parentName = category.getParent();
             if (parentName == null || parentName.trim().isEmpty()) {
-                // Root level category
-                root.getChildren().add(item);
-            }
-            else {
-                // Child category - find its parent
-                TreeItem<Categories> parentItem = categoryMap.get(parentName.trim());
-                if (parentItem != null) {
-                    parentItem.getChildren().add(item);
-                }
-                else {
-                    // Parent not found, add as root
+                // Add to root only if not already added
+                if (!root.getChildren().contains(item)) {
                     root.getChildren().add(item);
+                }
+            } else {
+                TreeItem<Categories> parentItem = categoryMap.get(parentName.trim());
+                if (parentItem != null && !parentItem.getChildren().contains(item)) {
+                    parentItem.getChildren().add(item);
+                } else {
+                    // Add to root if parent not found
+                    if (!root.getChildren().contains(item)) {
+                        root.getChildren().add(item);
+                    }
                 }
             }
         }
