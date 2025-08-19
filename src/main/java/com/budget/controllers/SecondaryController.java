@@ -31,6 +31,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.Stage;
+
 /**
  * Controller for the category editing window. Provides functionality to edit
  * category properties including type, parent, and visibility.
@@ -98,13 +99,18 @@ public class SecondaryController {
     }
 
     private void setupWindowCloseHandler() {
-        Platform.runLater(() -> {
-            try {
-                Stage stage = (Stage) btn_finishEdit.getScene().getWindow();
-                stage.setOnCloseRequest(event -> handleFinishEdit());
-            }
-            catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error setting up window close handler", e);
+        // Wait for the button to be attached to a scene and window
+        btn_finishEdit.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) {
+                // Once we have a scene, get its window
+                newScene.windowProperty().addListener((obs, oldWindow, newWindow) -> {
+                    if (newWindow != null) {
+                        // Now we can safely set the close handler
+                        Stage stage = (Stage) newWindow;
+                        stage.setOnCloseRequest(event -> handleFinishEdit());
+                        LOGGER.info("Window close handler setup completed");
+                    }
+                });
             }
         });
     }
@@ -193,7 +199,8 @@ public class SecondaryController {
                 super.updateItem(item, empty);
 
                 // FIX: Use getTreeTableRow() instead of getTableRow()
-                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex()) : null;
+                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex())
+                        : null;
                 if (empty || treeItem == null || treeItem.getValue() == null) {
                     setGraphic(null);
                     setText(null);
@@ -238,7 +245,8 @@ public class SecondaryController {
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
 
-                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex()) : null;
+                TreeItem<Categories> treeItem = getTreeTableView() != null ? getTreeTableView().getTreeItem(getIndex())
+                        : null;
                 if (empty || treeItem == null || treeItem.getValue() == null) {
                     setGraphic(null);
                     return;
@@ -331,25 +339,36 @@ public class SecondaryController {
     // ========================= DATA LOADING =========================
 
     private void loadCategoryTreeData() {
-        executeAsyncTask(() -> {
-            // Background thread - just load data
-            return ReadData.getCategories();
-        }, (categories) -> {
-            // UI thread - build and display tree
-            try {
-                // Remove the extra Platform.runLater - it's not needed here
-                // since executeAsyncTask already handles UI thread switching
-                TreeItem<Categories> root = buildCategoryTreeStructure(categories);
-                catTable.setRoot(root);
-                catTable.setShowRoot(false);
-                expandAllNodes(root);
-                LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error building category tree", e);
-                showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
-            }
-        }, "Error loading categories");
+                 List<Categories> categories = ReadData.getCategories();
+                                        TreeItem<Categories> root = buildCategoryTreeStructure(categories);
+                                        catTable.setRoot(root);
+                                        catTable.setShowRoot(false);
+                                        expandAllNodes(root);
+                                
+                
     }
+
+
+
+    //     executeAsyncTask(() -> {
+    //         // Background thread - just load data
+    //         return ReadData.getCategories();
+    //     }, (categories) -> {
+    //         // UI thread - build and display tree
+    //         try {
+    //             // Remove the extra Platform.runLater - it's not needed here
+    //             // since executeAsyncTask already handles UI thread switching
+    //             TreeItem<Categories> root = buildCategoryTreeStructure(categories);
+    //             catTable.setRoot(root);
+    //             catTable.setShowRoot(false);
+    //             expandAllNodes(root);
+    //             LOGGER.info("Loaded " + categories.size() + " categories in tree structure");
+    //         } catch (Exception e) {
+    //             LOGGER.log(Level.SEVERE, "Error building category tree", e);
+    //             showErrorAlert("Tree Error", "Failed to build category tree: " + e.getMessage());
+    //         }
+    //     }, "Error loading categories");
+    // }
 
     private TreeItem<Categories> buildCategoryTreeStructure(List<Categories> categories) {
         // Verify we're on the UI thread
@@ -372,8 +391,11 @@ public class SecondaryController {
             }
         }
 
-        // Build relationships in a separate loop to avoid concurrent modification
-        for (Categories category : new ArrayList<>(categories)) {  // Create a copy of the list
+        // Build relationships in a separate loop to avoid concurrent
+        // modification
+        for (Categories category : new ArrayList<>(categories)) { // Create a
+                                                                  // copy of the
+                                                                  // list
             if (category == null || category.getCategory() == null) {
                 continue;
             }
@@ -389,11 +411,13 @@ public class SecondaryController {
                 if (!root.getChildren().contains(item)) {
                     root.getChildren().add(item);
                 }
-            } else {
+            }
+            else {
                 TreeItem<Categories> parentItem = categoryMap.get(parentName.trim());
                 if (parentItem != null && !parentItem.getChildren().contains(item)) {
                     parentItem.getChildren().add(item);
-                } else {
+                }
+                else {
                     // Add to root if parent not found
                     if (!root.getChildren().contains(item)) {
                         root.getChildren().add(item);
@@ -413,7 +437,6 @@ public class SecondaryController {
             }
         }
     }
-
 
     // ========================= UTILITY METHODS =========================
 
@@ -506,7 +529,6 @@ public class SecondaryController {
     }
 
     // ========================= PUBLIC API =========================
-
 
     /**
      * Gets the currently selected category.
