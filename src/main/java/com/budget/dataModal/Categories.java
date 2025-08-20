@@ -60,6 +60,8 @@ public class Categories {
         }
     }
 
+
+
     /**
      * Copy constructor to create a deep copy of another Categories object.
      * 
@@ -67,7 +69,7 @@ public class Categories {
      */
     public Categories(Categories other) {
         this.id = other.id;
-        this.hide(other.hide());
+        this.setHide(other.isHide());
         this.setIncludeInTotal(other.isIncludeInTotal());
         this.type.set(other.type.get());
         this.parent.set(other.parent.get());
@@ -123,7 +125,7 @@ public class Categories {
      * 
      * @return true if hidden, false otherwise
      */
-    public boolean hide() {
+    public boolean isHide() {
         return hide;
     }
 
@@ -132,7 +134,7 @@ public class Categories {
      * 
      * @param hide true to hide, false to show
      */
-    public void hide(boolean hide) {
+    public void setHide(boolean hide) {
         this.hide = hide;
     }
 
@@ -324,7 +326,7 @@ public class Categories {
         
         Categories that = (Categories) obj;
         return id == that.id &&
-               hide() == that.hide() &&
+               isHide() == that.isHide() &&
                isIncludeInTotal() == that.isIncludeInTotal() &&
                getType() == that.getType() &&
                getAcct() == that.getAcct() &&
@@ -340,7 +342,7 @@ public class Categories {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + (hide() ? 1 : 0);
+        result = 31 * result + (isHide() ? 1 : 0);
         result = 31 * result + (isIncludeInTotal() ? 1 : 0);
         result = 31 * result + getType();
         result = 31 * result + getAcct();
@@ -358,7 +360,7 @@ public class Categories {
     public String toString() {
         return String.format("Categories{id=%d, hide=%s, includeInTotal=%s, type=%d (%s), " +
                            "parent='%s', category='%s', acct=%d}",
-                           getId(), hide(), isIncludeInTotal(), getType(), getTypeName(),
+                           getId(), isHide(), isIncludeInTotal(), getType(), getTypeName(),
                            getParent(), getCategory(), getAcct());
     }
 }

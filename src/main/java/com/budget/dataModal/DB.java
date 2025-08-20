@@ -121,11 +121,12 @@ public final class DB {
         /**
          * Get all categories ordered by parent, type, and category.
          */
-        public static final String CAT_GET_CATEGORIES = buildSelectQuery(
-                        new String[] { CAT_COL_ID, CAT_COL_INCLUDE_IN_TOTAL, CAT_COL_HIDE, CAT_COL_TYPE, CAT_COL_PARENT,
-                                        CAT_COL_CATEGORY },
-                        CAT_TABLE, null, CAT_COL_PARENT + ", " + CAT_COL_TYPE + ", " + CAT_COL_CATEGORY);
+        public static final String CAT_GET_CATEGORIES = "SELECT " + CAT_COL_ID + ", " + CAT_COL_INCLUDE_IN_TOTAL + ", "
+                        + CAT_COL_HIDE + ", " + CAT_COL_TYPE + ", " + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY + ", "
+                        + CAT_COL_ACCT + " " + "FROM " + CAT_TABLE + " " + "ORDER BY " + CAT_COL_TYPE + ", "
+                        + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY;
 
+        // ...existing code...
         /**
          * Update category record. Parameters: type, parent, category,
          * include_in_total, hide, acct, id
@@ -172,18 +173,21 @@ public final class DB {
          */
         public static final String ACTUAL_GET_TABLE_AMOUNTS = "SELECT " + CAT_TABLE + "." + CAT_COL_CATEGORY
                         + " AS CATEGORY, " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL " + "FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
-                        + " = " + CAT_TABLE + "." + CAT_COL_ID + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ?";
+                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " AND " + CAT_TABLE + "."
+                        + CAT_COL_TYPE + " = ?";
 
         /**
          * Get distinct years from actual table.
          */
-        public static final String ACTUAL_GET_AVAILABLE_YEARS = "SELECT DISTINCT SUBSTR(" + ACTUAL_COL_DATE + ", 1, 4) AS YEAR "
-                        + "FROM " + ACTUAL_TABLE + " ORDER BY YEAR ASC";
+        public static final String ACTUAL_GET_AVAILABLE_YEARS = "SELECT DISTINCT SUBSTR(" + ACTUAL_COL_DATE
+                        + ", 1, 4) AS YEAR " + "FROM " + ACTUAL_TABLE + " ORDER BY YEAR ASC";
 
         // Get all line items for this month
-        // String query = "SELECT a.id, a.budget, a.actual, c.default_maximum_amount, c.category " + "FROM actual a "
-        //                 + "JOIN category c ON a.category = c.id " + "WHERE a.date LIKE ? || '%'";
+        // String query = "SELECT a.id, a.budget, a.actual,
+        // c.default_maximum_amount, c.category " + "FROM actual a "
+        // + "JOIN category c ON a.category = c.id " + "WHERE a.date LIKE ? ||
+        // '%'";
 
         /**
          * Get all line items for this month.
@@ -209,8 +213,8 @@ public final class DB {
          */
         public static final String FIND_MISSING_CATEGORIES = "SELECT "
                         + String.join(", ", CAT_COL_ID, CAT_COL_TYPE, CAT_COL_PARENT, CAT_COL_CATEGORY) + " FROM "
-                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID + " FROM "
-                        + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
+                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID
+                        + " FROM " + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
 
         /**
          * Get totals for specific type and date. Parameters: month, year, type
@@ -231,8 +235,8 @@ public final class DB {
          */
         public static final String UPDATE_TO_LAST_MONTH_BUDGET = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_BUDGET
                         + " = COALESCE((" + "SELECT " + ACTUAL_COL_BUDGET + " FROM " + ACTUAL_TABLE + " AS a "
-                        + "WHERE a." + ACTUAL_COL_CATEGORY_ID + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " AND "
-                        + buildYearMonthFilter("a." + ACTUAL_COL_DATE) + " = ?), 0) " + "WHERE "
+                        + "WHERE a." + ACTUAL_COL_CATEGORY_ID + " = " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
+                        + " AND " + buildYearMonthFilter("a." + ACTUAL_COL_DATE) + " = ?), 0) " + "WHERE "
                         + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?";
 
         /**
@@ -363,8 +367,8 @@ public final class DB {
                                 .append(CAT_TABLE).append(".").append(CAT_COL_ID);
 
                 // WHERE clause - Changed to use YYYY-MM format
-                query.append(" WHERE ").append(ACTUAL_TABLE + "." + ACTUAL_COL_DATE)
-                                .append(" = ? AND ").append(CAT_TABLE).append(".").append(CAT_COL_TYPE).append(" = ?");
+                query.append(" WHERE ").append(ACTUAL_TABLE + "." + ACTUAL_COL_DATE).append(" = ? AND ")
+                                .append(CAT_TABLE).append(".").append(CAT_COL_TYPE).append(" = ?");
 
                 // ORDER BY clause
                 query.append(" ORDER BY ").append(CAT_TABLE).append(".").append(CAT_COL_PARENT).append(", ")
@@ -405,8 +409,7 @@ public final class DB {
          */
         public static final String ACTUAL_FIND_RECORD_BY_ID_AND_DATE = buildSelectQuery(
                         new String[] { ACTUAL_COL_ID, ACTUAL_COL_CATEGORY_ID, ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL },
-                        ACTUAL_TABLE,
-                        ACTUAL_COL_CATEGORY_ID + " = ? AND " + ACTUAL_COL_DATE + " = ?");
+                        ACTUAL_TABLE, ACTUAL_COL_CATEGORY_ID + " = ? AND " + ACTUAL_COL_DATE + " = ?");
 
         /**
          * Find categories not present in actual table for given year-month.
@@ -414,8 +417,8 @@ public final class DB {
          */
         public static final String FIND_MISSING_CATEGORIES_BY_MONTH = "SELECT "
                         + String.join(", ", CAT_COL_ID, CAT_COL_TYPE, CAT_COL_PARENT, CAT_COL_CATEGORY) + " FROM "
-                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID + " FROM "
-                        + ACTUAL_TABLE + " WHERE " + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?)";
+                        + CAT_TABLE + " WHERE " + CAT_COL_ID + " NOT IN (" + "SELECT " + ACTUAL_COL_CATEGORY_ID
+                        + " FROM " + ACTUAL_TABLE + " WHERE " + buildYearMonthFilter(ACTUAL_COL_DATE) + " = ?)";
 
         /**
          * Get totals for specific type and date using YYYY-MM format.
@@ -423,40 +426,31 @@ public final class DB {
          */
         public static final String GET_TOTALS_BY_MONTH = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ") AS ATOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL " + "FROM "
-                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
-                        + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
+                        + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
                         + buildYearMonthFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE) + " = ? AND " + CAT_TABLE + "."
                         + CAT_COL_TYPE + " = ? AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
         // Add these constants to your DB.java class
 
-        public static final String RUNNING_TOTAL_INSERT_WITH_MODIFIED = 
-            "INSERT OR REPLACE INTO category_running_totals " +
-            "(category_id, month_date, previous_balance, current_difference, running_total, modified_running_total, maximum_amount, warning_issued) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        public static final String RUNNING_TOTAL_INSERT_WITH_MODIFIED = "INSERT OR REPLACE INTO category_running_totals "
+                        + "(category_id, month_date, previous_balance, current_difference, running_total, modified_running_total, maximum_amount, warning_issued) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        public static final String RUNNING_TOTAL_GET_PREVIOUS_WITH_MODIFIED = 
-            "SELECT COALESCE(modified_running_total, running_total) as effective_total " +
-            "FROM category_running_totals " +
-            "WHERE category_id = ? AND month_date < ? " +
-            "ORDER BY month_date DESC LIMIT 1";
+        public static final String RUNNING_TOTAL_GET_PREVIOUS_WITH_MODIFIED = "SELECT COALESCE(modified_running_total, running_total) as effective_total "
+                        + "FROM category_running_totals " + "WHERE category_id = ? AND month_date < ? "
+                        + "ORDER BY month_date DESC LIMIT 1";
 
-        public static final String RUNNING_TOTAL_UPDATE_MODIFIED = 
-            "UPDATE category_running_totals " +
-            "SET modified_running_total = ? " +
-            "WHERE category_id = ? AND month_date = ?";
+        public static final String RUNNING_TOTAL_UPDATE_MODIFIED = "UPDATE category_running_totals "
+                        + "SET modified_running_total = ? " + "WHERE category_id = ? AND month_date = ?";
 
-        public static final String RUNNING_TOTAL_GET_ALL_FOR_MONTH_WITH_MODIFIED = 
-            "SELECT rt.*, c.category, c.default_maximum_amount, " +
-            "COALESCE(rt.modified_running_total, rt.running_total) as effective_total " +
-            "FROM category_running_totals rt " +
-            "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id " +
-            "WHERE rt.month_date = ? ORDER BY c.category";
+        public static final String RUNNING_TOTAL_GET_ALL_FOR_MONTH_WITH_MODIFIED = "SELECT rt.*, c.category, c.default_maximum_amount, "
+                        + "COALESCE(rt.modified_running_total, rt.running_total) as effective_total "
+                        + "FROM category_running_totals rt " + "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id "
+                        + "WHERE rt.month_date = ? ORDER BY c.category";
 
-        public static final String RUNNING_TOTAL_GET_NEGATIVE_TOTALS_WITH_MODIFIED = 
-            "SELECT rt.*, c.category, " +
-            "COALESCE(rt.modified_running_total, rt.running_total) as effective_total " +
-            "FROM category_running_totals rt " +
-            "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id " +
-            "WHERE rt.month_date = ? AND COALESCE(rt.modified_running_total, rt.running_total) < 0";
+        public static final String RUNNING_TOTAL_GET_NEGATIVE_TOTALS_WITH_MODIFIED = "SELECT rt.*, c.category, "
+                        + "COALESCE(rt.modified_running_total, rt.running_total) as effective_total "
+                        + "FROM category_running_totals rt " + "JOIN " + CAT_TABLE + " c ON rt.category_id = c.id "
+                        + "WHERE rt.month_date = ? AND COALESCE(rt.modified_running_total, rt.running_total) < 0";
 }

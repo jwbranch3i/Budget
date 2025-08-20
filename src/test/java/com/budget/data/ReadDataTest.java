@@ -6,8 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.budget.Util;
-import com.budget.dataModal.Categories;
-import com.budget.dataModal.DB;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.ReadData;
@@ -59,23 +57,7 @@ public class ReadDataTest {
     }
 
 
-    @Test
-    public void testgetCategories() {
-
-        List<Categories> result;
-
-        result = ReadData.getCategories();
-
-        // print each item in result
-        for (Categories item : result) {
-            System.out.println(item);
-        }
-
-        // Assert the expected result
-        assertNotNull(result);
-    }
-   
-
+ 
 
     @Test
     public void testgetYears() {

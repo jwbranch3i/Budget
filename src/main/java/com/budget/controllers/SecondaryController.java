@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -96,6 +97,7 @@ public class SecondaryController {
             LOGGER.log(Level.SEVERE, "Error during SecondaryController initialization", e);
             showErrorAlert("Initialization Error", "Failed to initialize the category editor properly.");
         }
+
     }
 
     private void setupWindowCloseHandler() {
@@ -161,7 +163,7 @@ public class SecondaryController {
     }
 
     private void setupHideColumn() {
-        catColumnHide.setCellValueFactory(new TreeItemPropertyValueFactory<>("Hide"));
+        catColumnHide.setCellValueFactory(new TreeItemPropertyValueFactory<>("hide"));
         catColumnHide.setCellFactory(this::createHideCheckBoxCell);
         catColumnHide.setSortable(true);
         catColumnHide.setPrefWidth(80);
@@ -216,7 +218,7 @@ public class SecondaryController {
                         setupCheckBoxListener(checkBox, category);
                     }
 
-                    checkBox.setSelected(category.hide());
+                    checkBox.setSelected(category.isHide());
                     setGraphic(checkBox);
                     setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                     setAlignment(Pos.CENTER);
@@ -229,7 +231,7 @@ public class SecondaryController {
 
             private void setupCheckBoxListener(CheckBox checkBox, Categories category) {
                 checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue != null && category.hide() != newValue) {
+                    if (newValue != null && category.isHide() != newValue) {
                         updateCategoryHideStatus(category, newValue);
                     }
                 });
@@ -320,8 +322,8 @@ public class SecondaryController {
     // =========================
 
     private void updateCategoryHideStatus(Categories category, boolean hideStatus) {
-        category.hide(hideStatus);
-        updateCategoryInDatabase(category, "hide status");
+        category.setHide(hideStatus);
+        updateCategoryInDatabase(category, "hide");
     }
 
     private void updateCategoryType(Categories category, Integer newType) {
@@ -339,13 +341,27 @@ public class SecondaryController {
     // ========================= DATA LOADING =========================
 
     private void loadCategoryTreeData() {
-                 List<Categories> categories = ReadData.getCategories();
-                                        TreeItem<Categories> root = buildCategoryTreeStructure(categories);
-                                        catTable.setRoot(root);
-                                        catTable.setShowRoot(false);
-                                        expandAllNodes(root);
-                                
-                
+        Task<Void> initTask = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                                return null; // Data processing would go here
+                        }
+                        @Override
+                        protected void succeeded() {
+                            Platform.runLater(() -> {
+                                updateTables();
+                            });
+
+                        }
+
+                        @Override
+                        protected void failed() {
+                                LOGGER.log(Level.SEVERE, "Error loading categories", getException());
+                                showErrorAlert("Data Load Error", "Failed to load categories: " + getException().getMessage());
+                        }
+
+        };    
+        executorService.submit(initTask);           
     }
 
 
@@ -370,64 +386,40 @@ public class SecondaryController {
     //     }, "Error loading categories");
     // }
 
-    private TreeItem<Categories> buildCategoryTreeStructure(List<Categories> categories) {
-        // Verify we're on the UI thread
-        if (!Platform.isFxApplicationThread()) {
-            throw new IllegalStateException("buildCategoryTreeStructure must be called on JavaFX Application Thread");
-        }
 
-        if (categories == null || categories.isEmpty()) {
-            return new TreeItem<>();
-        }
-
-        TreeItem<Categories> root = new TreeItem<>();
-        Map<String, TreeItem<Categories>> categoryMap = new HashMap<>();
-
-        // Create all TreeItems first
-        for (Categories category : categories) {
-            if (category != null && category.getCategory() != null) {
-                TreeItem<Categories> item = new TreeItem<>(category);
-                categoryMap.put(category.getCategory(), item);
-            }
-        }
-
-        // Build relationships in a separate loop to avoid concurrent
-        // modification
-        for (Categories category : new ArrayList<>(categories)) { // Create a
-                                                                  // copy of the
-                                                                  // list
-            if (category == null || category.getCategory() == null) {
-                continue;
-            }
-
-            TreeItem<Categories> item = categoryMap.get(category.getCategory());
-            if (item == null) {
-                continue;
-            }
-
-            String parentName = category.getParent();
-            if (parentName == null || parentName.trim().isEmpty()) {
-                // Add to root only if not already added
-                if (!root.getChildren().contains(item)) {
-                    root.getChildren().add(item);
-                }
-            }
-            else {
-                TreeItem<Categories> parentItem = categoryMap.get(parentName.trim());
-                if (parentItem != null && !parentItem.getChildren().contains(item)) {
-                    parentItem.getChildren().add(item);
-                }
-                else {
-                    // Add to root if parent not found
-                    if (!root.getChildren().contains(item)) {
-                        root.getChildren().add(item);
-                    }
-                }
-            }
-        }
-
-        return root;
+    /** Updates tables with latest data */
+    public void updateTables() {
+        executeAsyncTask(null, this::loadCategoryTask,
+                "Error updating category tables");
     }
+
+
+    /** Update Category table data on UI thread. */
+    public void loadCategoryTask() {
+        readFromDatabase();
+    }
+
+    /** Reads data from database for Categories */
+    public void readFromDatabase() {
+             CompletableFuture.supplyAsync(() -> loadDatabaseData(), executorService).thenAcceptAsync(data -> {
+                        Platform.runLater(() -> {
+                            catTable.setRoot(data);
+                        });
+                }).exceptionally(throwable -> {
+                        LOGGER.log(Level.SEVERE, "Error reading data from database", throwable);
+                        Platform.runLater(() -> {
+                                showErrorAlert("Database Error",
+                                                "Failed to load data from database: " + throwable.getMessage());
+                        });
+                        return null;
+                });   
+    }
+
+private TreeItem<Categories> loadDatabaseData() {
+    return ReadData.getCategories();
+}
+
+
 
     private void expandAllNodes(TreeItem<?> item) {
         if (item != null && !item.isLeaf()) {
@@ -493,30 +485,6 @@ public class SecondaryController {
         executorService.submit(task);
     }
 
-    private <T> void executeAsyncTask(java.util.concurrent.Callable<T> backgroundTask,
-            java.util.function.Consumer<T> uiTask, String errorMessage) {
-        Task<T> task = new Task<T>() {
-            @Override
-            protected T call() throws Exception {
-                return backgroundTask.call();
-            }
-
-            @Override
-            protected void succeeded() {
-                if (uiTask != null) {
-                    Platform.runLater(() -> uiTask.accept(getValue()));
-                }
-            }
-
-            @Override
-            protected void failed() {
-                LOGGER.log(Level.SEVERE, errorMessage, getException());
-                Platform.runLater(() -> showErrorAlert("Operation Error", errorMessage));
-            }
-        };
-
-        executorService.submit(task);
-    }
 
     // ========================= ERROR HANDLING =========================
 
