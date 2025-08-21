@@ -1,0 +1,125 @@
+PrimaryController.java - Method List
+===================================
+
+FXML Event Handlers:
+- btn_Update()
+- button_EditCat()
+- button_UpdateBudget()
+- button_UpdateBalance()
+
+Edit Commit Handlers:
+- incomeTableBudget_OnEditCommit(CellEditEvent<LineItem, Double> event)
+- mandatoryTableBudget_OnEditCommit(CellEditEvent<LineItem, Double> event)
+- discretionaryTableBudget_OnEditCommit(CellEditEvent<LineItem, Double> event)
+- handleBudgetEditCommit(CellEditEvent<LineItem, Double> event, String tableType)
+
+Initialization Methods:
+- initialize()
+- setupChoiceBoxes()
+- setupYearBoxAsync(LocalDate currentDate)
+- populateYearBox(List<String> years, LocalDate currentDate)
+- setupTableHeaders()
+- hideTableHeaders(TableView<LineItem> table)
+- setupTableColumns()
+- setupTableColumns(TreeTableView<LineItem> table)
+- setupTableRows()
+- setupSelectionListeners()
+- setupContextMenus()
+- setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction)
+- setupTableReferences()
+- applyStyles()
+- initializeData()
+
+Data Loading Methods:
+- readFromDatabase(LocalDate date)
+- loadDatabaseData(LocalDate date)
+- updateUIWithLoadedData(LocalDate date)
+- getTableRows(LocalDate date)
+- updateTables()
+- updateUIWithData(DatabaseDataResult data)
+- updateTreeTables(DatabaseDataResult data)
+- setTreeTableRoot(TreeTableView<LineItem> table, TreeItem<LineItem> root)
+- updateTotalTables(DatabaseDataResult data)
+
+CSV Import Methods:
+- handleCsvFileImport()
+- readCSVFile(File file)
+- processLineItem(LineItemCSV item, LocalDate date)
+
+Running Totals Methods:
+- updateRunningTotalsAndShowWarnings(LocalDate date)
+- showRunningTotalWarnings(List<RunningTotal> negatives)
+- updateRunningTotalsFromMonth(LocalDate startDate)
+- getMonthsToUpdate(LocalDate startDate)
+- updateRunningTotalsForSingleMonth(LocalDate monthDate)
+- cascadeRunningTotalsUpdate(LocalDate changedMonth)
+- updateCurrentMonthRunningTotals(LocalDate monthDate)
+- updateRunningTotalsFromNow()
+- updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth)
+
+Window Management:
+- openEditCategoryWindow()
+- editLineItemDetail(MouseEvent event)
+
+Utility Methods:
+- getWorkingDate()
+- calculateAllTreeTotals()
+- executeAsyncTask(Runnable backgroundTask, Runnable uiTask, String errorMessage)
+- executeAsyncTask(Supplier<T> backgroundTask, Runnable uiTask, String errorMessage)
+- showErrorAlert(String title, String message)
+- showConfirmationAlert(String title, String message)
+- showFatalError(String title, String header, String content)
+- cleanup()
+- setLoadingState(boolean loading)
+
+User Interface Interaction Methods:
+- modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal)
+- clearRunningTotalModification(int categoryId, LocalDate monthDate)
+- handleActualAmountUpdate(LocalDate monthChanged)
+
+Static Helper Classes:
+MonthUpdateResult:
+- isSuccess()
+- getUpdatedCount()
+- getWarningCount()
+- getWarnings()
+
+DatabaseDataResult:
+- getIncomeRoot()
+- getMandatoryRoot()
+- getDiscretionaryRoot()
+- getIncomeTotals()
+- getMandatoryTotals()
+- getDiscretionaryTotals()
+
+Private Helper Methods:
+- configurePrimaryStage(Stage primaryStage)
+- createMainScene()
+- applyCssStylesheet(Scene scene)
+- validateFxmlInjections()
+- setupInitialState()
+- hideRootNodes()
+- updateMainDateLabel(LocalDate date)
+- performTransactionSafeBatch(Runnable operation)
+
+Context Menu and Event Handlers:
+- Various mouse click handlers for table interactions
+- Selection change listeners for ComboBoxes
+- Context menu action handlers
+- Row factory implementations
+
+Total Methods: ~55-60 methods
+
+Method Categories Summary:
+- Event Handlers: 8 methods
+- Initialization: 16 methods  
+- Data Loading: 10 methods
+- CSV Import: 3 methods
+- Running Totals: 9 methods
+- Window Management: 2 methods
+- Utility/Helper: 15+ methods
+- Static Classes: 2 classes with 7 total methods
+
+Note: This count includes public, private, and static methods, as well as 
+inner class methods. The exact count may vary slightly depending on 
+implementation details and helper methods.

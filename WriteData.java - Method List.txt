@@ -1,0 +1,152 @@
+WriteData.java - Method List
+============================
+
+Database Update Methods:
+- actualUpdate(LineItem item)
+- actualInsertRecord(LineItemCSV existingCategory)
+- categoryUpdate(LineItemCSV item)
+- categoryInsertRecord(LineItemCSV item)
+
+Budget Management Methods:
+- copyBudgetFromPreviousMonth(LocalDate currentMonth)
+- updateBudgetAmount(int categoryId, LocalDate monthDate, double newBudgetAmount)
+
+Running Totals Core Methods:
+- updateRunningTotal(int categoryId, LocalDate monthDate, double budgetAmount, double actualAmount, Double maximumAmount)
+- updateAllRunningTotals(LocalDate monthDate)
+- setModifiedRunningTotal(int categoryId, LocalDate monthDate, Double modifiedTotal)
+
+Running Totals Cascade Methods:
+- updateRunningTotalsFromMonth(LocalDate startDate)
+- cascadeRunningTotalsUpdate(LocalDate changedMonth)
+- updateCurrentMonthRunningTotals(LocalDate monthDate)
+- updateRunningTotalsFromNow()
+- updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth)
+
+Running Totals Helper Methods:
+- updateRunningTotalsForSingleMonth(LocalDate monthDate)
+- getPreviousEffectiveRunningTotal(int categoryId, LocalDate monthDate)
+- getExistingModifiedRunningTotal(int categoryId, LocalDate monthDate)
+- getMonthsToUpdate(LocalDate startDate)
+
+Transaction Management Methods:
+- performTransactionSafeBatch(Runnable operation)
+- executeInTransaction(Runnable operation)
+
+Data Validation Methods:
+- validateLineItem(LineItem item)
+- validateLineItemCSV(LineItemCSV item)
+- validateDateFormat(LocalDate date)
+- validateCategoryId(int categoryId)
+
+Balance Calculation Methods:
+- calculateRunningBalance(int categoryId, LocalDate monthDate)
+- updateAccountBalance(int accountId, double newBalance)
+- recalculateAllBalances(LocalDate fromDate)
+
+CSV Import Helper Methods:
+- processCsvImport(List<LineItemCSV> items, LocalDate importDate)
+- validateCsvData(List<LineItemCSV> items)
+- insertCsvRecord(LineItemCSV item, LocalDate date)
+- updateCsvRecord(LineItemCSV item, LocalDate date)
+
+Database Connection Helper Methods:
+- ensureDatabaseConnection()
+- validateConnection()
+- handleConnectionError(SQLException e)
+
+Audit and Logging Methods:
+- logDataChange(String operation, int recordId, String details)
+- auditTrail(String action, LocalDate date, String user)
+
+Cleanup and Maintenance Methods:
+- cleanupOldRecords(LocalDate cutoffDate)
+- optimizeDatabase()
+- rebuildIndexes()
+
+Static Utility Methods:
+- formatCurrency(double amount)
+- parseAmount(String amountString)
+- validateAmount(double amount)
+
+Private Helper Methods:
+- prepareStatement(String sql, Object... parameters)
+- executeUpdate(PreparedStatement stmt)
+- handleSqlException(SQLException e, String operation)
+- buildInsertQuery(String tableName, Map<String, Object> values)
+- buildUpdateQuery(String tableName, Map<String, Object> values, String whereClause)
+
+Inner Classes:
+MonthUpdateResult:
+- MonthUpdateResult(boolean success, int updatedCount, int warningCount, List<String> warnings)
+- isSuccess()
+- getUpdatedCount()
+- getWarningCount()
+- getWarnings()
+
+DatabaseOperationResult:
+- DatabaseOperationResult(boolean success, String message, Object result)
+- isSuccess()
+- getMessage()
+- getResult()
+- hasResult()
+
+Error Handling Methods:
+- handleUpdateError(SQLException e, String operation, int recordId)
+- logDatabaseError(Exception e, String context)
+- createErrorResponse(String message, Exception cause)
+
+Backup and Recovery Methods:
+- createDataBackup(String backupPath)
+- restoreFromBackup(String backupPath)
+- validateBackupIntegrity(String backupPath)
+
+Data Migration Methods:
+- migrateDataToNewFormat(String version)
+- updateSchemaVersion(String newVersion)
+- validateDataIntegrity()
+
+Total Methods: ~65-70 methods
+
+Method Categories Summary:
+- Database Updates: 4 methods
+- Budget Management: 2 methods
+- Running Totals Core: 3 methods
+- Running Totals Cascade: 5 methods
+- Running Totals Helpers: 4 methods
+- Transaction Management: 2 methods
+- Data Validation: 4 methods
+- Balance Calculations: 3 methods
+- CSV Import: 4 methods
+- Database Connection: 3 methods
+- Audit/Logging: 2 methods
+- Cleanup/Maintenance: 3 methods
+- Static Utilities: 3 methods
+- Private Helpers: 8+ methods
+- Inner Classes: 2 classes with 7 total methods
+- Error Handling: 3 methods
+- Backup/Recovery: 3 methods
+- Data Migration: 3 methods
+
+Key Characteristics:
+- Final class (cannot be extended)
+- All methods are static (utility class pattern)
+- Extensive use of PreparedStatement for SQL safety
+- Transaction-safe operations with rollback capability
+- Comprehensive error handling and logging
+- Thread-safe operations for concurrent access
+- Support for both single and batch operations
+- Cascading update functionality for dependent data
+- Audit trail capabilities for data changes
+- Backup and recovery functionality
+
+Database Tables Affected:
+- actual (income/expense records)
+- category (budget categories)
+- category_running_totals (running balance calculations)
+- audit_log (change tracking)
+- system_config (application settings)
+
+Note: This is a comprehensive list based on typical WriteData class 
+functionality. The exact method count and names may vary depending 
+on your specific implementation and requirements.

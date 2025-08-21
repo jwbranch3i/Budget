@@ -5,20 +5,28 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.GlobalVariables;
 import com.budget.Util;
 import com.budget.dataModal.DB;
+import com.budget.dataModal.DataSource;
+import com.budget.dataModal.DatabaseDataResult;
 import com.budget.dataModal.LineItem;
 import com.budget.dataModal.LineItemCSV;
 import com.budget.dataModal.ReadData;
+import com.budget.dataModal.RunningTotal;
 import com.budget.dataModal.UIData;
 import com.budget.dataModal.WriteData;
 import com.opencsv.CSVReader;
@@ -38,11 +46,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
@@ -52,6 +56,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -168,23 +173,23 @@ public class PrimaryController {
 
         // Totals Table Components
         @FXML
-        private TableView<LineItem> tableTotal;
+        private TableView<LineItem> tableGrandTotal;
         @FXML
-        private TableColumn<LineItem, String> tableTotal_Category;
+        private TableColumn<LineItem, String> tableGrandTotal_Category;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Actual;
+        private TableColumn<LineItem, Double> tableGrandTotal_Actual;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Budget;
+        private TableColumn<LineItem, Double> tableGrandTotal_Budget;
         @FXML
-        private TableColumn<LineItem, Double> tableTotal_Diff;
+        private TableColumn<LineItem, Double> tableGrandTotal_Diff;
 
         // UI Components
         @FXML
         private VBox categoryBox;
         @FXML
         private AnchorPane myAnchorPane;
-        @FXML
-        private ProgressIndicator progressIndicator;
+        // @FXML
+        // private ProgressIndicator progressIndicator;
         @FXML
         private ComboBox<String> yearBox;
         @FXML
@@ -205,7 +210,7 @@ public class PrimaryController {
         // ========================= DATA STRUCTURES =========================
 
         /** Array of tables for UIData total table update */
-        private final ArrayList<TableView<LineItem>> tables = new ArrayList<>();
+        private final ArrayList<TableView<LineItem>> totalTablesList = new ArrayList<>();
 
         // ========================= INITIALIZATION =========================
 
@@ -215,12 +220,15 @@ public class PrimaryController {
         @FXML
         public void initialize() {
                 try {
-                        LOGGER.info("Initializing PrimaryController");
+                        // Initialize global logging settings first
+                        GlobalVariables.enableDebugLogging();
+                        LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
                         // Initialize controller extension
                         @SuppressWarnings("unused")
-                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal,
-                                        tableTotal_Category, tableTotal_Actual, tableTotal_Budget, tableTotal_Diff);
+                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableGrandTotal,
+                                        tableGrandTotal_Category, tableGrandTotal_Actual, tableGrandTotal_Budget,
+                                        tableGrandTotal_Diff);
 
                         // Apply styles
                         applyStyles();
@@ -236,7 +244,7 @@ public class PrimaryController {
 
                         // Setup table headers and rows
                         setupTableHeaders();
-                        setupTableRows();
+                        setupTotalTableRow();
 
                         // Setup table columns
                         setupTableColumns();
@@ -250,7 +258,22 @@ public class PrimaryController {
                         // Initialize data
                         initializeData();
 
+                        // Setup shutdown hook for cleanup
+                        setupShutdownHook();
+
+                        // Setup keyboard shortcuts for debugging
+                        setupKeyboardShortcuts();
+
                         LOGGER.info("PrimaryController initialization completed successfully");
+
+                        // Debug information when in debug mode
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Initialization details:");
+                                LOGGER.fine("- Tables initialized: Income, Mandatory, Discretionary");
+                                LOGGER.fine("- Context menus setup completed");
+                                LOGGER.fine("- Selection listeners active");
+                                GlobalVariables.printCurrentSettings();
+                        }
 
                 }
                 catch (Exception e) {
@@ -267,8 +290,14 @@ public class PrimaryController {
         @FXML
         void button_EditCat(ActionEvent event) {
                 try {
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Edit Category button clicked");
+                        }
                         openEditCategoryWindow(event);
                         refreshDataAfterEdit();
+                        if (GlobalVariables.isDebugMode()) {
+                                LOGGER.fine("Edit Category window closed, data refreshed");
+                        }
                 }
                 catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Error opening edit category window", e);
@@ -280,16 +309,17 @@ public class PrimaryController {
          * Handles the Update Category button click.
          */
         @FXML
-        void button_UpdateCat(ActionEvent event) {
+        void btn_Update(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
                 if (!chkBox.isSelected()) {
-                        readFromDatabase(workingDate);
+                        updateTables();
                 }
                 else {
                         handleCsvFileImport(workingDate);
                 }
 
+                updateRunningTotalsFromMonth(workingDate);
                 updateMainDateLabel(workingDate);
         }
 
@@ -305,43 +335,118 @@ public class PrimaryController {
         /**
          * Handles the Update Balance button click.
          */
+
         @FXML
         void button_UpdateBalance(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
-                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> refreshDataForDate(workingDate),
-                                "Error updating balance");
+                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
+                        refreshDataForDate(workingDate);
+                        // updateRunningTotalsAndShowWarnings(); // Add this
+                        // line
+                }, "Error updating balance");
+        }
+
+
+        // ========================= SETUP AND SHUTDOWN METHODS
+        // =========================
+
+        private void setupShutdownHook() {
+                // Add shutdown hook to current stage
+                Platform.runLater(() -> {
+                        Stage stage = (Stage) btn_Update.getScene().getWindow();
+                        if (stage != null) {
+                                stage.setOnCloseRequest(event -> {
+                                        LOGGER.info("Application closing - cleaning up resources");
+                                        cleanup();
+                                });
+                        }
+                });
+
+                // Also add JVM shutdown hook as backup
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                        LOGGER.info("JVM shutdown detected - cleaning up PrimaryController");
+                        cleanup();
+                }));
         }
 
         /**
-         * Handles reading headings (placeholder implementation).
+         * Setup keyboard shortcuts for debugging and logging control
          */
-        @FXML
-        void readHeadingsButton(ActionEvent event) {
-                progressIndicator.setVisible(true);
-                progressIndicator.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-
-                // TODO: Implement actual heading reading logic
-
-                progressIndicator.setVisible(false);
+        private void setupKeyboardShortcuts() {
+                Platform.runLater(() -> {
+                        Stage stage = (Stage) btn_Update.getScene().getWindow();
+                        if (stage != null && stage.getScene() != null) {
+                                stage.getScene().setOnKeyPressed(event -> {
+                                        // Ctrl+Shift+D to toggle debug logging
+                                        if (event.isControlDown() && event.isShiftDown()) {
+                                                switch (event.getCode()) {
+                                                case D:
+                                                        toggleDebugLogging();
+                                                        event.consume();
+                                                        break;
+                                                case T:
+                                                        // Ctrl+Shift+T to
+                                                        // enable trace logging
+                                                        GlobalVariables.enableTraceLogging();
+                                                        showLoggingStatusMessage("Trace logging enabled");
+                                                        event.consume();
+                                                        break;
+                                                case I:
+                                                        // Ctrl+Shift+I to set
+                                                        // info logging
+                                                        GlobalVariables.setInfoLogging();
+                                                        showLoggingStatusMessage("Info logging enabled");
+                                                        event.consume();
+                                                        break;
+                                                case S:
+                                                        // Ctrl+Shift+S to show
+                                                        // current settings
+                                                        GlobalVariables.printCurrentSettings();
+                                                        event.consume();
+                                                        break;
+                                                default:
+                                                        break;
+                                                }
+                                        }
+                                });
+                        }
+                });
         }
 
         /**
-         * Switches to secondary view (placeholder implementation).
+         * Toggle debug logging on/off
          */
-        @FXML
-        private void switchToSecondary() throws IOException {
-                // TODO: Implement view switching logic
+        private void toggleDebugLogging() {
+                if (GlobalVariables.isDebugMode()) {
+                        GlobalVariables.setInfoLogging();
+                        showLoggingStatusMessage("Debug logging disabled - Info level active");
+                        LOGGER.info("Debug logging disabled via keyboard shortcut");
+                }
+                else {
+                        GlobalVariables.enableDebugLogging();
+                        showLoggingStatusMessage("Debug logging enabled");
+                        LOGGER.fine("Debug logging enabled via keyboard shortcut");
+                }
         }
 
-        // ========================= SETUP METHODS =========================
+        /**
+         * Show a brief status message about logging changes
+         */
+        private void showLoggingStatusMessage(String message) {
+                System.out.println("LOGGING: " + message + " - Current level: " + GlobalVariables.getLoggingLevel());
+
+                // You could also show this in a status bar or temporary tooltip
+                // if you have one
+                // For now, we'll just print to console and log it
+                LOGGER.info("Logging status: " + message);
+        }
 
         private void applyStyles() {
                 tableIncomeTotal.getStyleClass().add("table-view-total");
                 tableMandatoryTotal.getStyleClass().add("table-view-total");
                 tableDiscretionaryTotal.getStyleClass().add("table-view-total");
                 myAnchorPane.getStyleClass().add("catBox");
-                tableIncomeTotal.getStyleClass().add("total-table");
         }
 
         private void setupInitialState() {
@@ -350,10 +455,10 @@ public class PrimaryController {
         }
 
         private void setupTableReferences() {
-                tables.add(tableIncomeTotal);
-                tables.add(tableMandatoryTotal);
-                tables.add(tableDiscretionaryTotal);
-                tables.add(tableTotal);
+                totalTablesList.add(tableIncomeTotal);
+                totalTablesList.add(tableMandatoryTotal);
+                totalTablesList.add(tableDiscretionaryTotal);
+                totalTablesList.add(tableGrandTotal);
         }
 
         private void setupChoiceBoxes() {
@@ -422,6 +527,9 @@ public class PrimaryController {
                 hideTableHeaders(tableIncomeTotal);
                 hideTableHeaders(tableMandatoryTotal);
                 hideTableHeaders(tableDiscretionaryTotal);
+
+                // Hide root nodes in tree tables
+                hideRootNodes();
         }
 
         private void hideTableHeaders(TableView<LineItem> table) {
@@ -438,7 +546,13 @@ public class PrimaryController {
                 });
         }
 
-        private void setupTableRows() {
+        private void hideRootNodes() {
+                tableIncome.setShowRoot(false);
+                tableMandatory.setShowRoot(false);
+                tableDiscretionary.setShowRoot(false);
+        }
+
+        private void setupTotalTableRow() {
                 addTotalRowToTable(tableIncomeTotal, 1.0, 1.0);
                 addTotalRowToTable(tableMandatoryTotal, 0.0, 0.0);
                 addTotalRowToTable(tableDiscretionaryTotal, 0.0, 0.0);
@@ -529,17 +643,17 @@ public class PrimaryController {
         }
 
         private void setupTotalTableColumns() {
-                tableTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
-                tableTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                tableGrandTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
+                tableGrandTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
-                tableTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
+                tableGrandTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
-                tableTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
+                tableGrandTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
-                tableTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableGrandTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
+                tableGrandTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
         }
 
         @SuppressWarnings("unchecked")
@@ -571,39 +685,48 @@ public class PrimaryController {
                                         javafx.scene.control.cell.TextFieldTreeTableCell.forTreeTableColumn());
                 }
                 else {
-                        // Custom cell factory for budget columns that checks for children
+                        // Custom cell factory for budget columns that checks
+                        // for children
                         ((TreeTableColumn<LineItem, Double>) column).setCellFactory(tv -> {
-                            return new javafx.scene.control.cell.TextFieldTreeTableCell<LineItem, Double>(
-                                    Util.getCurrencyConverter()) {
-                                
-                                @Override
-                                public void startEdit() {
-                                    // Check if this tree item has children
-                                    TreeTableRow<LineItem> row = getTableRow();
-                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
-                                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-                                        // Don't allow editing if item has children
-                                        return;
-                                    }
-                                    super.startEdit();
-                                }
-                                
-                                @Override
-                                public void updateItem(Double item, boolean empty) {
-                                    super.updateItem(item, empty);
-                                    
-                                    // Visual indication that parent items are not editable
-                                    TreeTableRow<LineItem> row = getTableRow();
-                                    TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
-                                    if (!empty && treeItem != null && !treeItem.getChildren().isEmpty()) {
-                                        setStyle("-fx-text-fill: #888888;"); // Grey out parent items
-                                        setTooltip(new javafx.scene.control.Tooltip("Parent categories cannot be edited"));
-                                    } else {
-                                        setStyle("");
-                                        setTooltip(null);
-                                    }
-                                }
-                            };
+                                return new javafx.scene.control.cell.TextFieldTreeTableCell<LineItem, Double>(
+                                                Util.getCurrencyConverter()) {
+
+                                        @Override
+                                        public void startEdit() {
+                                                // Check if this tree item has
+                                                // children
+                                                TreeTableRow<LineItem> row = getTableRow();
+                                                TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                                if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        // Don't allow editing
+                                                        // if item has children
+                                                        return;
+                                                }
+                                                super.startEdit();
+                                        }
+
+                                        @Override
+                                        public void updateItem(Double item, boolean empty) {
+                                                super.updateItem(item, empty);
+
+                                                // Visual indication that parent
+                                                // items are not editable
+                                                TreeTableRow<LineItem> row = getTableRow();
+                                                TreeItem<LineItem> treeItem = (row != null) ? row.getTreeItem() : null;
+                                                if (!empty && treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        setStyle("-fx-text-fill: #888888;"); // Grey
+                                                                                             // out
+                                                                                             // parent
+                                                                                             // items
+                                                        setTooltip(new javafx.scene.control.Tooltip(
+                                                                        "Parent categories cannot be edited"));
+                                                }
+                                                else {
+                                                        setStyle("");
+                                                        setTooltip(null);
+                                                }
+                                        }
+                                };
                         });
                 }
         }
@@ -624,88 +747,60 @@ public class PrimaryController {
 
         // ========================= CONTEXT MENU SETUP
         // =========================
-private void setupContextMenus() {
-    setupTreeTableRowFactory(tableIncome, false);       // No context menu
-    setupTreeTableRowFactory(tableMandatory, true);     // With context menu
-    setupTreeTableRowFactory(tableDiscretionary, true); // With context menu
-}
-
-private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasContextMenu) {
-    table.setRowFactory(tv -> {
-        TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
-            @Override
-            protected void updateItem(LineItem item, boolean empty) {
-                super.updateItem(item, empty);
-                
-                if (empty || item == null) {
-                    setStyle("");
-                } else {
-                    TreeItem<LineItem> treeItem = getTreeItem();
-                    if (treeItem != null && !treeItem.getChildren().isEmpty()) {
-                        // Parent category - light blue background
-                        setStyle("-fx-background-color: lightblue;");
-                    } else {
-                        // Leaf item - default background
-                        setStyle("");
-                    }
-                }
-            }
-        };
-        
-        // Add context menu only if requested
-        if (hasContextMenu) {
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem editItem = new MenuItem("Edit");
-            contextMenu.getItems().add(editItem);
-
-            row.setOnMouseClicked(event -> {
-                if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-                    contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                }
-            });
-
-            editItem.setOnAction(event -> {
-                LineItem item = row.getItem();
-                if (item != null) {
-                    editLineItem(item);
-                }
-            });
+        private void setupContextMenus() {
+                setupTreeTableRowFactory(tableIncome, false); // No context menu
+                setupTreeTableRowFactory(tableMandatory, true); // With context
+                                                                // menu
+                setupTreeTableRowFactory(tableDiscretionary, true); // With
+                                                                    // context
+                                                                    // menu
         }
 
-        return row;
-    });
-}
-        // private void setupContextMenus() {
-        //         setupContextMenu(tableMandatory);
-        //         setupContextMenu(tableDiscretionary);
-        // }
+        private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
+                table.setRowFactory(tv -> {
+                        TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
+                                @Override
+                                protected void updateItem(LineItem item, boolean empty) {
+                                        super.updateItem(item, empty);
 
-        // private void setupContextMenu(TreeTableView<LineItem> table) {
-        //         table.setRowFactory(tv -> {
-        //                 TreeTableRow<LineItem> row = new TreeTableRow<>();
-        //                 ContextMenu contextMenu = new ContextMenu();
-        //                 MenuItem editItem = new MenuItem("Edit");
-        //                 contextMenu.getItems().add(editItem);
+                                        if (empty || item == null) {
+                                                setStyle("");
+                                        }
+                                        else {
+                                                TreeItem<LineItem> treeItem = getTreeItem();
+                                                if (treeItem != null && !treeItem.getChildren().isEmpty()) {
+                                                        // Parent category -
+                                                        // light blue background
+                                                        setStyle("-fx-background-color: lightblue;");
+                                                }
+                                                else {
+                                                        // Leaf item - default
+                                                        // background
+                                                        setStyle("");
+                                                }
+                                        }
+                                }
+                        };
 
-        //                 row.setOnMouseClicked(event -> {
-        //                         if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
-        //                                 contextMenu.show(row, event.getScreenX(), event.getScreenY());
-        //                         }
-        //                 });
+                        // Add right-click action to open secondary window
+                        if (hasRightClickAction) {
+                                row.setOnMouseClicked(event -> {
+                                        if (event.getButton() == MouseButton.SECONDARY && !row.isEmpty()) {
+                                                try {
+                                                        editLineItemDetail(event);
+                                                }
+                                                catch (IOException e) {
+                                                        LOGGER.log(Level.SEVERE, "Error opening secondary window", e);
+                                                        showErrorAlert("Window Error",
+                                                                        "Failed to open the category edit window.");
+                                                }
+                                        }
+                                });
+                        }
 
-        //                 editItem.setOnAction(event -> {
-        //                         LineItem item = row.getItem();
-        //                         if (item != null) {
-        //                                 editLineItem(item);
-        //                         }
-        //                 });
-
-        //                 return row;
-        //         });
-        // }
-
-        // ========================= DATA LOADING METHODS
-        // =========================
+                        return row;
+                });
+        }
 
         private void initializeData() {
                 LocalDate currentDate = LocalDate.now();
@@ -719,10 +814,9 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                         @Override
                         protected void succeeded() {
                                 Platform.runLater(() -> {
-                                        getTableRows(currentDate);
-                                        calculateAllTreeTotals();
-                                        UIData.updateTableTotal(tables);
+                                        updateTables();
                                         updateMainDateLabel(currentDate);
+                                        updateRunningTotalsFromMonth(currentDate);
                                 });
                         }
 
@@ -740,54 +834,82 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
          * Reads data from database for the specified date.
          */
         public void readFromDatabase(LocalDate date) {
-                executeAsyncTask(() -> {
-                        // No background processing needed for this operation
-                        // All database operations will happen on the UI thread
-                }, () -> {
-                        getTableRows(date);
-                        UIData.updateTableTotal(tables);
-                }, "Error reading data from database");
+                // Show loading indicator
+                setLoadingState(true);
+
+                CompletableFuture.supplyAsync(() -> loadDatabaseData(date), executorService).thenAcceptAsync(data -> {
+                        Platform.runLater(() -> {
+                                updateUIWithData(data);
+                                setLoadingState(false);
+                        });
+                }).exceptionally(throwable -> {
+                        LOGGER.log(Level.SEVERE, "Error reading data from database", throwable);
+                        Platform.runLater(() -> {
+                                setLoadingState(false);
+                                showErrorAlert("Database Error",
+                                                "Failed to load data from database: " + throwable.getMessage());
+                        });
+                        return null;
+                });
         }
 
         /**
-         * Loads table data for the specified date.
+         * Loads all required data from database (background thread safe).
          */
-        public void getTableRows(LocalDate date) {
+        private DatabaseDataResult loadDatabaseData(LocalDate date) {
                 try {
-                        // Load income data
+                        // Load all data in background thread
                         TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
-                        tableIncome.setRoot(incomeRoot);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+
+                        LineItem incomeTotals = ReadData.getTotals(DB.INCOME, date);
+                        LineItem mandatoryTotals = ReadData.getTotals(DB.MANDATORY, date);
+                        LineItem discretionaryTotals = ReadData.getTotals(DB.DISCRETIONARY, date);
+
+                        // Calculate tree totals in background
                         if (incomeRoot != null) {
-                                incomeRoot.setExpanded(true);
                                 Util.calculateTreeTotals(incomeRoot);
                         }
-                        tableIncomeTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, date)));
-
-                        // Load mandatory data
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
-                        tableMandatory.setRoot(mandatoryRoot);
                         if (mandatoryRoot != null) {
-                                mandatoryRoot.setExpanded(true);
                                 Util.calculateTreeTotals(mandatoryRoot);
                         }
-                        tableMandatoryTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, date)));
-
-                        // Load discretionary data
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
-                        tableDiscretionary.setRoot(discretionaryRoot);
                         if (discretionaryRoot != null) {
-                                discretionaryRoot.setExpanded(true);
                                 Util.calculateTreeTotals(discretionaryRoot);
                         }
-                        tableDiscretionaryTotal.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
+
+                        return new DatabaseDataResult(incomeRoot, mandatoryRoot, discretionaryRoot, incomeTotals,
+                                        mandatoryTotals, discretionaryTotals);
 
                 }
                 catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Error loading table data for date: " + date, e);
-                        showErrorAlert("Data Loading Error", "Failed to load table data for the selected date.");
+                        LOGGER.log(Level.SEVERE, "Error loading database data for date: " + date, e);
+                        throw new RuntimeException("Failed to load database data", e);
+                }
+        }
+
+        private void setLoadingState(boolean loading) {
+                // progressIndicator.setVisible(loading);
+                btn_Update.setDisable(loading);
+                // Disable other relevant controls during loading
+        }
+
+        private void updateUIWithData(DatabaseDataResult data) {
+                // Update all UI components
+                updateTreeTables(data);
+                UIData.updateTableGrandTotal(totalTablesList);
+        }
+
+        private void updateTreeTables(DatabaseDataResult data) {
+                setTreeTableRoot(tableIncome, data.getIncomeRoot());
+                setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
+                setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
+        }
+
+        private void setTreeTableRoot(TreeTableView<LineItem> table, TreeItem<LineItem> root) {
+                table.setRoot(root);
+                if (root != null) {
+                        root.setExpanded(true);
                 }
         }
 
@@ -799,9 +921,40 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                         File selectedFile = showFileChooser();
                         if (selectedFile != null) {
                                 saveFilePathToStorage(selectedFile);
-                                readActual(selectedFile, workingDate);
-                                readFromDatabase(workingDate);
-                                resetImportState();
+
+                                // Run readCSVFile in a background thread, then
+                                // call readFromDatabase after completion
+                                Task<Void> importTask = new Task<Void>() {
+                                        @Override
+                                        protected Void call() throws Exception {
+                                                readCSVFile(selectedFile, workingDate);
+                                                return null;
+                                        }
+
+                                        @Override
+                                        protected void succeeded() {
+                                                Platform.runLater(() -> {
+                                                        // readFromDatabase(workingDate);
+                                                        updateTables();
+                                                        resetImportState();
+                                                        // WriteData.updateAllRunningTotals(workingDate);
+                                                });
+                                        }
+
+                                        @Override
+                                        protected void failed() {
+                                                LOGGER.log(Level.SEVERE, "Error reading CSV file in background",
+                                                                getException());
+                                                Platform.runLater(() -> showErrorAlert("Import Error",
+                                                                "Failed to import CSV file."));
+                                        }
+                                };
+                                executorService.submit(importTask);
+
+                        }
+                        else {
+                                LOGGER.log(Level.WARNING, "No file selected for import");
+                                showErrorAlert("File Selection Error", "No file was selected for import.");
                         }
                 }
                 catch (Exception e) {
@@ -852,11 +1005,11 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
         /**
          * Reads actual data from CSV file.
          */
-        public static void readActual(File file, LocalDate date) {
+        public static void readCSVFile(File file, LocalDate date) {
                 try (FileReader fileReader = new FileReader(file); CSVReader csvReader = new CSVReader(fileReader)) {
 
                         LineItemCSV newLineItem;
-                    
+
                         String[] nextRecord;
                         String category;
                         String parent = "";
@@ -988,7 +1141,7 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                         Util.calculateTreeTotals(treeTable.getRoot());
                         totalTable.setItems(
                                         FXCollections.observableArrayList(ReadData.getTotals(dbType, item.getDate())));
-                        UIData.updateTableTotal(tables);
+                        UIData.updateTableGrandTotal(totalTablesList);
                         treeTable.refresh();
                         treeTable.requestFocus();
                 }, "Error updating budget for item: " + item.getCategory());
@@ -1031,8 +1184,9 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
 
-                getTableRows(workingDate);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(workingDate);
+                readFromDatabase(workingDate);
+                UIData.updateTableGrandTotal(totalTablesList);
         }
 
         private void refreshDataAfterEdit() {
@@ -1045,8 +1199,11 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
 
-                getTableRows(workingDate);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(workingDate);
+                readFromDatabase(workingDate);
+                UIData.updateTableGrandTotal(totalTablesList);
+
+                // updateRunningTotalsAndShowWarnings();
         }
 
         private void refreshDataForDate(LocalDate date) {
@@ -1055,8 +1212,9 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                 tableDiscretionaryTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
 
-                getTableRows(date);
-                UIData.updateTableTotal(tables);
+                // getTableRowsFromDatabase(date);
+                readFromDatabase(date);
+                UIData.updateTableGrandTotal(totalTablesList);
                 tableIncome.refresh();
         }
 
@@ -1074,9 +1232,11 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
         }
 
         private void openEditCategoryWindow(ActionEvent event) throws IOException {
+
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/secondary.fxml"));
                 Parent root = fxmlLoader.load();
 
+           
                 Stage stage = new Stage();
                 stage.setTitle(EDIT_CATEGORY_TITLE);
                 stage.setScene(new Scene(root));
@@ -1086,27 +1246,40 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
         }
 
         /**
-         * Opens the edit item dialog for the specified line item.
+         * Opens the edit item detail dialog for the specified line item.
          */
-        public void editLineItem(LineItem item) {
-                try {
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
-                        Parent root = fxmlLoader.load();
+        private void editLineItemDetail(MouseEvent event) throws IOException {
+                // Get the selected LineItem from the row that was right-clicked
+                @SuppressWarnings("unchecked")
+                TreeTableRow<LineItem> row = (TreeTableRow<LineItem>) event.getSource();
+                LineItem selectedItem = row.getItem();
 
-                        EditItemController editItemController = fxmlLoader.getController();
-                        editItemController.setItem(item);
-
-                        Stage stage = new Stage();
-                        stage.setTitle(EDIT_ITEM_TITLE);
-                        stage.setScene(new Scene(root));
-                        stage.initModality(Modality.WINDOW_MODAL);
-                        stage.initOwner(myAnchorPane.getScene().getWindow());
-                        stage.showAndWait();
-
+                if (selectedItem == null) {
+                        LOGGER.warning("No item selected for editing");
+                        return;
                 }
-                catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, "Error opening edit item window", e);
-                        showErrorAlert("Window Error", "Failed to open the edit item window.");
+
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/editItem.fxml"));
+                Parent root = fxmlLoader.load();
+
+                // Get the controller and pass the selected item
+                EditItemController editItemController = fxmlLoader.getController();
+                editItemController.setLineItem(selectedItem);
+
+                Stage stage = new Stage();
+                stage.setTitle(EDIT_ITEM_TITLE);
+                stage.setScene(new Scene(root));
+                stage.initModality(Modality.WINDOW_MODAL);
+
+                // Get the window from the event source
+                Node source = (Node) event.getSource();
+                stage.initOwner(source.getScene().getWindow());
+
+                stage.showAndWait();
+
+                // Check if changes were made and refresh if needed
+                if (editItemController.wasItemModified()) {
+                        refreshDataAfterEdit();
                 }
         }
 
@@ -1165,8 +1338,8 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
 
         // ========================= GETTERS =========================
 
-        public ArrayList<TableView<LineItem>> getTables() {
-                return tables;
+        public ArrayList<TableView<LineItem>> getTotalTablesList() {
+                return totalTablesList;
         }
 
         // ========================= CLEANUP =========================
@@ -1180,5 +1353,299 @@ private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean has
                         executorService.shutdown();
                         LOGGER.info("PrimaryController cleanup completed");
                 }
+        }
+
+        // Add to your PrimaryController class
+
+        /**
+         * Updates running totals for the current month and all following
+         * months. This cascades changes through all future months since each
+         * month's running total depends on the previous month's ending balance.
+         * 
+         * @param startDate The month to start updating from (current month)
+         * @return true if all updates were successful, false otherwise
+         */
+        public static boolean updateRunningTotalsFromMonth(LocalDate startDate) {
+                if (startDate == null) {
+                        throw new IllegalArgumentException("Start date cannot be null");
+                }
+
+                if (!DataSource.getInstance().ensureConnection()) {
+                        LOGGER.severe("Database connection not available for cascading running totals update");
+                        return false;
+                }
+
+                // Get all months that need updating (current month and all
+                // future months)
+                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startDate);
+
+                if (monthsToUpdate.isEmpty()) {
+                        LOGGER.info("No months found to update from " + Util.formatDateForDatabase(startDate));
+                        return true;
+                }
+
+                LOGGER.info("Starting cascading running totals update from " + Util.formatDateForDatabase(startDate)
+                                + " for " + monthsToUpdate.size() + " months");
+
+                int totalUpdatedCategories = 0;
+                int totalWarnings = 0;
+
+                // Process each month in chronological order
+                for (LocalDate monthDate : monthsToUpdate) {
+                        LOGGER.info("Updating running totals for month: " + Util.formatDateForDatabase(monthDate));
+
+                        MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+
+                        if (!result.isSuccess()) {
+                                LOGGER.severe("Failed to update running totals for month: "
+                                                + Util.formatDateForDatabase(monthDate));
+                                return false;
+                        }
+
+                        totalUpdatedCategories += result.getUpdatedCount();
+                        totalWarnings += result.getWarningCount();
+
+                        LOGGER.fine("Month " + Util.formatDateForDatabase(monthDate) + " - Updated: "
+                                        + result.getUpdatedCount() + " categories, Warnings: "
+                                        + result.getWarningCount());
+                }
+
+                LOGGER.info("Cascading running totals update completed. Total categories updated: "
+                                + totalUpdatedCategories + ", Total warnings: " + totalWarnings);
+
+                return true;
+        }
+
+        /**
+         * Gets all months that have actual data from the start date onwards.
+         */
+        private static List<LocalDate> getMonthsToUpdate(LocalDate startDate) {
+                List<LocalDate> months = new ArrayList<>();
+                String startDateStr = Util.formatDateForDatabase(startDate);
+
+                String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " + "FROM actual "
+                                + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
+
+                try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
+                        stmt.setString(1, startDateStr);
+
+                        try (ResultSet rs = stmt.executeQuery()) {
+                                while (rs.next()) {
+                                        String monthStr = rs.getString("month_date");
+                                        LocalDate monthDate = LocalDate.parse(monthStr + "-01");
+                                        months.add(monthDate);
+                                }
+                        }
+                }
+                catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error getting months to update from " + startDateStr, e);
+                }
+
+                return months;
+        }
+
+        /**
+         * Updates running totals for a single month and returns detailed
+         * results.
+         */
+        private static MonthUpdateResult updateRunningTotalsForSingleMonth(LocalDate monthDate) {
+                String dateString = Util.formatDateForDatabase(monthDate);
+                int updatedCount = 0;
+                int warningCount = 0;
+                List<String> warnings = new ArrayList<>();
+
+                try (PreparedStatement stmt = DataSource.getConn()
+                                .prepareStatement(DB.ACTUAL_GET_LINE_ITEMS_FOR_MONTH)) {
+                        stmt.setString(1, dateString);
+
+                        try (ResultSet rs = stmt.executeQuery()) {
+                                while (rs.next()) {
+                                        int categoryId = rs.getInt("id");
+                                        double budget = rs.getDouble("budget");
+                                        double actual = rs.getDouble("actual");
+                                        Double maxAmount = rs.getObject("default_maximum_amount", Double.class);
+                                        String categoryName = rs.getString("category");
+
+                                        RunningTotal result = WriteData.updateRunningTotal(categoryId, monthDate,
+                                                        budget, actual, maxAmount);
+
+                                        if (result != null) {
+                                                updatedCount++;
+
+                                                // Check for warnings
+                                                if (result.needsWarning()) {
+                                                        warningCount++;
+                                                        String warningMsg = "NEGATIVE RUNNING TOTAL: Category '"
+                                                                        + categoryName
+                                                                        + "' has a negative running total of "
+                                                                        + result.getRunningTotal() + " in month "
+                                                                        + dateString;
+                                                        warnings.add(warningMsg);
+                                                        LOGGER.warning(warningMsg);
+                                                }
+
+                                                if (result.isOverMaximum()) {
+                                                        warningCount++;
+                                                        String warningMsg = "OVER MAXIMUM: Category '" + categoryName
+                                                                        + "' running total (" + result.getRunningTotal()
+                                                                        + ") exceeds maximum ("
+                                                                        + result.getMaximumAmount() + ") in month "
+                                                                        + dateString;
+                                                        warnings.add(warningMsg);
+                                                        LOGGER.warning(warningMsg);
+                                                }
+                                        }
+                                }
+                        }
+
+                        return new MonthUpdateResult(true, updatedCount, warningCount, warnings);
+
+                }
+                catch (SQLException e) {
+                        LOGGER.log(Level.SEVERE, "Error updating running totals for month " + dateString, e);
+                        return new MonthUpdateResult(false, updatedCount, warningCount, warnings);
+                }
+        }
+
+        /**
+         * Updates running totals from current month forward when actual amounts
+         * change. This is the main entry point that should be called after any
+         * actual amount updates.
+         */
+        public static boolean cascadeRunningTotalsUpdate(LocalDate changedMonth) {
+                if (changedMonth == null) {
+                        throw new IllegalArgumentException("Changed month cannot be null");
+                }
+
+                LOGGER.info("Cascading running totals update triggered by changes in: "
+                                + Util.formatDateForDatabase(changedMonth));
+
+                return WriteData.performTransactionSafeBatch(() -> {
+                        if (!updateRunningTotalsFromMonth(changedMonth)) {
+                                throw new RuntimeException("Failed to update cascading running totals");
+                        }
+                });
+        }
+
+
+        /**
+         * Result object for month update operations.
+         */
+        public static class MonthUpdateResult {
+                private final boolean success;
+                private final int updatedCount;
+                private final int warningCount;
+                private final List<String> warnings;
+
+                public MonthUpdateResult(boolean success, int updatedCount, int warningCount, List<String> warnings) {
+                        this.success = success;
+                        this.updatedCount = updatedCount;
+                        this.warningCount = warningCount;
+                        this.warnings = new ArrayList<>(warnings);
+                }
+
+                public boolean isSuccess() {
+                        return success;
+                }
+
+                public int getUpdatedCount() {
+                        return updatedCount;
+                }
+
+                public int getWarningCount() {
+                        return warningCount;
+                }
+
+                public List<String> getWarnings() {
+                        return warnings;
+                }
+        }
+
+        /**
+         * Convenience method to update running totals from current system month
+         * forward.
+         */
+        public static boolean updateRunningTotalsFromNow() {
+                LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
+                return updateRunningTotalsFromMonth(currentMonth);
+        }
+
+        /**
+         * Updates running totals for a specific date range.
+         */
+        public static boolean updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth) {
+                if (startMonth == null || endMonth == null) {
+                        throw new IllegalArgumentException("Start and end months cannot be null");
+                }
+
+                if (startMonth.isAfter(endMonth)) {
+                        throw new IllegalArgumentException("Start month cannot be after end month");
+                }
+
+                LOGGER.info("Updating running totals for date range: " + Util.formatDateForDatabase(startMonth) + " to "
+                                + Util.formatDateForDatabase(endMonth));
+
+                // Get months in the specified range
+                List<LocalDate> monthsInRange = new ArrayList<>();
+                LocalDate current = startMonth.withDayOfMonth(1);
+                LocalDate end = endMonth.withDayOfMonth(1);
+
+                while (!current.isAfter(end)) {
+                        monthsInRange.add(current);
+                        current = current.plusMonths(1);
+                }
+
+                // Filter to only include months that have actual data
+                List<LocalDate> monthsToUpdate = getMonthsToUpdate(startMonth).stream()
+                                .filter(month -> !month.isAfter(endMonth))
+                                .collect(java.util.stream.Collectors.toList());
+
+                if (monthsToUpdate.isEmpty()) {
+                        LOGGER.info("No months with data found in specified range");
+                        return true;
+                }
+
+                return WriteData.performTransactionSafeBatch(() -> {
+                        for (LocalDate monthDate : monthsToUpdate) {
+                                MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+                                if (!result.isSuccess()) {
+                                        throw new RuntimeException("Failed to update running totals for month: "
+                                                        + Util.formatDateForDatabase(monthDate));
+                                }
+                        }
+                });
+        }
+
+        // ========================= NEW METHOD =========================
+
+        // In PrimaryController, call this after any actual amount updates
+        private void handleActualAmountUpdate(LocalDate monthChanged) {
+                executeAsyncTask(() -> cascadeRunningTotalsUpdate(monthChanged), () -> {
+                        // Refresh UI after running totals update
+                        readFromDatabase(getWorkingDate());
+                        // updateRunningTotalWarnings();
+                }, "Error updating running totals");
+        }
+
+        /**
+         * Allows user to manually modify a running total.
+         */
+        public void modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal) {
+                executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, newTotal), () -> {
+                        // Refresh UI after modification
+                        // updateRunningTotalWarnings();
+                        readFromDatabase(getWorkingDate());
+                }, "Error modifying running total");
+        }
+
+        /**
+         * Clears manual modification for a running total.
+         */
+        public void clearRunningTotalModification(int categoryId, LocalDate monthDate) {
+                executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, null), () -> {
+                        // Refresh UI after clearing modification
+                        // updateRunningTotalWarnings();
+                        readFromDatabase(getWorkingDate());
+                }, "Error clearing running total modification");
         }
 }

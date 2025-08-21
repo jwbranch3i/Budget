@@ -11,10 +11,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.Util;
+
 import javafx.scene.control.TreeItem;
 
 public class ReadData {
     private static final Logger LOGGER = Logger.getLogger(ReadData.class.getName());
+    // ========================= CONSTANTS =========================
 
     /**
      * Finds the category of a LineItemCSV in the actual database table.
@@ -25,13 +28,13 @@ public class ReadData {
     public static LineItemCSV actualFindCategory(LineItemCSV item) {
         LineItemCSV returnItem = createCopyWithId(item, -1);
 
-        String monthString = String.format("%02d", item.getDate().getMonthValue());
-        String yearString = String.format("%04d", item.getDate().getYear());
+        // Use Util.formatDateForDatabase instead of local DATE_FORMATTER
+        String dateString = Util.formatDateForDatabase(item.getDate());
 
-        try (PreparedStatement findRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_FIND_CATEGORY)) {
+        try (PreparedStatement findRecord = DataSource.getConn()
+                .prepareStatement(DB.ACTUAL_FIND_RECORD_BY_ID_AND_DATE)) {
             findRecord.setInt(1, item.getId());
-            findRecord.setString(2, monthString);
-            findRecord.setString(3, yearString);
+            findRecord.setString(2, dateString);
 
             try (ResultSet rs = findRecord.executeQuery()) {
                 if (rs.next()) {
@@ -85,12 +88,12 @@ public class ReadData {
         TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
         Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
 
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
+        // Use Util.formatDateForDatabase for consistent formatting
+        String dateString = Util.formatDateForDatabase(date);
+
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
-            ps.setInt(3, type);
+            ps.setString(1, dateString);
+            ps.setInt(2, type);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -173,12 +176,11 @@ public class ReadData {
      */
     public static List<LineItemCSV> findMissingCategories(LocalDate date) {
         List<LineItemCSV> items = new ArrayList<>();
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
+
+        String dateString = Util.formatDateForDatabase(date);
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.FIND_MISSING_CATEGORIES)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
+            ps.setString(1, dateString);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -231,11 +233,14 @@ public class ReadData {
     public static List<String> getYears() {
         List<String> years = new ArrayList<>();
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_YEARS);
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_AVAILABLE_YEARS);
                 ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                years.add(rs.getString("YEAR"));
+                String year = rs.getString("YEAR");
+                if (year != null) {
+                    years.add(year);
+                }
             }
 
             if (years.isEmpty()) {
@@ -251,21 +256,37 @@ public class ReadData {
     /**
      * Get categories from the database.
      */
-    public static List<Categories> getCategories() {
-        List<Categories> categories = new ArrayList<>();
+    public static TreeItem<Categories> getCategories() {
+        TreeItem<Categories> rootNode = new TreeItem<>(new Categories());
+        Map<String, TreeItem<Categories>> parentMap = new HashMap<>();
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.CAT_GET_CATEGORIES)) {
 
-            while (rs.next()) {
-                Categories newItem = createCategoryFromResultSet(rs);
-                categories.add(newItem);
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    Categories newCategory = createCategoryFromResultSet(rs);
+
+                    String parent = newCategory.getParent();
+
+                    // Get or create parent node
+                    TreeItem<Categories> parentNode = parentMap.get(parent);
+                    if (parentNode == null) {
+                        parentNode = new TreeItem<>(newCategory);
+                        parentMap.put(parent, parentNode);
+                        rootNode.getChildren().add(parentNode);
+                    }
+                    else {
+                        parentNode.getChildren().add(new TreeItem<>(newCategory));
+                    }
+
+                }
             }
         }
         catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error in getCategories", e);
+            LOGGER.log(Level.SEVERE, "Error in getTableAmountsTree", e);
         }
-        return categories;
+        return rootNode;
     }
 
     // Private helper methods
@@ -285,7 +306,8 @@ public class ReadData {
         item.setId(rs.getInt("ID"));
         item.setType(type);
         item.hide(rs.getBoolean("HIDE"));
-        item.setDate(LocalDate.parse(rs.getString("DATE")));
+        String dateStr = rs.getString("DATE") + "-01";
+        item.setDate(LocalDate.parse(dateStr));
         item.isCategory(rs.getBoolean("MAIN_CATEGORY"));
         item.setParent(rs.getString("PARENT"));
         item.setCategory(rs.getString("CATEGORY"));
@@ -316,18 +338,6 @@ public class ReadData {
         return category;
     }
 
-    private static LineItem createParentLineItem(LineItem childItem) {
-        LineItem parent = new LineItem();
-        parent.setCategory(childItem.getParent());
-        parent.setType(childItem.getType());
-        parent.setDate(childItem.getDate());
-        parent.setParent(childItem.getParent());
-        parent.isCategory(true);
-        parent.setActual(0.0);
-        parent.setBudget(0.0);
-        return parent;
-    }
-
     private static void calculateRootTotals(TreeItem<LineItem> rootNode) {
         LineItem rootItem = rootNode.getValue();
         double rootActualTotal = 0.0;
@@ -341,5 +351,86 @@ public class ReadData {
 
         rootItem.setActual(rootActualTotal);
         rootItem.setBudget(rootBudgetTotal);
+    }
+
+    // Add to your ReadData class
+
+    /**
+     * Gets all running totals for a specific month, using effective totals.
+     */
+    public static List<RunningTotal> getRunningTotalsForMonth(LocalDate monthDate) {
+        List<RunningTotal> totals = new ArrayList<>();
+
+        if (!DataSource.getInstance().ensureConnection()) {
+            return totals;
+        }
+
+        try (PreparedStatement stmt = DataSource.getConn()
+                .prepareStatement(DB.RUNNING_TOTAL_GET_ALL_FOR_MONTH_WITH_MODIFIED)) {
+            stmt.setString(1, Util.formatDateForDatabase(monthDate));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    RunningTotal total = new RunningTotal();
+                    total.setId(rs.getInt("id"));
+                    total.setCategoryId(rs.getInt("category_id"));
+                    total.setCategoryName(rs.getString("category"));
+                    total.setMonthDateFromString(rs.getString("month_date"));
+                    total.setPreviousBalance(rs.getDouble("previous_balance"));
+                    total.setCurrentDifference(rs.getDouble("current_difference"));
+                    total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setModifiedRunningTotal(rs.getObject("modified_running_total", Double.class));
+                    total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
+                    total.setWarningIssued(rs.getBoolean("warning_issued"));
+
+                    totals.add(total);
+                }
+            }
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting running totals for month", e);
+        }
+
+        return totals;
+    }
+
+    /**
+     * Gets categories with negative effective running totals for a specific
+     * month.
+     */
+    public static List<RunningTotal> getNegativeRunningTotals(LocalDate monthDate) {
+        List<RunningTotal> negatives = new ArrayList<>();
+
+        if (!DataSource.getInstance().ensureConnection()) {
+            return negatives;
+        }
+
+        try (PreparedStatement stmt = DataSource.getConn()
+                .prepareStatement(DB.RUNNING_TOTAL_GET_NEGATIVE_TOTALS_WITH_MODIFIED)) {
+            stmt.setString(1, Util.formatDateForDatabase(monthDate));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    RunningTotal total = new RunningTotal();
+                    total.setId(rs.getInt("id"));
+                    total.setCategoryId(rs.getInt("category_id"));
+                    total.setCategoryName(rs.getString("category"));
+                    total.setMonthDateFromString(rs.getString("month_date"));
+                    total.setPreviousBalance(rs.getDouble("previous_balance"));
+                    total.setCurrentDifference(rs.getDouble("current_difference"));
+                    total.setRunningTotal(rs.getDouble("running_total"));
+                    total.setModifiedRunningTotal(rs.getObject("modified_running_total", Double.class));
+                    total.setMaximumAmount(rs.getObject("maximum_amount", Double.class));
+                    total.setWarningIssued(rs.getBoolean("warning_issued"));
+
+                    negatives.add(total);
+                }
+            }
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting negative running totals", e);
+        }
+
+        return negatives;
     }
 }

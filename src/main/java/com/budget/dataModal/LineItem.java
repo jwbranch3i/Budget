@@ -18,12 +18,14 @@ public class LineItem {
     
     /** Default indentation for non-category items */
     private static final String CATEGORY_INDENT = " ".repeat(6);
+    private static final int INCOME = 0;
     
     // ========================= FIELDS =========================
     
     private int id = 0;
+    private int categoryId = 0; // Used for database reference
     private int acct = 0;
-    private int type = 0;
+    private int type = INCOME;
 
     private boolean hide = false;
     private boolean includeInTotal = true;
@@ -78,6 +80,7 @@ public class LineItem {
         this();
         if (other != null) {
             this.id = other.id;
+            this.categoryId = other.categoryId;
             this.acct = other.acct;
             this.type = other.type;
             this.hide(other.hide());
@@ -127,6 +130,27 @@ public class LineItem {
     public void setId(int id) {
         this.id = id;
     }
+
+        // ========================= CAT_ID PROPERTIES =========================
+    
+    /**
+     * Gets the unique identifier for this line item.
+     * 
+     * @return The line item ID
+     */
+    public int getCatagoryId() {
+        return this.categoryId;
+    }
+
+    /**
+     * Sets the unique identifier for this line item.
+     * 
+     * @param id The line item ID
+     */
+    public void setCategoryId(int id) {
+        this.categoryId = id;
+    }
+
 
     // ========================= INCLUDE IN TOTAL PROPERTIES =========================
  
@@ -510,6 +534,7 @@ public class LineItem {
         
         LineItem lineItem = (LineItem) obj;
         return id == lineItem.id &&
+                categoryId == lineItem.categoryId &&
                acct == lineItem.acct &&
                type == lineItem.type &&
                hide() == lineItem.hide() &&
@@ -530,7 +555,7 @@ public class LineItem {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, acct, type, hide(), includeInTotal(), isCategory(),
+        return Objects.hash(id, categoryId, acct, type, hide(), includeInTotal(), isCategory(),
                            getDate(), getParent(), getCategoryRaw(), getActual(), 
                            getBudget(), getStartBal());
     }
@@ -542,10 +567,10 @@ public class LineItem {
      */
     @Override
     public String toString() {
-        return String.format("LineItem{id=%d, hide=%s, includeInTotal=%s, type=%d, " +
+        return String.format("LineItem{id=%d, categoryId=%d, hide=%s, includeInTotal=%s, type=%d, " +
                            "date='%s', parent='%s', category='%s', actual=%.2f, " +
                            "budget=%.2f, diff=%.2f, startBal=%.2f, balance=%.2f}",
-                           getId(), hide(), includeInTotal(), getType(),
+                           getId(), getCatagoryId(), hide(), includeInTotal(), getType(),
                            getDate(), getParent(), getCategoryRaw(), getActual(),
                            getBudget(), getDiff(), getStartBal(), getBalance());
     }

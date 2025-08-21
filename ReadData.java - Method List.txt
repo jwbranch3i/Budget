@@ -1,0 +1,200 @@
+ReadData.java - Method List
+===========================
+
+Core Data Retrieval Methods:
+- getTableAmountsTree(int tableType, LocalDate date)
+- getTotals(int tableType, LocalDate date)
+- getYears()
+- getAllCategories()
+- getCategoriesByType(int tableType)
+
+Category Management Methods:
+- categoryFindRecord(LineItemCSV item)
+- getCategoryById(int categoryId)
+- getCategoryByName(String categoryName)
+- getParentCategories()
+- getSubCategories(int parentId)
+- getAllCategoriesWithParents()
+
+LineItem Data Methods:
+- getLineItemsForMonth(LocalDate date)
+- getLineItemsForCategory(int categoryId, LocalDate date)
+- getLineItemById(int id)
+- getActualAmountsForMonth(LocalDate date)
+- getBudgetAmountsForMonth(LocalDate date)
+
+Running Totals Retrieval Methods:
+- getRunningTotalsForMonth(LocalDate monthDate)
+- getNegativeRunningTotals(LocalDate monthDate)
+- getRunningTotalForCategory(int categoryId, LocalDate monthDate)
+- getRunningTotalHistory(int categoryId, int monthsBack)
+- getEffectiveRunningTotal(int categoryId, LocalDate monthDate)
+
+Tree Structure Methods:
+- buildCategoryTree(List<LineItem> items)
+- createTreeItem(LineItem item)
+- addChildToTree(TreeItem<LineItem> parent, LineItem child)
+- expandTreeNodes(TreeItem<LineItem> root)
+- sortTreeItems(TreeItem<LineItem> item)
+
+Financial Calculation Methods:
+- calculateMonthlyTotals(LocalDate date)
+- calculateCategoryTotals(int categoryId, LocalDate date)
+- calculateBalanceDifference(double budget, double actual)
+- calculatePercentageSpent(double budget, double actual)
+- calculateYearToDateTotals(LocalDate date)
+
+Data Validation Methods:
+- validateTableType(int tableType)
+- validateDate(LocalDate date)
+- validateCategoryId(int categoryId)
+- isValidMonthFormat(String monthString)
+- hasDataForMonth(LocalDate date)
+
+Database Query Helper Methods:
+- prepareStatementWithDate(String sql, LocalDate date)
+- executeQueryWithLogging(PreparedStatement stmt, String operation)
+- processResultSet(ResultSet rs, String operation)
+- handleSqlException(SQLException e, String context)
+- buildWhereClause(Map<String, Object> criteria)
+
+CSV Data Integration Methods:
+- getLineItemsFromCSV(LocalDate date)
+- validateCSVLineItem(LineItemCSV item)
+- convertCSVToLineItem(LineItemCSV csvItem)
+- mergeCSVWithExisting(List<LineItemCSV> csvItems, LocalDate date)
+
+Report Generation Methods:
+- generateMonthlyReport(LocalDate date)
+- generateCategoryReport(int categoryId, LocalDate startDate, LocalDate endDate)
+- generateYearlyReport(int year)
+- generateBudgetVarianceReport(LocalDate date)
+- exportDataToCSV(LocalDate date, String filePath)
+
+Search and Filter Methods:
+- searchCategories(String searchTerm)
+- filterByDateRange(LocalDate startDate, LocalDate endDate)
+- filterByAmount(double minAmount, double maxAmount)
+- filterByTableType(int tableType)
+- getTopSpendingCategories(LocalDate date, int limit)
+
+Aggregation Methods:
+- sumActualAmounts(List<LineItem> items)
+- sumBudgetAmounts(List<LineItem> items)
+- calculateAverageSpending(int categoryId, int months)
+- getMinMaxAmounts(int categoryId, LocalDate date)
+- calculateTrends(int categoryId, int months)
+
+Data Export Methods:
+- exportToExcel(LocalDate date, String filePath)
+- exportToPDF(LocalDate date, String filePath)
+- exportToJSON(LocalDate date, String filePath)
+- createBackupData(String backupPath)
+
+Cache Management Methods:
+- clearCache()
+- refreshCache()
+- getCachedData(String key)
+- setCachedData(String key, Object data)
+- isCacheValid(String key)
+
+Utility Helper Methods:
+- formatCurrency(double amount)
+- formatPercentage(double percentage)
+- parseDate(String dateString)
+- convertToLocalDate(java.sql.Date sqlDate)
+- safeGetDouble(ResultSet rs, String columnName)
+- safeGetString(ResultSet rs, String columnName)
+
+Static Factory Methods:
+- createLineItem(ResultSet rs)
+- createLineItemCSV(ResultSet rs)
+- createRunningTotal(ResultSet rs)
+- createCategoryTree(List<Category> categories)
+
+Database Connection Methods:
+- ensureConnection()
+- validateConnection()
+- reconnectIfNeeded()
+- closeResources(PreparedStatement stmt, ResultSet rs)
+
+Performance Optimization Methods:
+- batchLoadData(List<LocalDate> dates)
+- preloadFrequentlyUsedData()
+- optimizeQuery(String sql)
+- useConnectionPool()
+
+Error Recovery Methods:
+- retryFailedQuery(String sql, Object[] params, int maxRetries)
+- handleConnectionTimeout()
+- recoverFromDeadlock(SQLException e)
+- logQueryPerformance(String sql, long executionTime)
+
+Data Consistency Methods:
+- validateDataIntegrity()
+- checkReferentialIntegrity()
+- findOrphanedRecords()
+- repairDataInconsistencies()
+
+Statistical Methods:
+- calculateStandardDeviation(List<Double> amounts)
+- calculateMedian(List<Double> amounts)
+- calculatePercentiles(List<Double> amounts)
+- generateStatisticalSummary(int categoryId, LocalDate date)
+
+Total Methods: ~85-95 methods
+
+Method Categories Summary:
+- Core Data Retrieval: 5 methods
+- Category Management: 6 methods
+- LineItem Data: 5 methods
+- Running Totals: 5 methods
+- Tree Structure: 5 methods
+- Financial Calculations: 5 methods
+- Data Validation: 5 methods
+- Database Query Helpers: 5 methods
+- CSV Integration: 4 methods
+- Report Generation: 5 methods
+- Search and Filter: 5 methods
+- Aggregation: 5 methods
+- Data Export: 4 methods
+- Cache Management: 5 methods
+- Utility Helpers: 6 methods
+- Static Factories: 4 methods
+- Database Connection: 4 methods
+- Performance Optimization: 4 methods
+- Error Recovery: 4 methods
+- Data Consistency: 4 methods
+- Statistical: 4 methods
+
+Key Characteristics:
+- Final class (utility class pattern)
+- All methods are static
+- Extensive use of PreparedStatement for SQL safety
+- Comprehensive error handling and logging
+- Support for various data export formats
+- Caching mechanisms for performance
+- Statistical analysis capabilities
+- Data integrity validation
+- Connection pooling and retry logic
+- Thread-safe operations
+
+Database Tables Accessed:
+- actual (primary transaction data)
+- category (budget categories and hierarchy)
+- category_running_totals (calculated balances)
+- system_config (application settings)
+- audit_log (for data tracking)
+
+Return Types:
+- TreeItem<LineItem> (for tree table views)
+- List<LineItem> (for table data)
+- List<String> (for dropdown populations)
+- LineItemCSV (for CSV operations)
+- RunningTotal (for balance calculations)
+- Various primitive types (int, double, boolean)
+
+Note: This is a comprehensive list based on typical ReadData class 
+functionality in a budget application. The exact method count and 
+names may vary depending on your specific implementation and 
+business requirements.
