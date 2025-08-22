@@ -217,15 +217,18 @@ public final class DB {
                         + " FROM " + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
 
         /**
-         * Get totals for specific type and date. Parameters: month, year, type
+         * Get totals for specific type and date. Parameters: year-month (YYYY-MM), type
          */
-        public static final String GET_TOTALS = "SELECT SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ATOTAL, "
-                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BTOTAL " + "FROM " + CAT_TABLE
-                        + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " = "
-                        + CAT_TABLE + "." + CAT_COL_ID + " WHERE "
-                        + buildDateFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE, "month") + " = ? AND "
-                        + buildDateFilter(ACTUAL_TABLE + "." + ACTUAL_COL_DATE, "year") + " = ? AND " + CAT_TABLE + "."
-                        + CAT_COL_TYPE + " = ? AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+        public static final String GET_TOTALS = "SELECT "
+                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ACTUAL_TOTAL, "
+                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
+                        + "FROM " + CAT_TABLE
+                        + " INNER JOIN " + ACTUAL_TABLE 
+                        + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID 
+                        + " WHERE " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " = ? "
+                        + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? "
+                        + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+
 
         // ========================= UPDATE QUERIES =========================
 

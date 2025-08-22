@@ -233,9 +233,6 @@ public class PrimaryController {
                         // Apply styles
                         applyStyles();
 
-                        // Setup initial state
-                        setupInitialState();
-
                         // Setup tables reference for totals update
                         setupTableReferences();
 
@@ -244,7 +241,8 @@ public class PrimaryController {
 
                         // Setup table headers and rows
                         setupTableHeaders();
-                        setupTotalTableRow();
+                        // TODO: is this needed?
+                        addListItemToTotalTables();
 
                         // Setup table columns
                         setupTableColumns();
@@ -313,7 +311,7 @@ public class PrimaryController {
                 LocalDate workingDate = getWorkingDate();
 
                 if (!chkBox.isSelected()) {
-                        updateTables();
+                        updateTableData();
                 }
                 else {
                         handleCsvFileImport(workingDate);
@@ -328,7 +326,7 @@ public class PrimaryController {
          */
         @FXML
         void button_UpdateBudget(ActionEvent event) {
-                executeAsyncTask(() -> WriteData.copyLastMonthBudget(getWorkingDate()), this::updateTables,
+                executeAsyncTask(() -> WriteData.copyLastMonthBudget(getWorkingDate()), this::updateTableData,
                                 "Error updating budget from last month");
         }
 
@@ -449,10 +447,6 @@ public class PrimaryController {
                 myAnchorPane.getStyleClass().add("catBox");
         }
 
-        private void setupInitialState() {
-                chkBox.setSelected(false);
-                btn_Update.setDisable(true);
-        }
 
         private void setupTableReferences() {
                 totalTablesList.add(tableIncomeTotal);
@@ -552,13 +546,13 @@ public class PrimaryController {
                 tableDiscretionary.setShowRoot(false);
         }
 
-        private void setupTotalTableRow() {
-                addTotalRowToTable(tableIncomeTotal, 1.0, 1.0);
-                addTotalRowToTable(tableMandatoryTotal, 0.0, 0.0);
-                addTotalRowToTable(tableDiscretionaryTotal, 0.0, 0.0);
+        private void addListItemToTotalTables() {
+                addListItem(tableIncomeTotal, 1.0, 1.0);
+                addListItem(tableMandatoryTotal, 0.0, 0.0);
+                addListItem(tableDiscretionaryTotal, 0.0, 0.0);
         }
 
-        private void addTotalRowToTable(TableView<LineItem> table, double actual, double budget) {
+        private void addListItem(TableView<LineItem> table, double actual, double budget) {
                 LineItem totalItem = new LineItem();
                 totalItem.setCategory(TOTAL_LABEL);
                 totalItem.setActual(actual);
@@ -748,7 +742,7 @@ public class PrimaryController {
         // ========================= CONTEXT MENU SETUP
         // =========================
         private void setupContextMenus() {
-                setupTreeTableRowFactory(tableIncome, false); // No context menu
+                setupTreeTableRowFactory(tableIncome, true); // No context menu
                 setupTreeTableRowFactory(tableMandatory, true); // With context
                                                                 // menu
                 setupTreeTableRowFactory(tableDiscretionary, true); // With
@@ -814,7 +808,7 @@ public class PrimaryController {
                         @Override
                         protected void succeeded() {
                                 Platform.runLater(() -> {
-                                        updateTables();
+                                        updateTableData();
                                         updateMainDateLabel(currentDate);
                                         updateRunningTotalsFromMonth(currentDate);
                                 });
@@ -863,9 +857,9 @@ public class PrimaryController {
                         TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
                         TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
 
-                        LineItem incomeTotals = ReadData.getTotals(DB.INCOME, date);
-                        LineItem mandatoryTotals = ReadData.getTotals(DB.MANDATORY, date);
-                        LineItem discretionaryTotals = ReadData.getTotals(DB.DISCRETIONARY, date);
+                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date);
+                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date);
+                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -935,7 +929,7 @@ public class PrimaryController {
                                         protected void succeeded() {
                                                 Platform.runLater(() -> {
                                                         // readFromDatabase(workingDate);
-                                                        updateTables();
+                                                        updateTableData();
                                                         resetImportState();
                                                         // WriteData.updateAllRunningTotals(workingDate);
                                                 });
@@ -1140,7 +1134,7 @@ public class PrimaryController {
                 executeAsyncTask(() -> WriteData.actualUpdate(item), () -> {
                         Util.calculateTreeTotals(treeTable.getRoot());
                         totalTable.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTotals(dbType, item.getDate())));
+                                        FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
                         UIData.updateTableGrandTotal(totalTablesList);
                         treeTable.refresh();
                         treeTable.requestFocus();
@@ -1167,22 +1161,22 @@ public class PrimaryController {
         /**
          * Updates all tables with latest data.
          */
-        public void updateTables() {
-                executeAsyncTask(null, this::updateTablesTask, "Error updating tables");
+        public void updateTableData() {
+                executeAsyncTask(null, this::updateTablesDataTask, "Error updating tables");
         }
 
         /**
          * Updates table data on UI thread.
          */
-        public void updateTablesTask() {
+        public void updateTablesDataTask() {
                 LocalDate workingDate = getWorkingDate();
 
                 tableIncomeTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
                 tableMandatoryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
                 tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
@@ -1193,11 +1187,11 @@ public class PrimaryController {
                 LocalDate workingDate = getWorkingDate();
 
                 tableIncomeTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
                 tableMandatoryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
                 tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, workingDate)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
@@ -1207,10 +1201,10 @@ public class PrimaryController {
         }
 
         private void refreshDataForDate(LocalDate date) {
-                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.INCOME, date)));
-                tableMandatoryTotal.setItems(FXCollections.observableArrayList(ReadData.getTotals(DB.MANDATORY, date)));
+                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, date)));
+                tableMandatoryTotal.setItems(FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date)));
                 tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTotals(DB.DISCRETIONARY, date)));
+                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date)));
 
                 // getTableRowsFromDatabase(date);
                 readFromDatabase(date);
