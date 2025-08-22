@@ -207,11 +207,6 @@ public class PrimaryController {
         @FXML
         private Label mainDateLabel;
 
-        // ========================= DATA STRUCTURES =========================
-
-        /** Array of tables for UIData total table update */
-        private final ArrayList<TableView<LineItem>> totalTablesList = new ArrayList<>();
-
         // ========================= INITIALIZATION =========================
 
         /**
@@ -232,9 +227,6 @@ public class PrimaryController {
 
                         // Apply styles
                         applyStyles();
-
-                        // Setup tables reference for totals update
-                        setupTableReferences();
 
                         // Setup choice boxes
                         setupChoiceBoxes();
@@ -448,13 +440,7 @@ public class PrimaryController {
         }
 
 
-        private void setupTableReferences() {
-                totalTablesList.add(tableIncomeTotal);
-                totalTablesList.add(tableMandatoryTotal);
-                totalTablesList.add(tableDiscretionaryTotal);
-                totalTablesList.add(tableGrandTotal);
-        }
-
+  
         private void setupChoiceBoxes() {
                 LocalDate currentDate = LocalDate.now();
 
@@ -891,7 +877,13 @@ public class PrimaryController {
         private void updateUIWithData(DatabaseDataResult data) {
                 // Update all UI components
                 updateTreeTables(data);
-                UIData.updateTableGrandTotal(totalTablesList);
+                // Update grand total from total tables
+                UIData.updateGrandTotalFromTreeTables(
+                    tableIncome,
+                    tableMandatory, 
+                    tableDiscretionary,
+                    tableGrandTotal
+                );
         }
 
         private void updateTreeTables(DatabaseDataResult data) {
@@ -1135,7 +1127,13 @@ public class PrimaryController {
                         Util.calculateTreeTotals(treeTable.getRoot());
                         totalTable.setItems(
                                         FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
-                        UIData.updateTableGrandTotal(totalTablesList);
+                        // Update grand total table
+                        UIData.updateGrandTotalFromTreeTables(
+                            tableIncome,
+                            tableMandatory, 
+                            tableDiscretionary,
+                            tableGrandTotal
+                        );
                         treeTable.refresh();
                         treeTable.requestFocus();
                 }, "Error updating budget for item: " + item.getCategory());
@@ -1180,7 +1178,12 @@ public class PrimaryController {
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
-                UIData.updateTableGrandTotal(totalTablesList);
+                UIData.updateGrandTotalFromTreeTables(
+                    tableIncome,
+                    tableMandatory, 
+                    tableDiscretionary,
+                    tableGrandTotal
+                );
         }
 
         private void refreshDataAfterEdit() {
@@ -1195,7 +1198,12 @@ public class PrimaryController {
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
-                UIData.updateTableGrandTotal(totalTablesList);
+                UIData.updateGrandTotalFromTreeTables(
+                    tableIncome,
+                    tableMandatory, 
+                    tableDiscretionary,
+                    tableGrandTotal
+                );
 
                 // updateRunningTotalsAndShowWarnings();
         }
@@ -1208,7 +1216,12 @@ public class PrimaryController {
 
                 // getTableRowsFromDatabase(date);
                 readFromDatabase(date);
-                UIData.updateTableGrandTotal(totalTablesList);
+                UIData.updateGrandTotalFromTreeTables(
+                    tableIncome,
+                    tableMandatory, 
+                    tableDiscretionary,
+                    tableGrandTotal
+                );
                 tableIncome.refresh();
         }
 
@@ -1331,9 +1344,21 @@ public class PrimaryController {
         }
 
         // ========================= GETTERS =========================
-
-        public ArrayList<TableView<LineItem>> getTotalTablesList() {
-                return totalTablesList;
+        
+        public TableView<LineItem> getTableIncomeTotal() {
+                return tableIncomeTotal;
+        }
+        
+        public TableView<LineItem> getTableMandatoryTotal() {
+                return tableMandatoryTotal;
+        }
+        
+        public TableView<LineItem> getTableDiscretionaryTotal() {
+                return tableDiscretionaryTotal;
+        }
+        
+        public TableView<LineItem> getTableGrandTotal() {
+                return tableGrandTotal;
         }
 
         // ========================= CLEANUP =========================
