@@ -202,20 +202,17 @@ public class ReadData {
     /**
      * Get totals for a specific type and date.
      */
-    public static LineItem getTotals(int type, LocalDate date) {
+    public static LineItem getTableTotalsFromDatabase(int type, LocalDate date) {
         LineItem newItem = new LineItem();
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
-
+     
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
-            ps.setInt(3, type);
+            ps.setString(1, Util.formatDateForDatabase(date));
+            ps.setInt(2, type);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    newItem.setActual(rs.getDouble("ATOTAL"));
-                    newItem.setBudget(rs.getDouble("BTOTAL"));
+                    newItem.setActual(rs.getDouble("ACTUAL_TOTAL"));
+                    newItem.setBudget(rs.getDouble("BUDGET_TOTAL"));
                     newItem.setCategory("TOTAL");
                     newItem.setType(type);
                 }

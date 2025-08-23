@@ -35,7 +35,11 @@ public class UIDataTest {
         controller.initialize();
         controller.readFromDatabase(inDate);
 
-        UIData.updateTableGrandTotal(controller.getTotalTablesList());
+        UIData.updateGrandTotalFromTotalTables(
+            controller.getTableIncomeTotal(),
+            controller.getTableMandatoryTotal(),
+            controller.getTableDiscretionaryTotal(),
+            controller.getTableGrandTotal());
         
         System.out.println("testUpdateTableTotal - *** finish ***");
     }
