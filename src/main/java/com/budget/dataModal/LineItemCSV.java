@@ -21,6 +21,16 @@ public class LineItemCSV {
     private String category = "";
     private double amount = 0.0;
 
+    // ========================= BOOLEAN PROPERTIES =========================
+
+    public void setHide(boolean hide) {
+        this.hide = hide;
+    }
+
+    public void setIncludeInTotal(boolean includeInTotal) {
+        this.includeInTotal = includeInTotal;
+    }
+
     // ========================= CONSTRUCTORS =========================
     
     /**

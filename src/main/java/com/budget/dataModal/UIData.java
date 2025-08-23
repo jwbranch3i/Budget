@@ -62,9 +62,13 @@ public final class UIData {
             LineItem overallTotal = calculateOverallTotal(incomeTotal, mandatoryTotal, discretionaryTotal);
             
             // Add all totals to the total table
-            totalTable.getItems().addAll(List.of(incomeTotal, mandatoryTotal, discretionaryTotal, overallTotal));
+            List<LineItem> totals = List.of(incomeTotal, mandatoryTotal, discretionaryTotal, overallTotal);
+            totalTable.getItems().addAll(totals);
             
-            LOGGER.fine("Table totals updated successfully");
+            // Log the items being added
+            LOGGER.fine("Table totals updated successfully with " + totals.size() + " items:");
+            totals.forEach(item -> LOGGER.fine(" - " + item.getCategory() + ": " + 
+                String.format("Actual=%.2f, Budget=%.2f", item.getActual(), item.getBudget())));
             
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating table totals", e);
@@ -262,7 +266,11 @@ public final class UIData {
         }
 
         // Add to grand total table
-        grandTotalTable.setItems(FXCollections.observableArrayList(totals));
+         grandTotalTable.setItems(FXCollections.observableArrayList(totals)); 
+         grandTotalTable.setItems(FXCollections.observableArrayList(totals));
+
+         System.out.println(grandTotalTable.getItems().size() + " items added to grand total table from tree tables"       );
+
     }
 
     /**
@@ -294,11 +302,12 @@ public final class UIData {
      * @return The LineItem from the table or a new default item
      */
     private static LineItem getSingleItemFromTable(TableView<LineItem> table, String defaultLabel) {
-        if (table != null && table.getItems().size() == 1) {
-            return table.getItems().get(0);
+        if (table != null && !table.getItems().isEmpty()) {
+            // Get the last item from the table (which should be the total)
+            return table.getItems().get(table.getItems().size() - 1);
         }
         
-        // Return default item if table is null or doesn't have exactly one item
+        // Return default item if table is null or empty
         LineItem defaultItem = new LineItem();
         defaultItem.setCategory(defaultLabel);
         defaultItem.setActual(0.0);

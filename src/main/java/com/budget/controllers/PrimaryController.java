@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import com.budget.GlobalVariables;
 import com.budget.Util;
+import com.budget.dataModal.CsvImporter;
 import com.budget.dataModal.DB;
 import com.budget.dataModal.DataSource;
 import com.budget.dataModal.DatabaseDataResult;
@@ -29,7 +30,6 @@ import com.budget.dataModal.ReadData;
 import com.budget.dataModal.RunningTotal;
 import com.budget.dataModal.UIData;
 import com.budget.dataModal.WriteData;
-import com.opencsv.CSVReader;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -256,16 +256,7 @@ public class PrimaryController {
 
                         LOGGER.info("PrimaryController initialization completed successfully");
 
-                        // Debug information when in debug mode
-                        if (GlobalVariables.isDebugMode()) {
-                                LOGGER.fine("Initialization details:");
-                                LOGGER.fine("- Tables initialized: Income, Mandatory, Discretionary");
-                                LOGGER.fine("- Context menus setup completed");
-                                LOGGER.fine("- Selection listeners active");
-                                GlobalVariables.printCurrentSettings();
-                        }
-
-                }
+               }
                 catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error during PrimaryController initialization", e);
                         showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
@@ -989,75 +980,34 @@ public class PrimaryController {
         }
 
         /**
-         * Reads actual data from CSV file.
+         * Reads and processes data from CSV file.
+         * Uses the CsvImporter for modern file handling and error management.
          */
         public static void readCSVFile(File file, LocalDate date) {
-                try (FileReader fileReader = new FileReader(file); CSVReader csvReader = new CSVReader(fileReader)) {
-
-                        LineItemCSV newLineItem;
-
-                        String[] nextRecord;
-                        String category;
-                        String parent = "";
-                        String workingType = "";
-                        double amount;
-                        int type = 0;
-
-                        while ((nextRecord = csvReader.readNext()) != null) {
-                                if (nextRecord.length <= 1)
-                                        continue;
-
-                                int leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
-                                String trimmedValue = nextRecord[1].trim();
-
-                                if ("INFLOWS".equals(trimmedValue)) {
-                                        type = DB.INCOME;
-                                        continue;
-                                }
-                                else if ("OUTFLOWS".equals(trimmedValue)) {
-                                        type = DB.MANDATORY;
-                                        continue;
-                                }
-
-                                category = trimmedValue;
-                                if (category.contains("TOTAL") || nextRecord.length < 3) {
-                                        continue;
-                                }
-
-                                try {
-                                        amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
-                                }
-                                catch (NumberFormatException e) {
-                                        amount = 0.0;
-                                }
-
-                                switch (leadingSpaces) {
-                                case 4: // Category level
-                                        parent = category;
-                                        workingType = category;
-                                        newLineItem = new LineItemCSV(type, date, category, category, amount);
-                                        newLineItem.isMainCategory(true);
-                                        processLineItem(newLineItem);
-                                        break;
-
-                                case 8: // Sub-category level
-                                        parent = workingType;
-                                        newLineItem = new LineItemCSV(type, date, parent, category, amount);
-                                        newLineItem.isMainCategory(false);
-                                        processLineItem(newLineItem);
-                                        break;
-
-                                default:
-                                        // Handle other indentation levels if
-                                        // needed
-                                        break;
-                                }
-                        }
-
-                        ReadData.findMissingCategories(date);
-
+                if (file == null) {
+                        LOGGER.warning("Null file provided for CSV import");
+                        return;
                 }
-                catch (Exception e) {
+
+                try {
+                        // Import CSV data using the new importer
+                        List<LineItemCSV> items = CsvImporter.importCsvFile(file, date);
+
+                        // Process each item
+                        items.forEach(item -> {
+                                try {
+                                        processLineItem(item);
+                                } catch (Exception e) {
+                                        LOGGER.log(Level.WARNING, 
+                                                "Error processing item: " + item.getCategory(), e);
+                                }
+                        });
+
+                        // Find any missing categories after import
+                        ReadData.findMissingCategories(date);
+                        
+                        LOGGER.info("Successfully processed " + items.size() + " items from CSV file");
+                } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
                 }
         }
@@ -1168,6 +1118,10 @@ public class PrimaryController {
          */
         public void updateTablesDataTask() {
                 LocalDate workingDate = getWorkingDate();
+
+                tableIncomeTotal.getItems().clear();
+                tableMandatoryTotal.getItems().clear();
+                tableDiscretionaryTotal.getItems().clear();
 
                 tableIncomeTotal.setItems(
                                 FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));

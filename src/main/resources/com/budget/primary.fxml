@@ -15,9 +15,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controllers.PrimaryController">
+<BorderPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controllers.PrimaryController">
    <top>
-      <HBox prefHeight="100.0" spacing="20.0" BorderPane.alignment="CENTER">
+      <HBox fillHeight="false" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <AnchorPane fx:id="myAnchorPane" style="-fx-border-color: black;">
                <children>
@@ -47,18 +47,14 @@
                   </VBox>
                </children>
             </AnchorPane>
-            <AnchorPane style="-fx-border-color: black;">
-               <children>
-                  <TableView fx:id="tableGrandTotal" prefHeight="200.0">
-                    <columns>
-                      <TableColumn fx:id="tableGrandTotal_Category" prefWidth="200.0" />
-                      <TableColumn fx:id="tableGrandTotal_Actual" prefWidth="75.0" text="Actual" />
-                        <TableColumn fx:id="tableGrandTotal_Budget" prefWidth="75.0" text="Budget" />
-                        <TableColumn fx:id="tableGrandTotal_Diff" prefWidth="75.0" text="Diff" />
-                    </columns>
-                  </TableView>
-               </children>
-            </AnchorPane>
+            <TableView fx:id="tableGrandTotal" prefHeight="400.0" prefWidth="428.0">
+              <columns>
+                <TableColumn fx:id="tableGrandTotal_Category" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Category" />
+                <TableColumn fx:id="tableGrandTotal_Actual" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Actual" />
+                  <TableColumn fx:id="tableGrandTotal_Budget" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Budget" />
+                  <TableColumn fx:id="tableGrandTotal_Diff" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="Diff" />
+              </columns>
+            </TableView>
             <VBox spacing="10.0">
                <children>
                   <Button fx:id="btn_EditCat" alignment="CENTER" mnemonicParsing="false" onAction="#button_EditCat" text="Edit Categories" />
