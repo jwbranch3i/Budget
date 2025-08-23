@@ -78,8 +78,7 @@ public class PrimaryController {
         private static final String DEFAULT_DIRECTORY = "C:\\";
         private static final String EDIT_CATEGORY_TITLE = "Edit Category";
         private static final String EDIT_ITEM_TITLE = "Edit Item";
-        private static final String TOTAL_LABEL = "Total";
-        private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MM-yyyy");
+        private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         // ========================= THREAD POOL =========================
 
@@ -188,8 +187,7 @@ public class PrimaryController {
         private VBox categoryBox;
         @FXML
         private AnchorPane myAnchorPane;
-        // @FXML
-        // private ProgressIndicator progressIndicator;
+
         @FXML
         private ComboBox<String> yearBox;
         @FXML
@@ -219,44 +217,32 @@ public class PrimaryController {
                         GlobalVariables.enableDebugLogging();
                         LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
-                        // Initialize controller extension
-                        // @SuppressWarnings("unused")
-                        // PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableGrandTotal,
-                        //                 tableGrandTotal_Category, tableGrandTotal_Actual, tableGrandTotal_Budget,
-                        //                 tableGrandTotal_Diff);
-
                         // Apply styles
                         applyStyles();
 
-                        // Setup choice boxes
                         setupChoiceBoxes();
 
-                        // Setup table headers and rows
-                        setupTableHeaders();
-                        // TODO: is this needed?
-                        addListItemToTotalTables();
+                        hideTableHeaders(tableIncomeTotal);
+                        hideTableHeaders(tableMandatoryTotal);
+                        hideTableHeaders(tableDiscretionaryTotal);
+                        hideRootNodes();
 
-                        // Setup table columns
                         setupTableColumns();
 
-                        // Setup context menus
                         setupContextMenus();
 
-                        // Setup selection listeners
                         setupSelectionListeners();
 
-                        // Initialize data
                         initializeData();
 
                         // Setup shutdown hook for cleanup
                         setupShutdownHook();
 
-                        // Setup keyboard shortcuts for debugging
                         setupKeyboardShortcuts();
 
                         LOGGER.info("PrimaryController initialization completed successfully");
 
-               }
+                }
                 catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error during PrimaryController initialization", e);
                         showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
@@ -328,7 +314,6 @@ public class PrimaryController {
                 }, "Error updating balance");
         }
 
-
         // ========================= SETUP AND SHUTDOWN METHODS
         // =========================
 
@@ -338,7 +323,6 @@ public class PrimaryController {
                         Stage stage = (Stage) btn_Update.getScene().getWindow();
                         if (stage != null) {
                                 stage.setOnCloseRequest(event -> {
-                                        LOGGER.info("Application closing - cleaning up resources");
                                         cleanup();
                                 });
                         }
@@ -346,7 +330,6 @@ public class PrimaryController {
 
                 // Also add JVM shutdown hook as backup
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                        LOGGER.info("JVM shutdown detected - cleaning up PrimaryController");
                         cleanup();
                 }));
         }
@@ -430,8 +413,6 @@ public class PrimaryController {
                 myAnchorPane.getStyleClass().add("catBox");
         }
 
-
-  
         private void setupChoiceBoxes() {
                 LocalDate currentDate = LocalDate.now();
 
@@ -494,15 +475,6 @@ public class PrimaryController {
                 yearBox.getSelectionModel().select(currentYear);
         }
 
-        private void setupTableHeaders() {
-                hideTableHeaders(tableIncomeTotal);
-                hideTableHeaders(tableMandatoryTotal);
-                hideTableHeaders(tableDiscretionaryTotal);
-
-                // Hide root nodes in tree tables
-                hideRootNodes();
-        }
-
         private void hideTableHeaders(TableView<LineItem> table) {
                 table.skinProperty().addListener((obs, oldSkin, newSkin) -> {
                         if (newSkin != null) {
@@ -521,20 +493,6 @@ public class PrimaryController {
                 tableIncome.setShowRoot(false);
                 tableMandatory.setShowRoot(false);
                 tableDiscretionary.setShowRoot(false);
-        }
-
-        private void addListItemToTotalTables() {
-                addListItem(tableIncomeTotal, 1.0, 1.0);
-                addListItem(tableMandatoryTotal, 0.0, 0.0);
-                addListItem(tableDiscretionaryTotal, 0.0, 0.0);
-        }
-
-        private void addListItem(TableView<LineItem> table, double actual, double budget) {
-                LineItem totalItem = new LineItem();
-                totalItem.setCategory(TOTAL_LABEL);
-                totalItem.setActual(actual);
-                totalItem.setBudget(budget);
-                table.getItems().add(totalItem);
         }
 
         private void setupSelectionListeners() {
@@ -719,12 +677,10 @@ public class PrimaryController {
         // ========================= CONTEXT MENU SETUP
         // =========================
         private void setupContextMenus() {
-                setupTreeTableRowFactory(tableIncome, true); // No context menu
-                setupTreeTableRowFactory(tableMandatory, true); // With context
-                                                                // menu
-                setupTreeTableRowFactory(tableDiscretionary, true); // With
-                                                                    // context
-                                                                    // menu
+                setupTreeTableRowFactory(tableIncome, true); 
+                setupTreeTableRowFactory(tableMandatory, true); 
+                setupTreeTableRowFactory(tableDiscretionary, true); 
+                
         }
 
         private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
@@ -774,6 +730,7 @@ public class PrimaryController {
         }
 
         private void initializeData() {
+                //TODO: load latest month that has data
                 LocalDate currentDate = LocalDate.now();
 
                 Task<Void> initTask = new Task<Void>() {
@@ -869,12 +826,7 @@ public class PrimaryController {
                 // Update all UI components
                 updateTreeTables(data);
                 // Update grand total from total tables
-                UIData.updateGrandTotalFromTreeTables(
-                    tableIncome,
-                    tableMandatory, 
-                    tableDiscretionary,
-                    tableGrandTotal
-                );
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
         }
 
         private void updateTreeTables(DatabaseDataResult data) {
@@ -980,8 +932,8 @@ public class PrimaryController {
         }
 
         /**
-         * Reads and processes data from CSV file.
-         * Uses the CsvImporter for modern file handling and error management.
+         * Reads and processes data from CSV file. Uses the CsvImporter for
+         * modern file handling and error management.
          */
         public static void readCSVFile(File file, LocalDate date) {
                 if (file == null) {
@@ -997,17 +949,18 @@ public class PrimaryController {
                         items.forEach(item -> {
                                 try {
                                         processLineItem(item);
-                                } catch (Exception e) {
-                                        LOGGER.log(Level.WARNING, 
-                                                "Error processing item: " + item.getCategory(), e);
+                                }
+                                catch (Exception e) {
+                                        LOGGER.log(Level.WARNING, "Error processing item: " + item.getCategory(), e);
                                 }
                         });
 
                         // Find any missing categories after import
                         ReadData.findMissingCategories(date);
-                        
+
                         LOGGER.info("Successfully processed " + items.size() + " items from CSV file");
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
                 }
         }
@@ -1075,15 +1028,11 @@ public class PrimaryController {
 
                 executeAsyncTask(() -> WriteData.actualUpdate(item), () -> {
                         Util.calculateTreeTotals(treeTable.getRoot());
-                        totalTable.setItems(
-                                        FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
+                        totalTable.setItems(FXCollections.observableArrayList(
+                                        ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
                         // Update grand total table
-                        UIData.updateGrandTotalFromTreeTables(
-                            tableIncome,
-                            tableMandatory, 
-                            tableDiscretionary,
-                            tableGrandTotal
-                        );
+                        UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary,
+                                        tableGrandTotal);
                         treeTable.refresh();
                         treeTable.requestFocus();
                 }, "Error updating budget for item: " + item.getCategory());
@@ -1123,59 +1072,46 @@ public class PrimaryController {
                 tableMandatoryTotal.getItems().clear();
                 tableDiscretionaryTotal.getItems().clear();
 
-                tableIncomeTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
-                tableMandatoryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
-                tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
+                tableIncomeTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
+                tableMandatoryTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
+                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
-                UIData.updateGrandTotalFromTreeTables(
-                    tableIncome,
-                    tableMandatory, 
-                    tableDiscretionary,
-                    tableGrandTotal
-                );
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
         }
 
         private void refreshDataAfterEdit() {
                 LocalDate workingDate = getWorkingDate();
 
-                tableIncomeTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
-                tableMandatoryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
-                tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
+                tableIncomeTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
+                tableMandatoryTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
+                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
+                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
-                UIData.updateGrandTotalFromTreeTables(
-                    tableIncome,
-                    tableMandatory, 
-                    tableDiscretionary,
-                    tableGrandTotal
-                );
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
 
                 // updateRunningTotalsAndShowWarnings();
         }
 
         private void refreshDataForDate(LocalDate date) {
-                tableIncomeTotal.setItems(FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, date)));
-                tableMandatoryTotal.setItems(FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date)));
-                tableDiscretionaryTotal.setItems(
-                                FXCollections.observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date)));
+                tableIncomeTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, date)));
+                tableMandatoryTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date)));
+                tableDiscretionaryTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date)));
 
                 // getTableRowsFromDatabase(date);
                 readFromDatabase(date);
-                UIData.updateGrandTotalFromTreeTables(
-                    tableIncome,
-                    tableMandatory, 
-                    tableDiscretionary,
-                    tableGrandTotal
-                );
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
                 tableIncome.refresh();
         }
 
@@ -1197,7 +1133,6 @@ public class PrimaryController {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/secondary.fxml"));
                 Parent root = fxmlLoader.load();
 
-           
                 Stage stage = new Stage();
                 stage.setTitle(EDIT_CATEGORY_TITLE);
                 stage.setScene(new Scene(root));
@@ -1298,19 +1233,19 @@ public class PrimaryController {
         }
 
         // ========================= GETTERS =========================
-        
+
         public TableView<LineItem> getTableIncomeTotal() {
                 return tableIncomeTotal;
         }
-        
+
         public TableView<LineItem> getTableMandatoryTotal() {
                 return tableMandatoryTotal;
         }
-        
+
         public TableView<LineItem> getTableDiscretionaryTotal() {
                 return tableDiscretionaryTotal;
         }
-        
+
         public TableView<LineItem> getTableGrandTotal() {
                 return tableGrandTotal;
         }
@@ -1499,7 +1434,6 @@ public class PrimaryController {
                         }
                 });
         }
-
 
         /**
          * Result object for month update operations.
