@@ -173,15 +173,26 @@ public class PrimaryController {
 
         // Totals Table Components
         @FXML
-        private TableView<LineItem> tableGrandTotal;
+        private TableView<LineItem> tableTotal;
         @FXML
-        private TableColumn<LineItem, String> tableGrandTotal_Category;
+        private TableColumn<LineItem, String> tableTotal_Category;
         @FXML
-        private TableColumn<LineItem, Double> tableGrandTotal_Actual;
+        private TableColumn<LineItem, Double> tableTotal_Actual;
         @FXML
-        private TableColumn<LineItem, Double> tableGrandTotal_Budget;
+        private TableColumn<LineItem, Double> tableTotal_Budget;
         @FXML
-        private TableColumn<LineItem, Double> tableGrandTotal_Diff;
+        private TableColumn<LineItem, Double> tableTotal_Diff;
+        // Totals Table Components test
+        @FXML
+        private TableView<LineItem> Total;
+        @FXML
+        private TableColumn<LineItem, String> Total_Category;
+        @FXML
+        private TableColumn<LineItem, Double> Total_Actual;
+        @FXML
+        private TableColumn<LineItem, Double> Total_Budget;
+        @FXML
+        private TableColumn<LineItem, Double> Total_Diff;
 
         // UI Components
         @FXML
@@ -221,9 +232,9 @@ public class PrimaryController {
 
                         // Initialize controller extension
                         @SuppressWarnings("unused")
-                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableGrandTotal,
-                                        tableGrandTotal_Category, tableGrandTotal_Actual, tableGrandTotal_Budget,
-                                        tableGrandTotal_Diff);
+                        PrimaryControllerExtend controllerExtend = new PrimaryControllerExtend(tableTotal,
+                                        tableTotal_Category, tableTotal_Actual, tableTotal_Budget,
+                                        tableTotal_Diff);
 
                         // Apply styles
                         applyStyles();
@@ -614,17 +625,17 @@ public class PrimaryController {
         }
 
         private void setupTotalTableColumns() {
-                tableGrandTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
-                tableGrandTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
+                tableTotal_Category.setCellValueFactory(new PropertyValueFactory<>("category"));
+                tableTotal_Category.setCellFactory(TextFieldTableCell.forTableColumn());
 
-                tableGrandTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
-                tableGrandTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableTotal_Actual.setCellValueFactory(new PropertyValueFactory<>("actual"));
+                tableTotal_Actual.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableGrandTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
-                tableGrandTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableTotal_Budget.setCellValueFactory(new PropertyValueFactory<>("budget"));
+                tableTotal_Budget.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
 
-                tableGrandTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
-                tableGrandTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
+                tableTotal_Diff.setCellValueFactory(new PropertyValueFactory<>("diff"));
+                tableTotal_Diff.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
         }
 
         @SuppressWarnings("unchecked")
@@ -873,7 +884,7 @@ public class PrimaryController {
                     tableIncome,
                     tableMandatory, 
                     tableDiscretionary,
-                    tableGrandTotal
+                    tableTotal
                 );
         }
 
@@ -1082,7 +1093,7 @@ public class PrimaryController {
                             tableIncome,
                             tableMandatory, 
                             tableDiscretionary,
-                            tableGrandTotal
+                            tableTotal
                         );
                         treeTable.refresh();
                         treeTable.requestFocus();
@@ -1136,7 +1147,7 @@ public class PrimaryController {
                     tableIncome,
                     tableMandatory, 
                     tableDiscretionary,
-                    tableGrandTotal
+                    tableTotal
                 );
         }
 
@@ -1156,7 +1167,7 @@ public class PrimaryController {
                     tableIncome,
                     tableMandatory, 
                     tableDiscretionary,
-                    tableGrandTotal
+                    tableTotal
                 );
 
                 // updateRunningTotalsAndShowWarnings();
@@ -1174,7 +1185,7 @@ public class PrimaryController {
                     tableIncome,
                     tableMandatory, 
                     tableDiscretionary,
-                    tableGrandTotal
+                    tableTotal
                 );
                 tableIncome.refresh();
         }
@@ -1311,8 +1322,8 @@ public class PrimaryController {
                 return tableDiscretionaryTotal;
         }
         
-        public TableView<LineItem> getTableGrandTotal() {
-                return tableGrandTotal;
+        public TableView<LineItem> getTableTotal() {
+                return tableTotal;
         }
 
         // ========================= CLEANUP =========================

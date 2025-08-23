@@ -186,7 +186,7 @@ public class App extends Application {
         Scene scene = new Scene(root);
 
         // Apply CSS stylesheet
-        applyCssStylesheet(scene);
+     //   applyCssStylesheet(scene);
 
         return scene;
     }

@@ -39,7 +39,7 @@ public class UIDataTest {
             controller.getTableIncomeTotal(),
             controller.getTableMandatoryTotal(),
             controller.getTableDiscretionaryTotal(),
-            controller.getTableGrandTotal());
+            controller.getTableTotal());
         
         System.out.println("testUpdateTableTotal - *** finish ***");
     }
