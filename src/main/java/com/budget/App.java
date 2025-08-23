@@ -18,7 +18,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -34,8 +33,7 @@ public class App extends Application {
     private static final String FXML_RESOURCE = "primary.fxml";
     private static final String CSS_RESOURCE = "testfile.css";
     private static final String APPLICATION_TITLE = "Budget Manager";
-    private static final String ICON_RESOURCE = "icon.png"; // Optional
-                                                            // application icon
+   
     private static final int MIN_WINDOW_WIDTH = 800;
     private static final int MIN_WINDOW_HEIGHT = 600;
 
@@ -153,14 +151,14 @@ public class App extends Application {
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
 
-        // Set application icon if available
-        try {
-            Image icon = new Image(getClass().getResourceAsStream(ICON_RESOURCE));
-            primaryStage.getIcons().add(icon);
-        }
-        catch (Exception e) {
-            logger.debug("Application icon not found or could not be loaded: " + ICON_RESOURCE);
-        }
+        // // Set application icon if available
+        // try {
+        //     Image icon = new Image(getClass().getResourceAsStream(ICON_RESOURCE));
+        //     primaryStage.getIcons().add(icon);
+        // }
+        // catch (Exception e) {
+        //     logger.debug("Application icon not found or could not be loaded: " + ICON_RESOURCE);
+        // }
 
         // Configure close behavior
         primaryStage.setOnCloseRequest(event -> {

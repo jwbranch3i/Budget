@@ -84,12 +84,7 @@ public final class PrimaryControllerExtend {
      */
     private void setupCategoryColumn() {
         totalTableCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
-        
-        // Make category column non-sortable for totals table
-        totalTableCategory.setSortable(false);
-        
-        // Set preferred width for category column
-        totalTableCategory.setPrefWidth(150);
+       
     }
     
     /**
@@ -108,16 +103,12 @@ public final class PrimaryControllerExtend {
      * @param propertyName The property name for the cell value factory
      */
     private void setupNumericColumn(TableColumn<LineItem, Double> column, String propertyName) {
-        // Set cell value factory
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        
-        // Apply currency formatting and right alignment
         column.setCellFactory(Util.getRightAlignedCellFactory(Util.getCurrencyConverter()));
         
         // Configure column properties
         column.setSortable(false);
-        column.setPrefWidth(100);
-        column.setMinWidth(80);
+      
     }
     
     /**
@@ -191,55 +182,8 @@ public final class PrimaryControllerExtend {
         }
     }
     
-    /**
-     * Updates column widths based on content.
-     * 
-     * @param categoryWidth Width for category column
-     * @param numericWidth Width for numeric columns
-     */
-    public void updateColumnWidths(double categoryWidth, double numericWidth) {
-        if (categoryWidth > 0) {
-            totalTableCategory.setPrefWidth(categoryWidth);
-        }
-        
-        if (numericWidth > 0) {
-            totalTableActual.setPrefWidth(numericWidth);
-            totalTableBudget.setPrefWidth(numericWidth);
-            totalTableDiff.setPrefWidth(numericWidth);
-        }
-        
-        LOGGER.fine("Column widths updated: category=" + categoryWidth + ", numeric=" + numericWidth);
-    }
+
     
-    /**
-     * Enables or disables column sorting for all columns.
-     * 
-     * @param sortable true to enable sorting, false to disable
-     */
-    public void setColumnsSortable(boolean sortable) {
-        totalTableCategory.setSortable(sortable);
-        totalTableActual.setSortable(sortable);
-        totalTableBudget.setSortable(sortable);
-        totalTableDiff.setSortable(sortable);
-        
-        LOGGER.fine("Column sorting set to: " + sortable);
-    }
-    
-    /**
-     * Applies a custom style class to all columns.
-     * 
-     * @param styleClass The CSS style class to apply
-     */
-    public void applyColumnStyleClass(String styleClass) {
-        if (styleClass != null && !styleClass.trim().isEmpty()) {
-            totalTableCategory.getStyleClass().add(styleClass);
-            totalTableActual.getStyleClass().add(styleClass);
-            totalTableBudget.getStyleClass().add(styleClass);
-            totalTableDiff.getStyleClass().add(styleClass);
-            
-            LOGGER.fine("Style class applied: " + styleClass);
-        }
-    }
     
     // ========================= GETTERS =========================
     
@@ -308,30 +252,7 @@ public final class PrimaryControllerExtend {
         return new PrimaryControllerExtend(tableView, categoryColumn, actualColumn, budgetColumn, diffColumn);
     }
     
-    /**
-     * Creates a new PrimaryControllerExtend instance with custom column widths.
-     * 
-     * @param tableView The table view to configure
-     * @param categoryColumn The category column
-     * @param actualColumn The actual column
-     * @param budgetColumn The budget column
-     * @param diffColumn The diff column
-     * @param categoryWidth Width for the category column
-     * @param numericWidth Width for numeric columns
-     * @return A new configured PrimaryControllerExtend instance
-     */
-    public static PrimaryControllerExtend createWithCustomWidths(TableView<LineItem> tableView,
-                                                               TableColumn<LineItem, String> categoryColumn,
-                                                               TableColumn<LineItem, Double> actualColumn,
-                                                               TableColumn<LineItem, Double> budgetColumn,
-                                                               TableColumn<LineItem, Double> diffColumn,
-                                                               double categoryWidth,
-                                                               double numericWidth) {
-        PrimaryControllerExtend extender = new PrimaryControllerExtend(tableView, categoryColumn, actualColumn, budgetColumn, diffColumn);
-        extender.updateColumnWidths(categoryWidth, numericWidth);
-        return extender;
-    }
-    
+ 
     // ========================= TOSTRING FOR DEBUGGING =========================
     
     @Override
