@@ -1,4 +1,4 @@
-package com.budget.dataModal;
+package com.budget.dataModel;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -567,10 +567,10 @@ public class LineItem {
      */
     @Override
     public String toString() {
-        return String.format("LineItem{id=%d, categoryId=%d, hide=%s, includeInTotal=%s, type=%d, " +
-                           "date='%s', parent='%s', category='%s', actual=%.2f, " +
+        return String.format("LineItem{id=%d, categoryId=%d,   acct=%d, type=%d, hide=%s, includeInTotal=%s, " +
+                           "isCategory=%s, date='%s', parent='%s', category='%s', actual=%.2f, " +
                            "budget=%.2f, diff=%.2f, startBal=%.2f, balance=%.2f}",
-                           getId(), getCatagoryId(), hide(), includeInTotal(), getType(),
+                           getId(), getCatagoryId(), getAcct(), getType(), hide(), includeInTotal(), isCategory(),
                            getDate(), getParent(), getCategoryRaw(), getActual(),
                            getBudget(), getDiff(), getStartBal(), getBalance());
     }

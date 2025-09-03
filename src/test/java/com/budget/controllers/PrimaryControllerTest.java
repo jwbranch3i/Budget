@@ -3,14 +3,18 @@ package com.budget.controllers;
 import java.io.File;
 import java.time.LocalDate;
 
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.DatabaseDataResult;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.DatabaseDataResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javafx.application.Platform;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 
 public class PrimaryControllerTest {
     @BeforeClass
@@ -104,6 +108,117 @@ public class PrimaryControllerTest {
             assert false : "Exception thrown during loadDatabaseData: " + e.getMessage();
         }
     }
+
+@Test
+public void testHandleBudgetEditCommit_incomeTable() {
+    PrimaryController controller = new PrimaryController();
+
+    // Prepare a mock event for income table
+    TreeTableView<com.budget.dataModel.LineItem> treeTable = new TreeTableView<>();
+    TableView<com.budget.dataModel.LineItem> totalTable = new TableView<>();
+    int dbType = 0; // assuming 0 = income
+
+    // Create a sample LineItem and TreeItem
+    com.budget.dataModel.LineItem lineItem = new com.budget.dataModel.LineItem();
+    lineItem.setBudget(100.0);
+    TreeItem<com.budget.dataModel.LineItem> treeItem = new TreeItem<>(lineItem);
+
+    // Add to treeTable
+    TreeItem<com.budget.dataModel.LineItem> root = new TreeItem<>(new com.budget.dataModel.LineItem());
+    root.getChildren().add(treeItem);
+    treeTable.setRoot(root);
+
+    // Simulate edit commit event
+    TreeTableColumn<com.budget.dataModel.LineItem, Double> column = new TreeTableColumn<>("Budget");
+    TreeTableColumn.CellEditEvent<com.budget.dataModel.LineItem, Double> event =
+        new TreeTableColumn.CellEditEvent<>(treeTable, null, TreeTableColumn.editCommitEvent(), 200.0);
+
+    // Use reflection to call private method
+    try {
+        java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod(
+            "handleBudgetEditCommit",
+            TreeTableColumn.CellEditEvent.class,
+            TreeTableView.class,
+            TableView.class,
+            int.class
+        );
+        method.setAccessible(true);
+        method.invoke(controller, event, treeTable, totalTable, dbType);
+    } catch (Exception e) {
+        assert false : "Exception thrown during handleBudgetEditCommit: " + e.getMessage();
+    }
+}
+
+@Test
+public void testHandleBudgetEditCommit_mandatoryTable() {
+    PrimaryController controller = new PrimaryController();
+
+    TreeTableView<com.budget.dataModel.LineItem> treeTable = new TreeTableView<>();
+    TableView<com.budget.dataModel.LineItem> totalTable = new TableView<>();
+    int dbType = 1; // assuming 1 = mandatory
+
+    com.budget.dataModel.LineItem lineItem = new com.budget.dataModel.LineItem();
+    lineItem.setBudget(150.0);
+    TreeItem<com.budget.dataModel.LineItem> treeItem = new TreeItem<>(lineItem);
+
+    TreeItem<com.budget.dataModel.LineItem> root = new TreeItem<>(new com.budget.dataModel.LineItem());
+    root.getChildren().add(treeItem);
+    treeTable.setRoot(root);
+
+    TreeTableColumn<com.budget.dataModel.LineItem, Double> column = new TreeTableColumn<>("Budget");
+    TreeTableColumn.CellEditEvent<com.budget.dataModel.LineItem, Double> event =
+        new TreeTableColumn.CellEditEvent<>(treeTable, null, TreeTableColumn.editCommitEvent(), 300.0);
+
+    try {
+        java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod(
+            "handleBudgetEditCommit",
+            TreeTableColumn.CellEditEvent.class,
+            TreeTableView.class,
+            TableView.class,
+            int.class
+        );
+        method.setAccessible(true);
+        method.invoke(controller, event, treeTable, totalTable, dbType);
+    } catch (Exception e) {
+        assert false : "Exception thrown during handleBudgetEditCommit: " + e.getMessage();
+    }
+}
+
+@Test
+public void testHandleBudgetEditCommit_discretionaryTable() {
+    PrimaryController controller = new PrimaryController();
+
+    TreeTableView<com.budget.dataModel.LineItem> treeTable = new TreeTableView<>();
+    TableView<com.budget.dataModel.LineItem> totalTable = new TableView<>();
+    int dbType = 2; // assuming 2 = discretionary
+
+    com.budget.dataModel.LineItem lineItem = new com.budget.dataModel.LineItem();
+    lineItem.setBudget(50.0);
+    TreeItem<com.budget.dataModel.LineItem> treeItem = new TreeItem<>(lineItem);
+
+    TreeItem<com.budget.dataModel.LineItem> root = new TreeItem<>(new com.budget.dataModel.LineItem());
+    root.getChildren().add(treeItem);
+    treeTable.setRoot(root);
+
+    TreeTableColumn<com.budget.dataModel.LineItem, Double> column = new TreeTableColumn<>("Budget");
+    TreeTableColumn.CellEditEvent<com.budget.dataModel.LineItem, Double> event =
+        new TreeTableColumn.CellEditEvent<>(treeTable, null, TreeTableColumn.editCommitEvent(), 75.0);
+
+    try {
+        java.lang.reflect.Method method = PrimaryController.class.getDeclaredMethod(
+            "handleBudgetEditCommit",
+            TreeTableColumn.CellEditEvent.class,
+            TreeTableView.class,
+            TableView.class,
+            int.class
+        );
+        method.setAccessible(true);
+        method.invoke(controller, event, treeTable, totalTable, dbType);
+    } catch (Exception e) {
+        assert false : "Exception thrown during handleBudgetEditCommit: " + e.getMessage();
+    }
+}
+
 
 
 }

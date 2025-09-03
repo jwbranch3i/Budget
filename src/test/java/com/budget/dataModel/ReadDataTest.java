@@ -1,4 +1,4 @@
-package com.budget.data;
+package com.budget.dataModel;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.budget.Util;
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.LineItem;
-import com.budget.dataModal.ReadData;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.LineItem;
+import com.budget.dataModel.ReadData;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

@@ -1,4 +1,4 @@
-package com.budget.dataModal;
+package com.budget.dataModel;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -175,19 +175,15 @@ public final class WriteData {
     }
 
     /**
-     * Updates a complete actual record in the database.
+     * Updates existing LineItem budget in Actual table.
      * 
      * @param item The LineItem object representing the line item to update
      * @return true if the update was successful, false otherwise
      * @throws IllegalArgumentException if item is null
      */
-    public static boolean actualUpdate(LineItem item) {
+    public static boolean updateLineItemBudget_ActualTable(LineItem item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
-        }
-
-        if (item.getDate() == null) {
-            throw new IllegalArgumentException("Item date cannot be null");
         }
 
         if (!DataSource.getInstance().ensureConnection()) {
@@ -195,29 +191,23 @@ public final class WriteData {
             return false;
         }
 
-        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.ACTUAL_UPDATE)) {
+        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_LINEITEM_BUDGET_ACTUALTABLE)) {
 
-            updateRecord.setString(1, Util.formatDateForDatabase(item.getDate()));
-            updateRecord.setDouble(2, item.getActual());
-            updateRecord.setDouble(3, item.getBudget());
-            updateRecord.setDouble(4, item.getStartBal());
-            updateRecord.setInt(5, item.getId());
+            updateRecord.setDouble(1, item.getBudget());
+            updateRecord.setInt(2, item.getId());
 
             int rowsAffected = updateRecord.executeUpdate();
             boolean success = rowsAffected > 0;
 
-            if (success) {
-                LOGGER.fine("Successfully updated actual record for ID: " + item.getId());
-            }
-            else {
-                LOGGER.warning("Actual record update failed - no rows affected for ID: " + item.getId());
+            if (!success) {
+                 LOGGER.warning("Budget update in Table Actual failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
 
         }
         catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating actual record for ID: " + item.getId(), e);
+            LOGGER.log(Level.SEVERE, "Error updating budget tin Table Actual ID: " + item.getId(), e);
             return false;
         }
     }

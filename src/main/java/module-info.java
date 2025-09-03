@@ -11,10 +11,10 @@ module com.budget {
 
     opens com.budget to javafx.fxml;
     opens com.budget.controllers to javafx.fxml;
-    opens com.budget.dataModal to javafx.base;
+    opens com.budget.dataModel to javafx.base;
 
     exports com.budget;
     exports com.budget.controllers;
-    exports com.budget.dataModal;
+    exports com.budget.dataModel;
 }
 

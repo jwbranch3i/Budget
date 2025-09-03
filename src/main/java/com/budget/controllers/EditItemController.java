@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.budget.dataModal.LineItem;
-import com.budget.dataModal.WriteData;
+import com.budget.dataModel.LineItem;
+import com.budget.dataModel.WriteData;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -383,7 +383,7 @@ public class EditItemController {
         Task<Boolean> saveTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
-                return WriteData.actualUpdate(item);
+                return WriteData.updateLineItemBudget_ActualTable(item);
             }
 
             @Override

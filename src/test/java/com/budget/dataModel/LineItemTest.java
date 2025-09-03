@@ -1,4 +1,4 @@
-package com.budget.data;
+package com.budget.dataModel;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import org.junit.Test;
 
-import com.budget.dataModal.LineItem;
+import com.budget.dataModel.LineItem;
 
 public class LineItemTest {
 

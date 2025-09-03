@@ -10,9 +10,9 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.budget.dataModal.Categories;
-import com.budget.dataModal.ReadData;
-import com.budget.dataModal.WriteData;
+import com.budget.dataModel.Categories;
+import com.budget.dataModel.ReadData;
+import com.budget.dataModel.WriteData;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

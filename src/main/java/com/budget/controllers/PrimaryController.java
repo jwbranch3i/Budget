@@ -20,16 +20,16 @@ import java.util.logging.Logger;
 
 import com.budget.GlobalVariables;
 import com.budget.Util;
-import com.budget.dataModal.CsvImporter;
-import com.budget.dataModal.DB;
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.DatabaseDataResult;
-import com.budget.dataModal.LineItem;
-import com.budget.dataModal.LineItemCSV;
-import com.budget.dataModal.ReadData;
-import com.budget.dataModal.RunningTotal;
-import com.budget.dataModal.UIData;
-import com.budget.dataModal.WriteData;
+import com.budget.dataModel.CSVimporter;
+import com.budget.dataModel.DB;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.DatabaseDataResult;
+import com.budget.dataModel.LineItem;
+import com.budget.dataModel.LineItemCSV;
+import com.budget.dataModel.ReadData;
+import com.budget.dataModel.RunningTotal;
+import com.budget.dataModel.UIData;
+import com.budget.dataModel.WriteData;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -677,10 +677,10 @@ public class PrimaryController {
         // ========================= CONTEXT MENU SETUP
         // =========================
         private void setupContextMenus() {
-                setupTreeTableRowFactory(tableIncome, true); 
-                setupTreeTableRowFactory(tableMandatory, true); 
-                setupTreeTableRowFactory(tableDiscretionary, true); 
-                
+                setupTreeTableRowFactory(tableIncome, true);
+                setupTreeTableRowFactory(tableMandatory, true);
+                setupTreeTableRowFactory(tableDiscretionary, true);
+
         }
 
         private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
@@ -730,7 +730,7 @@ public class PrimaryController {
         }
 
         private void initializeData() {
-                //TODO: load latest month that has data
+                // TODO: load latest month that has data
                 LocalDate currentDate = LocalDate.now();
 
                 Task<Void> initTask = new Task<Void>() {
@@ -943,7 +943,7 @@ public class PrimaryController {
 
                 try {
                         // Import CSV data using the new importer
-                        List<LineItemCSV> items = CsvImporter.importCsvFile(file, date);
+                        List<LineItemCSV> items = CSVimporter.importCsvFile(file, date);
 
                         // Process each item
                         items.forEach(item -> {
@@ -1014,6 +1014,7 @@ public class PrimaryController {
         private void handleBudgetEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event,
                         TreeTableView<LineItem> treeTable, TableView<LineItem> totalTable, int dbType) {
                 LineItem item = event.getTreeTablePosition().getTreeItem().getValue();
+                System.out.println(item);
                 if (item == null || item.isCategory()) {
                         return;
                 }
@@ -1026,16 +1027,28 @@ public class PrimaryController {
                         selectedItem.setBudget(event.getNewValue());
                 }
 
-                executeAsyncTask(() -> WriteData.actualUpdate(item), () -> {
-                        Util.calculateTreeTotals(treeTable.getRoot());
-                        totalTable.setItems(FXCollections.observableArrayList(
-                                        ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
-                        // Update grand total table
-                        UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary,
-                                        tableGrandTotal);
-                        treeTable.refresh();
-                        treeTable.requestFocus();
-                }, "Error updating budget for item: " + item.getCategory());
+                WriteData.updateLineItemBudget_ActualTable(item);
+                Util.calculateTreeTotals(treeTable.getRoot());
+                totalTable.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
+                // Update grand total table
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
+                treeTable.refresh();
+                treeTable.requestFocus();
+
+                // executeAsyncTask(() ->
+                // WriteData.updateLineItemBudget_ActualTable(item), () -> {
+                // Util.calculateTreeTotals(treeTable.getRoot());
+                // totalTable.setItems(FXCollections.observableArrayList(
+                // ReadData.getTableTotalsFromDatabase(dbType,
+                // item.getDate())));
+                // // Update grand total table
+                // UIData.updateGrandTotalFromTreeTables(tableIncome,
+                // tableMandatory, tableDiscretionary,
+                // tableGrandTotal);
+                // treeTable.refresh();
+                // treeTable.requestFocus();
+                // }, "Error updating budget for item: " + item.getCategory());
         }
 
         // ========================= UTILITY METHODS =========================

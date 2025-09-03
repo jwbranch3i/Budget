@@ -1,4 +1,4 @@
-package com.budget.dataModal;
+package com.budget.dataModel;
 
 import javafx.scene.control.TreeItem;
 

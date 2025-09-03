@@ -7,7 +7,7 @@
  */
 package com.budget;
 
-import com.budget.dataModal.DataSource;
+import com.budget.dataModel.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +184,6 @@ public class App extends Application {
         Scene scene = new Scene(root);
 
         // Apply CSS stylesheet
-        //TODO: UPDATE CSS FILE
        // applyCssStylesheet(scene);
 
         return scene;
@@ -195,6 +194,7 @@ public class App extends Application {
      * 
      * @param scene The scene to apply CSS to
      */
+    @SuppressWarnings("unused")
     private void applyCssStylesheet(Scene scene) {
         try {
             String cssUrl = getClass().getResource(CSS_RESOURCE).toExternalForm();

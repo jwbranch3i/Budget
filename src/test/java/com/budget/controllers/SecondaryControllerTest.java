@@ -1,6 +1,6 @@
 package com.budget.controllers;
 
-import com.budget.dataModal.DataSource;
+import com.budget.dataModel.DataSource;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
