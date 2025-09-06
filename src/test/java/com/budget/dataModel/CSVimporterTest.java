@@ -17,8 +17,8 @@ public class CSVimporterTest {
     @Test
     public void testImportCsvFile_ValidFile_ReturnsList() throws IOException {
         // Arrange
-        File file = new File("path/to/valid/csv/file.csv");
-        LocalDate importDate = LocalDate.now();
+        File file = new File ("C:\\Dropbox\\JAVA\\budget\\rawData\\May2025.csv");
+        LocalDate importDate = LocalDate.of(2025, 05, 01);
 
         // Act
         List<LineItemCSV> items = CSVimporter.importCsvFile(file, importDate);
