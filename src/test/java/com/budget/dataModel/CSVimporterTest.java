@@ -23,6 +23,9 @@ public class CSVimporterTest {
         // Act
         List<LineItemCSV> items = CSVimporter.importCsvFile(file, importDate);
 
+        for (LineItemCSV item : items) {
+            System.out.println(item);
+        }
         // Assert
         assertNotNull(items);
         assertTrue(items.size() > 0);

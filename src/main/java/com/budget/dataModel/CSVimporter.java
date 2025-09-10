@@ -7,10 +7,14 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 
 /**
  * Handles CSV file importing for budget data. Uses modern Java practices for
@@ -36,21 +40,26 @@ public class CSVimporter {
             return new ArrayList<>();
         }
 
-        List<LineItemCSV> items = new ArrayList<>();
+        List<LineItemCSV> parsedItems = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            // Skip header row
-            reader.readLine();
+        try (CSVReader reader = new CSVReader(new FileReader(file))) {
+            List<String[]> allRows;
+            try {
+                allRows = reader.readAll();
+            }
+            catch (CsvException e) {
+                LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
+                return parsedItems;
+            }
 
-            //Process each line
-            reader.lines().filter(line -> line != null && !line.trim().isEmpty())
-                    .map(line -> parseCsvLine(line, importDate))
-                    .filter(item -> item != null && item.isValid())
-                    .forEach(items::add);
+            parsedItems = parseCSVLines(allRows, importDate);
 
+            updateDatabaseWithParsedItems(parsedItems);
 
-            LOGGER.info(String.format("Successfully imported %d items from CSV file", items.size()));
-            return items;
+            for (LineItemCSV item : parsedItems) {
+                System.out.println(item);
+            }
+            return parsedItems;
         }
         catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
@@ -65,47 +74,103 @@ public class CSVimporter {
      * @param defaultDate The default date to use if not specified in CSV
      * @return A new LineItemCSV object, or null if parsing fails
      */
-    private static LineItemCSV parseCsvLine(String line, LocalDate defaultDate) {
-        try {
-            String[] fields = line.split(CSV_DELIMITER);
-            if (fields.length < 4) {
-                LOGGER.warning("Invalid CSV line format: " + line);
-                return null;
+    private static List<LineItemCSV> parseCSVLines(List<String[]> lines, LocalDate defaultDate) {
+        List<LineItemCSV> newItems = new ArrayList<>();
+
+        int type = DB.INCOME;
+        int newRecordType = DB.INCOME;
+        int leadingSpaces = 0;
+
+        String category = "";
+        String parent = "";
+        String workingType = "";
+
+        for (String[] line : lines) {
+            // String[] fields = line.split(CSV_DELIMITER);
+            lineCounter++;
+
+            if (line.length <= 1) {
+                continue;
             }
 
-            LineItemCSV item = new LineItemCSV();
+            if (line[1].trim().equals("INFLOWS")) {
+                type = DB.INCOME;
+                continue;
+            }
+            else if (line[1].trim().equals("OUTFLOWS")) {
+                type = DB.MANDATORY;
+                continue;
+            }
 
-            // Set required fields
-            item.setCategory(fields[0].trim());
-            item.setParent(fields[1].trim());
-            item.setAmount(parseAmount(fields[2].trim()));
-            item.setType(parseType(fields[3].trim()));
+            if (line[1].trim().contains("TOTAL")) {
+                continue;
+            }
 
-            // Set date (use defaultDate if not provided in CSV)
-            item.setDate(fields.length > 4 ? parseDate(fields[4].trim(), defaultDate) : defaultDate);
+            if (line.length < 3) {
+                continue;
+            }
 
-            // Set optional fields with defaults
-            item.setIncludeInTotal(fields.length > 5 ? Boolean.parseBoolean(fields[5].trim()) : true);
-            item.setHide(fields.length > 6 ? Boolean.parseBoolean(fields[6].trim()) : false);
+            Double amount = 0.0;
+            try {
+                amount = Double.parseDouble(line[2].replaceAll(",", ""));
+            }
+            catch (NumberFormatException e) {
+                amount = 0.0;
+            }
 
-            return item;
+            leadingSpaces = line[1].length() - line[1].trim().length();
+            switch (leadingSpaces) {
+            case 4:
+                newRecordType = type;
+                parent = "";
+                workingType = category;
+                LineItemCSV newLineItem = new LineItemCSV(newRecordType, defaultDate, parent, category, amount);
+                newItems.add(newLineItem);
+
+                break;
+
+            case 8:
+                parent = workingType;
+                newLineItem = new LineItemCSV(type, defaultDate, parent, category, amount);
+                newItems.add(newLineItem);
+
+                break;
+
+            default:
+                break;
+            }
         }
-        catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error parsing CSV line: " + line, e);
-            return null;
-        }
+        return newItems;
     }
 
-    /**
-     * Parses amount string to double, handling currency symbols and commas.
-     */
-    private static double parseAmount(String amount) {
-        try {
-            return Double.parseDouble(amount.replaceAll("[^\\d.-]", ""));
-        }
-        catch (NumberFormatException e) {
-            LOGGER.warning("Invalid amount format: " + amount);
-            return 0.0;
+    private static void updateDatabaseWithParsedItems(List<LineItemCSV> parsedItems) {
+        LineItemCSV existingCategory = new LineItemCSV();
+        LineItemCSV existingActual = new LineItemCSV();
+
+        for (LineItemCSV item : parsedItems) {
+            // if category not in category datbase insert it
+            existingCategory = ReadData.categoryFindRecord(newLineItem);
+            if ((existingCategory.getId() == -1)) {
+                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+            }
+
+            // if the category is not in the actual
+            // database, insert it
+            existingActual = ReadData.actualFindCategory(existingCategory);
+            if (existingActual.getId() == -1) {
+                WriteData.actualInsertRecord(existingActual, existingCategory);
+            }
+            else {
+                WriteData.autualUpdateAmount(existingActual);
+            }
+
+            // if the category is not in the budget
+            // database, insert it
+            existingActual = ReadData.budgetFindCategory(existingCategory);
+            if (existingActual.getId() == -1) {
+                WriteData.budgetInsertRecord(existingActual, existingCategory);
+            }
+
         }
     }
 
