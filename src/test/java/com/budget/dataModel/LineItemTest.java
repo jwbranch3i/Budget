@@ -6,8 +6,6 @@ import java.time.LocalDate;
 
 import org.junit.Test;
 
-import com.budget.dataModel.LineItem;
-
 public class LineItemTest {
 
     @Test

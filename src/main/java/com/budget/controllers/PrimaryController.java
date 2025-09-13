@@ -856,7 +856,8 @@ public class PrimaryController {
                                 Task<Void> importTask = new Task<Void>() {
                                         @Override
                                         protected Void call() throws Exception {
-                                                readCSVFile(selectedFile, workingDate);
+                                                CSVimporter.importCsvFile(selectedFile, workingDate);
+                                               // readCSVFile(selectedFile, workingDate);
                                                 return null;
                                         }
 
@@ -912,7 +913,7 @@ public class PrimaryController {
                         return reader.readLine();
                 }
                 catch (IOException e) {
-                        LOGGER.log(Level.WARNING, "Error retrieving file path from storage", e);
+                        LOGGER.log(Level.WARNING, e.getMessage() + " - Using default directory");
                         return DEFAULT_DIRECTORY;
                 }
         }
@@ -922,7 +923,7 @@ public class PrimaryController {
                         writer.write(selectedFile.getParent());
                 }
                 catch (IOException e) {
-                        LOGGER.log(Level.WARNING, "Error saving file path to storage", e);
+                        LOGGER.log(Level.WARNING, "Error saving file: " + selectedFile.getName());
                 }
         }
 
@@ -935,7 +936,7 @@ public class PrimaryController {
          * Reads and processes data from CSV file. Uses the CsvImporter for
          * modern file handling and error management.
          */
-        public static void readCSVFile(File file, LocalDate date) {
+        public static void XreadCSVFile(File file, LocalDate date) {
                 if (file == null) {
                         LOGGER.warning("Null file provided for CSV import");
                         return;
@@ -948,7 +949,7 @@ public class PrimaryController {
                         // Process each item
                         items.forEach(item -> {
                                 try {
-                                        processLineItem(item);
+                                        //processLineItem(item);
                                 }
                                 catch (Exception e) {
                                         LOGGER.log(Level.WARNING, "Error processing item: " + item.getCategory(), e);
@@ -965,27 +966,6 @@ public class PrimaryController {
                 }
         }
 
-        private static void processLineItem(LineItemCSV newLineItem) {
-                try {
-                        // Find or insert category
-                        LineItemCSV existingCategory = ReadData.categoryFindRecord(newLineItem);
-                        if (existingCategory.getId() == -1) {
-                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                        }
-
-                        // Find or insert actual record
-                        LineItemCSV existingActual = ReadData.actualFindCategory(existingCategory);
-                        if (existingActual.getId() == -1) {
-                                WriteData.actualInsertRecord(existingCategory);
-                        }
-                        else {
-                                WriteData.actualUpdateAmount(existingActual);
-                        }
-                }
-                catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Error processing line item: " + newLineItem.getCategory(), e);
-                }
-        }
 
         // ========================= EDIT COMMIT HANDLERS
         // =========================

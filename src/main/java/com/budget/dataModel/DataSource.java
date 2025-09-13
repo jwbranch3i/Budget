@@ -24,11 +24,8 @@ public class DataSource {
 
     /** SQLite database file name */
     public static final String DB_NAME = "Budget.db";
-    public static final String DB_TEST = "testBudget.db";
 
-    static String tempName = GlobalVariables.isDebugMode() ? DB_TEST : DB_NAME;
-
-    static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Dropbox\\JAVA\\budget\\" + DB_NAME;
+    private static String CONNECTION_STRING = "jdbc:sqlite:C:\\Dropbox\\JAVA\\budget\\" + DB_NAME;
 
     // ========================= SINGLETON INSTANCE =========================
 
@@ -56,6 +53,10 @@ public class DataSource {
             }
         }
         return instance;
+    }
+
+    public static void setDatabaseName(String name) {
+        CONNECTION_STRING = "jdbc:sqlite:C:\\Dropbox\\JAVA\\budget\\testBudget";
     }
 
     /**

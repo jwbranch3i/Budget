@@ -54,7 +54,7 @@ public class CSVimporter {
 
             parsedItems = parseCSVLines(allRows, importDate);
 
-            updateDatabaseWithParsedItems(parsedItems);
+           // updateDatabaseWithParsedItems(parsedItems);
 
             for (LineItemCSV item : parsedItems) {
                 System.out.println(item);
@@ -76,15 +76,16 @@ public class CSVimporter {
      */
     private static List<LineItemCSV> parseCSVLines(List<String[]> lines, LocalDate defaultDate) {
         List<LineItemCSV> newItems = new ArrayList<>();
+        LineItemCSV newLineItem;
 
         int type = DB.INCOME;
         int newRecordType = DB.INCOME;
-        int leadingSpaces = 0;
 
         String category = "";
         String parent = "";
         String workingType = "";
 
+        int lineCounter = 0;
         for (String[] line : lines) {
             // String[] fields = line.split(CSV_DELIMITER);
             lineCounter++;
@@ -93,20 +94,20 @@ public class CSVimporter {
                 continue;
             }
 
-            if (line[1].trim().equals("INFLOWS")) {
+            int leadingSpaces = line[1].length() - line[1].trim().length();
+            String trimmedValue = line[1].trim();
+
+            if ("INFLOWS".equals(trimmedValue)) {
                 type = DB.INCOME;
                 continue;
             }
-            else if (line[1].trim().equals("OUTFLOWS")) {
+            else if ("OUTFLOWS".equals(trimmedValue)) {
                 type = DB.MANDATORY;
                 continue;
             }
 
-            if (line[1].trim().contains("TOTAL")) {
-                continue;
-            }
-
-            if (line.length < 3) {
+            category = trimmedValue;
+            if (category.contains("TOTAL") || line.length < 3) {
                 continue;
             }
 
@@ -118,59 +119,72 @@ public class CSVimporter {
                 amount = 0.0;
             }
 
-            leadingSpaces = line[1].length() - line[1].trim().length();
             switch (leadingSpaces) {
-            case 4:
-                newRecordType = type;
-                parent = "";
+            case 4: // Category level
+                parent = category;
                 workingType = category;
-                LineItemCSV newLineItem = new LineItemCSV(newRecordType, defaultDate, parent, category, amount);
-                newItems.add(newLineItem);
-
+                newLineItem = new LineItemCSV(type, defaultDate, category, category, amount);
+                newLineItem.isMainCategory(true);
+                processLineItem(newLineItem);
                 break;
 
-            case 8:
+            case 8: // Sub-category level
                 parent = workingType;
                 newLineItem = new LineItemCSV(type, defaultDate, parent, category, amount);
-                newItems.add(newLineItem);
-
+                newLineItem.isMainCategory(false);
+                processLineItem(newLineItem);
                 break;
 
             default:
                 break;
             }
         }
+        ReadData.findMissingCategories(defaultDate);
         return newItems;
+    }
+
+    private static void processLineItem(LineItemCSV newLineItem) {
+        try {
+            // Find or insert category
+            LineItemCSV existingCategory = ReadData.categoryFindRecord(newLineItem);
+            if (existingCategory.getId() == -1) {
+                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+            }
+
+            // Find or insert actual record
+            LineItemCSV existingActual = ReadData.actualFindCategory(existingCategory);
+            if (existingActual.getId() == -1) {
+                WriteData.actualInsertRecord(existingCategory);
+            }
+            else {
+                WriteData.actualUpdateAmount(existingActual);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error processing line item: " + newLineItem.getCategory(), e);
+        }
     }
 
     private static void updateDatabaseWithParsedItems(List<LineItemCSV> parsedItems) {
         LineItemCSV existingCategory = new LineItemCSV();
         LineItemCSV existingActual = new LineItemCSV();
 
-        for (LineItemCSV item : parsedItems) {
-            // if category not in category datbase insert it
+        for (LineItemCSV newLineItem : parsedItems) {
+            // if category not in category table insert it
             existingCategory = ReadData.categoryFindRecord(newLineItem);
             if ((existingCategory.getId() == -1)) {
                 existingCategory = WriteData.categoryInsertRecord(newLineItem);
             }
 
             // if the category is not in the actual
-            // database, insert it
+            // table, insert it
             existingActual = ReadData.actualFindCategory(existingCategory);
             if (existingActual.getId() == -1) {
-                WriteData.actualInsertRecord(existingActual, existingCategory);
+                WriteData.actualInsertRecord(existingActual);
             }
             else {
-                WriteData.autualUpdateAmount(existingActual);
+                WriteData.actualUpdateAmount(existingActual);
             }
-
-            // if the category is not in the budget
-            // database, insert it
-            existingActual = ReadData.budgetFindCategory(existingCategory);
-            if (existingActual.getId() == -1) {
-                WriteData.budgetInsertRecord(existingActual, existingCategory);
-            }
-
         }
     }
 

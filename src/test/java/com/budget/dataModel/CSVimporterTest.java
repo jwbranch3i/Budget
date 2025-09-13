@@ -1,8 +1,6 @@
 package com.budget.dataModel;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -10,14 +8,33 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javafx.application.Platform;
+
 public class CSVimporterTest {
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        DataSource.setDatabaseName("testBudget.db"); 
+        if (!DataSource.getInstance().open()) {
+            System.out.println("FATAL ERROR: Couldn't connect to database");
+            Platform.exit();
+        }
+        System.out.println("*** Connected to testBudget.db database for testing ***");
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        DataSource.getInstance().close();
+    }
 
     @Test
     public void testImportCsvFile_ValidFile_ReturnsList() throws IOException {
         // Arrange
-        File file = new File ("C:\\Dropbox\\JAVA\\budget\\rawData\\May2025.csv");
+        File file = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\May2025.csv");
         LocalDate importDate = LocalDate.of(2025, 05, 01);
 
         // Act
@@ -59,5 +76,4 @@ public class CSVimporterTest {
         assertTrue(items.isEmpty());
     }
 
-   
 }

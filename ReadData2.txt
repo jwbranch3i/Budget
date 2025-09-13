@@ -1,0 +1,73 @@
+      /**
+         * Reads actual data from CSV file.
+         */
+        public static void readActual(File file, LocalDate date) {
+                try (FileReader fileReader = new FileReader(file); CSVReader csvReader = new CSVReader(fileReader)) {
+
+                        LineItemCSV newLineItem;
+                    
+                        String[] nextRecord;
+                        String category;
+                        String parent = "";
+                        String workingType = "";
+                        double amount;
+                        int type = 0;
+
+                        while ((nextRecord = csvReader.readNext()) != null) {
+                                if (nextRecord.length <= 1)
+                                        continue;
+
+                                int leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
+                                String trimmedValue = nextRecord[1].trim();
+
+                                if ("INFLOWS".equals(trimmedValue)) {
+                                        type = DB.INCOME;
+                                        continue;
+                                }
+                                else if ("OUTFLOWS".equals(trimmedValue)) {
+                                        type = DB.MANDATORY;
+                                        continue;
+                                }
+
+                                category = trimmedValue;
+                                if (category.contains("TOTAL") || nextRecord.length < 3) {
+                                        continue;
+                                }
+
+                                try {
+                                        amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
+                                }
+                                catch (NumberFormatException e) {
+                                        amount = 0.0;
+                                }
+
+                                switch (leadingSpaces) {
+                                case 4: // Category level
+                                        parent = category;
+                                        workingType = category;
+                                        newLineItem = new LineItemCSV(type, date, category, category, amount);
+                                        newLineItem.isMainCategory(true);
+                                        processLineItem(newLineItem);
+                                        break;
+
+                                case 8: // Sub-category level
+                                        parent = workingType;
+                                        newLineItem = new LineItemCSV(type, date, parent, category, amount);
+                                        newLineItem.isMainCategory(false);
+                                        processLineItem(newLineItem);
+                                        break;
+
+                                default:
+                                        // Handle other indentation levels if
+                                        // needed
+                                        break;
+                                }
+                        }
+
+                        ReadData.findMissingCategories(date);
+
+                }
+                catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
+                }
+        }
