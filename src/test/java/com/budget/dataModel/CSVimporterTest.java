@@ -23,7 +23,7 @@ public class CSVimporterTest {
             System.out.println("FATAL ERROR: Couldn't connect to database");
             Platform.exit();
         }
-        System.out.println("*** Connected to testBudget.db database for testing ***");
+        System.out.println("*** Connected to " + DataSource.getDatabaseName());
     }
 
     @AfterClass

@@ -857,14 +857,12 @@ public class PrimaryController {
                                         @Override
                                         protected Void call() throws Exception {
                                                 CSVimporter.importCsvFile(selectedFile, workingDate);
-                                               // readCSVFile(selectedFile, workingDate);
                                                 return null;
                                         }
 
                                         @Override
                                         protected void succeeded() {
                                                 Platform.runLater(() -> {
-                                                        // readFromDatabase(workingDate);
                                                         updateTableData();
                                                         resetImportState();
                                                         // WriteData.updateAllRunningTotals(workingDate);
@@ -949,7 +947,7 @@ public class PrimaryController {
                         // Process each item
                         items.forEach(item -> {
                                 try {
-                                        //processLineItem(item);
+                                        // processLineItem(item);
                                 }
                                 catch (Exception e) {
                                         LOGGER.log(Level.WARNING, "Error processing item: " + item.getCategory(), e);
@@ -965,7 +963,6 @@ public class PrimaryController {
                         LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
                 }
         }
-
 
         // ========================= EDIT COMMIT HANDLERS
         // =========================

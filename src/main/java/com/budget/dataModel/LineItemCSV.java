@@ -162,7 +162,7 @@ public class LineItemCSV {
      * 
      * @param isMainCategory true if this is a main category, false otherwise
      */
-    public void isMainCategory(boolean isMainCategory) {
+    public void setIsMainCategory(boolean isMainCategory) {
         this.isMainCategory = isMainCategory;
     }
 
@@ -279,7 +279,7 @@ public class LineItemCSV {
         item.setId(this.id);
         item.hide(this.hide);
         item.includeInTotal(this.includeInTotal);
-        item.isCategory(this.isMainCategory);
+        item.setIsCategory(this.isMainCategory);
         return item;
     }
 

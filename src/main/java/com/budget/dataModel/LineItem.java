@@ -85,7 +85,7 @@ public class LineItem {
             this.type = other.type;
             this.hide(other.hide());
             this.includeInTotal(other.includeInTotal());
-            this.isCategory(other.isCategory());
+            this.setIsCategory(other.isCategory());
             this.date.set(other.getDate());
             this.parent.set(other.getParent());
             this.category.set(other.getCategoryRaw()); // Use raw category without formatting
@@ -208,7 +208,7 @@ public class LineItem {
      * 
      * @param isCategory true if this is a category, false otherwise
      */
-    public void isCategory(boolean isCategory) {
+    public void setIsCategory(boolean isCategory) {
         this.isCategory = isCategory;
     }
 

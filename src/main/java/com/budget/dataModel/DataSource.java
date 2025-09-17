@@ -59,6 +59,10 @@ public class DataSource {
         CONNECTION_STRING = "jdbc:sqlite:C:\\Dropbox\\JAVA\\budget\\testBudget";
     }
 
+    public static String getDatabaseName() {
+        return CONNECTION_STRING;
+    }
+
     /**
      * Gets the current database connection.
      * 

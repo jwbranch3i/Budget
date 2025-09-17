@@ -1,17 +1,14 @@
 package com.budget.dataModel;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -124,14 +121,14 @@ public class CSVimporter {
                 parent = category;
                 workingType = category;
                 newLineItem = new LineItemCSV(type, defaultDate, category, category, amount);
-                newLineItem.isMainCategory(true);
+                newLineItem.setIsMainCategory(true);
                 processLineItem(newLineItem);
                 break;
 
             case 8: // Sub-category level
                 parent = workingType;
                 newLineItem = new LineItemCSV(type, defaultDate, parent, category, amount);
-                newLineItem.isMainCategory(false);
+                newLineItem.setIsMainCategory(false);
                 processLineItem(newLineItem);
                 break;
 

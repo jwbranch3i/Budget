@@ -105,6 +105,7 @@ public class ReadData {
                     // Get or create parent node
                     TreeItem<LineItem> parentNode = parentMap.get(parent);
                     if (parentNode == null) {
+                        newItem.setIsCategory(false);
                         parentNode = new TreeItem<>(newItem);
                         parentMap.put(parent, parentNode);
                         rootNode.getChildren().add(parentNode);
@@ -121,6 +122,7 @@ public class ReadData {
                             // update
                             // the existing item
                             LineItem existingItem = parentNode.getValue();
+                            existingItem.setIsCategory(true);
                             existingItem.setActual(existingItem.getActual() + newItem.getActual());
                             existingItem.setBudget(existingItem.getBudget() + newItem.getBudget());
                         }
@@ -305,7 +307,7 @@ public class ReadData {
         item.hide(rs.getBoolean("HIDE"));
         String dateStr = rs.getString("DATE") + "-01";
         item.setDate(LocalDate.parse(dateStr));
-        item.isCategory(rs.getBoolean("MAIN_CATEGORY"));
+        item.setIsCategory(rs.getBoolean("MAIN_CATEGORY"));
         item.setParent(rs.getString("PARENT"));
         item.setCategory(rs.getString("CATEGORY"));
         item.setActual(rs.getDouble("ACTUAL"));

@@ -95,7 +95,7 @@ public class LineItemTest {
         /***************************************************************************** */
         String category = "Category";
         lineItem.setCategory(category);
-        lineItem.isCategory(false);
+        lineItem.setIsCategory(false);
         System.out.println("Category: " + lineItem.getCategory());
        // assertEquals(category, lineItem.getCategory());
 
