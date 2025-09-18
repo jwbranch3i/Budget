@@ -197,8 +197,6 @@ public class PrimaryController {
         @FXML
         private Button btn_Update;
         @FXML
-        private Button btn_EditCat;
-        @FXML
         private Button btn_UpdateBudget;
         @FXML
         private Button btn_UpdateBalance;
@@ -251,28 +249,7 @@ public class PrimaryController {
 
         // ========================= EVENT HANDLERS =========================
 
-        /**
-         * Handles the Edit Category button click.
-         */
-        @FXML
-        void button_EditCat(ActionEvent event) {
-                try {
-                        if (GlobalVariables.isDebugMode()) {
-                                LOGGER.fine("Edit Category button clicked");
-                        }
-                        openEditCategoryWindow(event);
-                        refreshDataAfterEdit();
-                        if (GlobalVariables.isDebugMode()) {
-                                LOGGER.fine("Edit Category window closed, data refreshed");
-                        }
-                }
-                catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, "Error opening edit category window", e);
-                        showErrorAlert("Window Error", "Failed to open the edit category window.");
-                }
-        }
-
-        /**
+         /**
          * Handles the Update Category button click.
          */
         @FXML
@@ -1118,18 +1095,6 @@ public class PrimaryController {
                 mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
         }
 
-        private void openEditCategoryWindow(ActionEvent event) throws IOException {
-
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/budget/secondary.fxml"));
-                Parent root = fxmlLoader.load();
-
-                Stage stage = new Stage();
-                stage.setTitle(EDIT_CATEGORY_TITLE);
-                stage.setScene(new Scene(root));
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.initOwner(((Node) event.getSource()).getScene().getWindow());
-                stage.showAndWait();
-        }
 
         /**
          * Opens the edit item detail dialog for the specified line item.
