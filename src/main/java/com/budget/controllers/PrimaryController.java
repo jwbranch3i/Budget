@@ -20,16 +20,16 @@ import java.util.logging.Logger;
 
 import com.budget.GlobalVariables;
 import com.budget.Util;
-import com.budget.dataModal.CsvImporter;
-import com.budget.dataModal.DB;
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.DatabaseDataResult;
-import com.budget.dataModal.LineItem;
-import com.budget.dataModal.LineItemCSV;
-import com.budget.dataModal.ReadData;
-import com.budget.dataModal.RunningTotal;
-import com.budget.dataModal.UIData;
-import com.budget.dataModal.WriteData;
+import com.budget.dataModel.CSVimporter;
+import com.budget.dataModel.DB;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.DatabaseDataResult;
+import com.budget.dataModel.LineItem;
+import com.budget.dataModel.LineItemCSV;
+import com.budget.dataModel.ReadData;
+import com.budget.dataModel.RunningTotal;
+import com.budget.dataModel.UIData;
+import com.budget.dataModel.WriteData;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -677,10 +677,10 @@ public class PrimaryController {
         // ========================= CONTEXT MENU SETUP
         // =========================
         private void setupContextMenus() {
-                setupTreeTableRowFactory(tableIncome, true); 
-                setupTreeTableRowFactory(tableMandatory, true); 
-                setupTreeTableRowFactory(tableDiscretionary, true); 
-                
+                setupTreeTableRowFactory(tableIncome, true);
+                setupTreeTableRowFactory(tableMandatory, true);
+                setupTreeTableRowFactory(tableDiscretionary, true);
+
         }
 
         private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
@@ -730,7 +730,7 @@ public class PrimaryController {
         }
 
         private void initializeData() {
-                //TODO: load latest month that has data
+                // TODO: load latest month that has data
                 LocalDate currentDate = LocalDate.now();
 
                 Task<Void> initTask = new Task<Void>() {
@@ -856,14 +856,13 @@ public class PrimaryController {
                                 Task<Void> importTask = new Task<Void>() {
                                         @Override
                                         protected Void call() throws Exception {
-                                                readCSVFile(selectedFile, workingDate);
+                                                CSVimporter.importCsvFile(selectedFile, workingDate);
                                                 return null;
                                         }
 
                                         @Override
                                         protected void succeeded() {
                                                 Platform.runLater(() -> {
-                                                        // readFromDatabase(workingDate);
                                                         updateTableData();
                                                         resetImportState();
                                                         // WriteData.updateAllRunningTotals(workingDate);
@@ -912,7 +911,7 @@ public class PrimaryController {
                         return reader.readLine();
                 }
                 catch (IOException e) {
-                        LOGGER.log(Level.WARNING, "Error retrieving file path from storage", e);
+                        LOGGER.log(Level.WARNING, e.getMessage() + " - Using default directory");
                         return DEFAULT_DIRECTORY;
                 }
         }
@@ -922,7 +921,7 @@ public class PrimaryController {
                         writer.write(selectedFile.getParent());
                 }
                 catch (IOException e) {
-                        LOGGER.log(Level.WARNING, "Error saving file path to storage", e);
+                        LOGGER.log(Level.WARNING, "Error saving file: " + selectedFile.getName());
                 }
         }
 
@@ -935,7 +934,7 @@ public class PrimaryController {
          * Reads and processes data from CSV file. Uses the CsvImporter for
          * modern file handling and error management.
          */
-        public static void readCSVFile(File file, LocalDate date) {
+        public static void XreadCSVFile(File file, LocalDate date) {
                 if (file == null) {
                         LOGGER.warning("Null file provided for CSV import");
                         return;
@@ -943,12 +942,12 @@ public class PrimaryController {
 
                 try {
                         // Import CSV data using the new importer
-                        List<LineItemCSV> items = CsvImporter.importCsvFile(file, date);
+                        List<LineItemCSV> items = CSVimporter.importCsvFile(file, date);
 
                         // Process each item
                         items.forEach(item -> {
                                 try {
-                                        processLineItem(item);
+                                        // processLineItem(item);
                                 }
                                 catch (Exception e) {
                                         LOGGER.log(Level.WARNING, "Error processing item: " + item.getCategory(), e);
@@ -962,28 +961,6 @@ public class PrimaryController {
                 }
                 catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
-                }
-        }
-
-        private static void processLineItem(LineItemCSV newLineItem) {
-                try {
-                        // Find or insert category
-                        LineItemCSV existingCategory = ReadData.categoryFindRecord(newLineItem);
-                        if (existingCategory.getId() == -1) {
-                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
-                        }
-
-                        // Find or insert actual record
-                        LineItemCSV existingActual = ReadData.actualFindCategory(existingCategory);
-                        if (existingActual.getId() == -1) {
-                                WriteData.actualInsertRecord(existingCategory);
-                        }
-                        else {
-                                WriteData.actualUpdateAmount(existingActual);
-                        }
-                }
-                catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Error processing line item: " + newLineItem.getCategory(), e);
                 }
         }
 
@@ -1014,6 +991,7 @@ public class PrimaryController {
         private void handleBudgetEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event,
                         TreeTableView<LineItem> treeTable, TableView<LineItem> totalTable, int dbType) {
                 LineItem item = event.getTreeTablePosition().getTreeItem().getValue();
+                System.out.println(item);
                 if (item == null || item.isCategory()) {
                         return;
                 }
@@ -1026,16 +1004,28 @@ public class PrimaryController {
                         selectedItem.setBudget(event.getNewValue());
                 }
 
-                executeAsyncTask(() -> WriteData.actualUpdate(item), () -> {
-                        Util.calculateTreeTotals(treeTable.getRoot());
-                        totalTable.setItems(FXCollections.observableArrayList(
-                                        ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
-                        // Update grand total table
-                        UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary,
-                                        tableGrandTotal);
-                        treeTable.refresh();
-                        treeTable.requestFocus();
-                }, "Error updating budget for item: " + item.getCategory());
+                WriteData.updateLineItemBudget_ActualTable(item);
+                Util.calculateTreeTotals(treeTable.getRoot());
+                totalTable.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
+                // Update grand total table
+                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
+                treeTable.refresh();
+                treeTable.requestFocus();
+
+                // executeAsyncTask(() ->
+                // WriteData.updateLineItemBudget_ActualTable(item), () -> {
+                // Util.calculateTreeTotals(treeTable.getRoot());
+                // totalTable.setItems(FXCollections.observableArrayList(
+                // ReadData.getTableTotalsFromDatabase(dbType,
+                // item.getDate())));
+                // // Update grand total table
+                // UIData.updateGrandTotalFromTreeTables(tableIncome,
+                // tableMandatory, tableDiscretionary,
+                // tableGrandTotal);
+                // treeTable.refresh();
+                // treeTable.requestFocus();
+                // }, "Error updating budget for item: " + item.getCategory());
         }
 
         // ========================= UTILITY METHODS =========================

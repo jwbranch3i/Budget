@@ -1,4 +1,4 @@
-package com.budget.dataModal;
+package com.budget.dataModel;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -85,7 +85,7 @@ public class LineItem {
             this.type = other.type;
             this.hide(other.hide());
             this.includeInTotal(other.includeInTotal());
-            this.isCategory(other.isCategory());
+            this.setIsCategory(other.isCategory());
             this.date.set(other.getDate());
             this.parent.set(other.getParent());
             this.category.set(other.getCategoryRaw()); // Use raw category without formatting
@@ -208,7 +208,7 @@ public class LineItem {
      * 
      * @param isCategory true if this is a category, false otherwise
      */
-    public void isCategory(boolean isCategory) {
+    public void setIsCategory(boolean isCategory) {
         this.isCategory = isCategory;
     }
 
@@ -567,10 +567,10 @@ public class LineItem {
      */
     @Override
     public String toString() {
-        return String.format("LineItem{id=%d, categoryId=%d, hide=%s, includeInTotal=%s, type=%d, " +
-                           "date='%s', parent='%s', category='%s', actual=%.2f, " +
+        return String.format("LineItem{id=%d, categoryId=%d,   acct=%d, type=%d, hide=%s, includeInTotal=%s, " +
+                           "isCategory=%s, date='%s', parent='%s', category='%s', actual=%.2f, " +
                            "budget=%.2f, diff=%.2f, startBal=%.2f, balance=%.2f}",
-                           getId(), getCatagoryId(), hide(), includeInTotal(), getType(),
+                           getId(), getCatagoryId(), getAcct(), getType(), hide(), includeInTotal(), isCategory(),
                            getDate(), getParent(), getCategoryRaw(), getActual(),
                            getBudget(), getDiff(), getStartBal(), getBalance());
     }

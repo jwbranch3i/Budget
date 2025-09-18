@@ -1,12 +1,10 @@
-package com.budget.data;
+package com.budget.dataModel;
 
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.junit.Test;
-
-import com.budget.dataModal.LineItem;
 
 public class LineItemTest {
 
@@ -97,7 +95,7 @@ public class LineItemTest {
         /***************************************************************************** */
         String category = "Category";
         lineItem.setCategory(category);
-        lineItem.isCategory(false);
+        lineItem.setIsCategory(false);
         System.out.println("Category: " + lineItem.getCategory());
        // assertEquals(category, lineItem.getCategory());
 

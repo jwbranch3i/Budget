@@ -1,10 +1,9 @@
 package com.budget.controllers;
 
-import java.io.File;
 import java.time.LocalDate;
 
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.DatabaseDataResult;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.DatabaseDataResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,12 +25,6 @@ public class PrimaryControllerTest {
         DataSource.getInstance().close();
     }
 
-    @Test
-    public void testReadActual() {
-        File csvfile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\Oct2024.csv");
-
-        PrimaryController.readCSVFile(csvfile, LocalDate.now());
-    }
 
     @Test
     public void testGetTableRows() {
@@ -45,39 +38,7 @@ public class PrimaryControllerTest {
         controller.readFromDatabase(inDate);
     }
 
-    @Test
-    public void testReadCSVFile_withValidFile() {
-        File csvFile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\aug2025.csv");
-        LocalDate date = LocalDate.of(2025, 8, 1);
 
-        // Should not throw any exceptions
-        PrimaryController.readCSVFile(csvFile, date);
-    }
-
-    @Test
-    public void testReadCSVFile_withNonExistentFile() {
-        File csvFile = new File("C:\\Dropbox\\JAVA\\budget\\rawData\\NonExistent.csv");
-        LocalDate date = LocalDate.of(2024, 10, 1);
-
-        try {
-            PrimaryController.readCSVFile(csvFile, date);
-        } catch (Exception e) {
-            // Should handle internally, not throw
-            assert false : "readCSVFile should not throw exception for non-existent file";
-        }
-    }
-
-    @Test
-    public void testReadCSVFile_withNullFile() {
-        LocalDate date = LocalDate.of(2024, 10, 1);
-
-        try {
-            PrimaryController.readCSVFile(null, date);
-        } catch (Exception e) {
-            // Should handle internally, not throw
-            assert false : "readCSVFile should not throw exception for null file";
-        }
-    }
 
     @Test
     public void testLoadDatabaseData_withValidDate() {
@@ -104,6 +65,13 @@ public class PrimaryControllerTest {
             assert false : "Exception thrown during loadDatabaseData: " + e.getMessage();
         }
     }
+
+
+
+
+
+
+
 
 
 }

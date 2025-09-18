@@ -1,4 +1,4 @@
-package com.budget.dataModal;
+package com.budget.dataModel;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -161,12 +161,12 @@ public final class DB {
                         new String[] { ACTUAL_COL_ACTUAL }, ACTUAL_COL_ID + " = ?");
 
         /**
-         * Update actual record with all fields. Parameters: date, actual,
-         * budget, startBal, id
+         * Update actual record budget field for specified id
          */
-        public static final String ACTUAL_UPDATE = buildUpdateQuery(ACTUAL_TABLE,
-                        new String[] { ACTUAL_COL_DATE, ACTUAL_COL_ACTUAL, ACTUAL_COL_BUDGET, ACTUAL_COL_STARTBAL },
-                        ACTUAL_COL_ID + " = ?");
+        public static final String UPDATE_LINEITEM_BUDGET_ACTUALTABLE = "UPDATE " + ACTUAL_TABLE + " SET "
+                        + ACTUAL_COL_BUDGET + " = ? "
+                        + "WHERE " + ACTUAL_COL_ID + " = ?";
+
 
         /**
          * Get table amounts with category join. Parameters: type

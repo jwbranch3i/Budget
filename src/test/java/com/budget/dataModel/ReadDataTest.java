@@ -1,4 +1,4 @@
-package com.budget.data;
+package com.budget.dataModel;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.budget.Util;
-import com.budget.dataModal.DataSource;
-import com.budget.dataModal.LineItem;
-import com.budget.dataModal.ReadData;
+import com.budget.dataModel.DataSource;
+import com.budget.dataModel.LineItem;
+import com.budget.dataModel.ReadData;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,12 +19,14 @@ import javafx.scene.control.TreeItem;
 
 public class ReadDataTest {
   
-    @BeforeClass
+   @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+      //  DataSource.setDatabaseName("testBudget.db"); 
         if (!DataSource.getInstance().open()) {
             System.out.println("FATAL ERROR: Couldn't connect to database");
             Platform.exit();
         }
+        System.out.println("*** Connected to " + DataSource.getDatabaseName());
     }
 
     @AfterClass
@@ -36,11 +38,11 @@ public class ReadDataTest {
 
     @Test
     public void testGetTableAmountsTree() {
-        int tableType = 1;
+        int tableType = 0;
 
         // set date to 9-01-2024
-        // LocalDate inDate = LocalDate.of(2025, 6, 1);
-        LocalDate inDate = LocalDate.of(2025, 6, 1);
+        // LocalDate inDate = LocalDate.of(2025, 5, 1);
+        LocalDate inDate = LocalDate.of(2025, 5, 1);
 
         TreeItem<LineItem> result;
 

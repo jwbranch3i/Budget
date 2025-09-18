@@ -1,0 +1,136 @@
+ public static void readActual(File file, LocalDate inDate) {
+                LineItemCSV newLineItem = new LineItemCSV();
+                LineItemCSV existingCategory = new LineItemCSV();
+                LineItemCSV existingActual = new LineItemCSV();
+
+                String[] nextRecord;
+                String category = "";
+                String parent = "";
+                String workingType = "";
+
+                Double amount = 0.0;
+
+                int leadingSpaces = 0;
+                int type = 0;
+                int newRecordType = 0;
+
+                try {
+                        FileReader filereader = new FileReader(file);
+                        CSVReader csvReader = new CSVReader(filereader);
+
+                        // we are going to read data line by line
+                        while ((nextRecord = csvReader.readNext()) != null) {
+
+                                // if the line is empty, skip it
+                                if (nextRecord.length <= 1) {
+                                        continue;
+                                }
+
+                                leadingSpaces = nextRecord[1].length() - nextRecord[1].trim().length();
+                                if (nextRecord[1].trim().equals("INFLOWS")) {
+                                        type = DB.INCOME;
+                                        continue;
+                                }
+                                else if (nextRecord[1].trim().equals("OUTFLOWS")) {
+                                        type = DB.MANDITORY;
+                                        continue;
+                                }
+
+                                category = nextRecord[1].trim();
+                                // if category contains the string 'TOTAL' then
+                                // skip it
+                                if (category.contains("TOTAL")) {
+                                        continue;
+                                }
+
+                                if (nextRecord.length < 3) {
+                                        continue;
+                                }
+
+                                try {
+                                        amount = Double.parseDouble(nextRecord[2].replaceAll(",", ""));
+                                }
+                                catch (NumberFormatException e) {
+                                        amount = 0.0;
+                                }
+
+                                switch (leadingSpaces) {
+                                case 4: // if the line is a category
+
+                                        newRecordType = type;
+                                        parent = "";
+                                        workingType = category;
+                                        newLineItem = new LineItemCSV(newRecordType, inDate, parent, category, amount);
+
+                                        // if the category is not in the
+                                        // category database, insert
+                                        // it
+                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                        if ((existingCategory.getId() == -1)) {
+                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                        }
+
+                                        // if the category is not in the actual
+                                        // database, insert it
+                                        existingActual = ReadData.actualFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.actualInsertRecord(existingActual, existingCategory);
+                                        }
+                                        else {
+                                                WriteData.autualUpdateAmount(existingActual);
+                                        }
+
+                                        // if the category is not in the budget
+                                        // database, insert it
+                                        existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        }
+
+                                        break;
+
+                                case 8:
+                                        parent = workingType;
+                                        newLineItem = new LineItemCSV(type, inDate, parent, category, amount);
+
+                                        // if the category is not in the
+                                        // category database, insert
+                                        // it
+                                        existingCategory = ReadData.categoryFindRecord(newLineItem);
+                                        if ((existingCategory.getId() == -1)) {
+                                                existingCategory = WriteData.categoryInsertRecord(newLineItem);
+                                        }
+
+                                        // if the category is not in the actual
+                                        // database, insert it
+                                        existingActual = ReadData.actualFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.actualInsertRecord(existingActual, existingCategory);
+                                        }
+                                        else {
+                                                WriteData.autualUpdateAmount(existingActual);
+                                        }
+
+                                        // if the category is not in the budget
+                                        // database, insert it
+                                        existingActual = ReadData.budgetFindCategory(existingCategory);
+                                        if (existingActual.getId() == -1) {
+                                                WriteData.budgetInsertRecord(existingActual, existingCategory);
+                                        }
+
+                                        break;
+
+                                default:
+                                        // Handle any other number of leading
+                                        // spaces
+                                        break;
+                                }
+
+                        }
+                        csvReader.close();
+
+                }
+                catch (Exception e) {
+                        e.printStackTrace();
+                }
+        }

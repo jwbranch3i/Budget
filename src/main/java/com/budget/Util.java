@@ -4,8 +4,10 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.logging.Logger;
 
-import com.budget.dataModal.LineItem;
+import com.budget.controllers.PrimaryController;
+import com.budget.dataModel.LineItem;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -18,6 +20,7 @@ import javafx.util.StringConverter;
  * Utility class for handling currency conversion and table cell formatting.
  */
 public class Util {
+     private static final Logger LOGGER = Logger.getLogger(PrimaryController.class.getName());
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
  
     /**
@@ -106,6 +109,9 @@ public class Util {
      * @param rootNode The root TreeItem to process
      */
     public static void calculateTreeTotals(TreeItem<LineItem> rootNode) {
+        LOGGER.info("Calculating tree totals...");
+         // Print the tree structure for debugging
+         printTreeItems(rootNode);
         if (rootNode == null)
             return;
 
