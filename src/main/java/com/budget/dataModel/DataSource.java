@@ -9,8 +9,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.budget.GlobalVariables;
-
 /**
  * Singleton DataSource class for managing database connections and operations.
  * Provides centralized database access for the Budget application using SQLite.

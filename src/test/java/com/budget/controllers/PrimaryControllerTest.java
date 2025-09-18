@@ -10,10 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javafx.application.Platform;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
 
 public class PrimaryControllerTest {
     @BeforeClass

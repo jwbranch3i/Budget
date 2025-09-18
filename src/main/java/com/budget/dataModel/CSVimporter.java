@@ -20,7 +20,6 @@ import com.opencsv.exceptions.CsvException;
 public class CSVimporter {
     private static final Logger LOGGER = Logger.getLogger(CSVimporter.class.getName());
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("M/d/yyyy");
-    private static final String CSV_DELIMITER = ",";
 
     /**
      * Reads and processes a CSV file, converting its contents to LineItemCSV
@@ -76,16 +75,13 @@ public class CSVimporter {
         LineItemCSV newLineItem;
 
         int type = DB.INCOME;
-        int newRecordType = DB.INCOME;
 
         String category = "";
         String parent = "";
         String workingType = "";
 
-        int lineCounter = 0;
         for (String[] line : lines) {
             // String[] fields = line.split(CSV_DELIMITER);
-            lineCounter++;
 
             if (line.length <= 1) {
                 continue;
