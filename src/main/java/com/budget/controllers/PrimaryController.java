@@ -212,7 +212,6 @@ public class PrimaryController {
         public void initialize() {
                 try {
                         // Initialize global logging settings first
-                        GlobalVariables.enableDebugLogging();
                         LOGGER.info("Initializing PrimaryController - " + GlobalVariables.getDebugStatus());
 
                         // Apply styles

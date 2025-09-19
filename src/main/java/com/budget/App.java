@@ -87,9 +87,9 @@ public class App extends Application {
             logger.info("Starting Budget application UI...");
 
             // GlobalVariables.enableDebugLogging();
-            GlobalVariables.setInfoLogging();
+            //GlobalVariables.setInfoLogging();
             // GlobalVariables.setWarnLogging();
-            // GlobalVariables.setErrorLogging();
+             GlobalVariables.setErrorLogging();
 
             // Configure primary stage
             configurePrimaryStage(primaryStage);

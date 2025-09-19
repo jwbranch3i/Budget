@@ -111,7 +111,7 @@ public class Util {
     public static void calculateTreeTotals(TreeItem<LineItem> rootNode) {
         LOGGER.info("Calculating tree totals...");
          // Print the tree structure for debugging
-         printTreeItems(rootNode);
+         //printTreeItems(rootNode);
         if (rootNode == null)
             return;
 
