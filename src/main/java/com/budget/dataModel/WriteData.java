@@ -181,20 +181,21 @@ public final class WriteData {
      * @return true if the update was successful, false otherwise
      * @throws IllegalArgumentException if item is null
      */
-    public static boolean updateLineItemBudget_ActualTable(LineItem item) {
+    public static boolean updateLineItem(LineItem item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
 
         if (!DataSource.getInstance().ensureConnection()) {
-            LOGGER.severe("Database connection not available for actual update");
+            LOGGER.severe("Database connection not available for Line item update");
             return false;
         }
 
-        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_LINEITEM_BUDGET_ACTUALTABLE)) {
+        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_LINEITEM)) {
 
-            updateRecord.setDouble(1, item.getBudget());
-            updateRecord.setInt(2, item.getId());
+            updateRecord.setDouble(1, item.getActual());
+            updateRecord.setDouble(2, item.getBudget());
+            updateRecord.setInt(3, item.getId());
 
             int rowsAffected = updateRecord.executeUpdate();
             boolean success = rowsAffected > 0;
@@ -211,6 +212,67 @@ public final class WriteData {
             return false;
         }
     }
+
+    public static boolean updateCategoryType(LineItem item){
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        if (!DataSource.getInstance().ensureConnection()) {
+            LOGGER.severe("Database connection not available for Category Type update");
+            return false;
+        }
+        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_CATEGORY_TYPE)) {
+
+            updateRecord.setInt(1, item.getType());
+            updateRecord.setString(2, item.getParent());
+
+            int rowsAffected = updateRecord.executeUpdate();
+            boolean success = rowsAffected > 0;
+
+            if (!success) {
+                 LOGGER.warning("Category Type update in Table Category failed - no rows affected for ID: " + item.getId());
+            }
+
+            return success;
+
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating Category Type in Table Actual ID: " + item.getId(), e);
+            return false;
+        }
+
+    }
+
+        public static boolean updateHideField(LineItem item){
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        if (!DataSource.getInstance().ensureConnection()) {
+            LOGGER.severe("Database connection not available for Category Type update");
+            return false;
+        }
+        try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_HIDE_FIELD)) {
+
+            updateRecord.setBoolean(1, item.hide());
+            updateRecord.setInt(2, item.getCatagoryId());
+
+            int rowsAffected = updateRecord.executeUpdate();
+            boolean success = rowsAffected > 0;
+
+            if (!success) {
+                 LOGGER.warning("Hide field update in Table Category failed - no rows affected for ID: " + item.getId());
+            }
+
+            return success;
+
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating hide field in Table Category ID: " + item.getId(), e);
+            return false;
+        }
+
+    }
+
 
     /**
      * Inserts a new record into the actual table in the database.

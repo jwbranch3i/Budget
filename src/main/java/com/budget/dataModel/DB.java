@@ -126,7 +126,6 @@ public final class DB {
                         + CAT_COL_ACCT + " " + "FROM " + CAT_TABLE + " " + "ORDER BY " + CAT_COL_TYPE + ", "
                         + CAT_COL_PARENT + ", " + CAT_COL_CATEGORY;
 
-        // ...existing code...
         /**
          * Update category record. Parameters: type, parent, category,
          * include_in_total, hide, acct, id
@@ -163,10 +162,20 @@ public final class DB {
         /**
          * Update actual record budget field for specified id
          */
-        public static final String UPDATE_LINEITEM_BUDGET_ACTUALTABLE = "UPDATE " + ACTUAL_TABLE + " SET "
-                        + ACTUAL_COL_BUDGET + " = ? "
-                        + "WHERE " + ACTUAL_COL_ID + " = ?";
+        public static final String UPDATE_LINEITEM = "UPDATE " + ACTUAL_TABLE + " SET " + ACTUAL_COL_ACTUAL + " = ? ,"
+                        + ACTUAL_COL_BUDGET + " = ? " + "WHERE " + ACTUAL_COL_ID + " = ?";
 
+        /**
+         * Update category type
+         */
+        public static final String UPDATE_CATEGORY_TYPE = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_TYPE + " = ? "
+                        + "WHERE " + CAT_COL_PARENT + " = ?";
+
+        /**
+         * Update include_in_total
+         */
+        public static final String UPDATE_HIDE_FIELD = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_INCLUDE_IN_TOTAL + " = ? "
+                        + "WHERE " + CAT_COL_ID + " = ?";
 
         /**
          * Get table amounts with category join. Parameters: type
@@ -217,18 +226,15 @@ public final class DB {
                         + " FROM " + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " = ? )";
 
         /**
-         * Get totals for specific type and date. Parameters: year-month (YYYY-MM), type
+         * Get totals for specific type and date. Parameters: year-month
+         * (YYYY-MM), type
          */
-        public static final String GET_TOTALS = "SELECT "
-                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + ") AS ACTUAL_TOTAL, "
-                        + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
-                        + "FROM " + CAT_TABLE
-                        + " INNER JOIN " + ACTUAL_TABLE 
-                        + " ON " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID 
-                        + " WHERE " + ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " = ? "
-                        + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? "
-                        + " AND " + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
-
+        public static final String GET_TOTALS = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
+                        + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
+                        + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? " + " AND "
+                        + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
         // ========================= UPDATE QUERIES =========================
 
@@ -357,6 +363,7 @@ public final class DB {
                                 CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY",
                                 CAT_TABLE + "." + CAT_COL_PARENT + " AS PARENT",
                                 CAT_TABLE + "." + CAT_COL_CATEGORY + " AS CATEGORY",
+                                ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID + " AS CATEGORY_ID",
                                 ACTUAL_TABLE + "." + ACTUAL_COL_DATE + " AS DATE",
                                 ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL + " AS ACTUAL",
                                 ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + " AS BUDGET",

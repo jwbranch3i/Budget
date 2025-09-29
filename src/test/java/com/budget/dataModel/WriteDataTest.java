@@ -5,10 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.time.LocalDate;
 
 import com.budget.GlobalVariables;
-import com.budget.dataModel.DataSource;
-import com.budget.dataModel.LineItem;
-import com.budget.dataModel.LineItemCSV;
-import com.budget.dataModel.WriteData;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,7 +31,7 @@ public class WriteDataTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpdateLineItemBudget_ActualTable_NullItem_ThrowsException() {
-        WriteData.updateLineItemBudget_ActualTable(null);
+        WriteData.updateLineItem(null);
     }
 
   @Test
@@ -49,10 +45,19 @@ public class WriteDataTest {
         newItem.setBudget(25.00);
         System.out.println(newItem.toString());
 
-        boolean answ = WriteData.updateLineItemBudget_ActualTable(newItem);
+        boolean answ = WriteData.updateLineItem(newItem);
 
         assertTrue(answ);
         
     }
 
+    @Test
+       public void testUpdateCategoryType() {
+        LineItem testItem = new LineItem(1, LocalDate.now(), "Test Store", "Test Category", 100.00, 100.00);
+        testItem.setId(1057);
+
+        boolean result = WriteData.updateCategoryType(testItem);
+
+        assertTrue(result);
+       }
 }

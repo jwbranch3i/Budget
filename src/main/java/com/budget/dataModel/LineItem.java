@@ -243,6 +243,17 @@ public class LineItem {
         return this.type;
     }
 
+    //method to return type as string
+    public String getTypeString() {
+        if (getType() == 0) {
+            return "Income";
+        } else if (getType() == 1) {
+            return "Mandatory";
+        } else {
+            return "Discretionary";
+        }
+    }
+
     /**
      * Sets the item type.
      * 
@@ -250,6 +261,18 @@ public class LineItem {
      */
     public void setType(int type) {
         this.type = type;
+    }
+
+    public void setType(String typeStr) {
+        if (typeStr.equalsIgnoreCase("Income")) {
+            this.type = 0;
+        } else if (typeStr.equalsIgnoreCase("Mandatory")) {
+            this.type = 1;
+        } else if (typeStr.equalsIgnoreCase("Discretionary")) {
+            this.type = 2;
+        } else {
+            throw new IllegalArgumentException("Invalid type string: " + typeStr);
+        }
     }
 
     // ========================= DATE PROPERTIES =========================

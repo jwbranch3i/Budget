@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -30,8 +31,6 @@ import javafx.stage.Stage;
 public class EditItemController {
 
     private static final Logger LOGGER = Logger.getLogger(EditItemController.class.getName());
-    private LineItem currentLineItem;
-    private boolean itemModified = false;
 
     // ========================= CONSTANTS =========================
 
@@ -55,6 +54,8 @@ public class EditItemController {
     @FXML
     private GridPane mainGridPane;
     @FXML
+    private ChoiceBox<String> CB_itemType;
+    @FXML
     private Label LBL_id;
     @FXML
     private Label LBL_date;
@@ -77,8 +78,10 @@ public class EditItemController {
 
     // ========================= INSTANCE VARIABLES =========================
 
-    private LineItem item;
-    private boolean hasUnsavedChanges = false;
+    private boolean hasUnsavedDataChanges = false;
+    private boolean hasUnsavedTypeChange = false;
+    private boolean itemModified = false;
+    private LineItem currentLineItem;
 
     // ========================= INITIALIZATION =========================
 
@@ -91,11 +94,9 @@ public class EditItemController {
             LOGGER.info("Initializing EditItemController");
 
             setupEventHandlers();
+            setupChoiceBox();
             setupInputValidation();
             setupKeyboardShortcuts();
-
-            LOGGER.fine("EditItemController initialization completed");
-
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during EditItemController initialization", e);
@@ -136,24 +137,29 @@ public class EditItemController {
     // }
     // }
 
-    private void setupEventHandlers() {
-        // Track changes to enable/disable save button
-        setupChangeTracking();
-
-        // Setup window close handler
-        Platform.runLater(this::setupWindowCloseHandler);
+    // setup choice box with options "Income", "Mandatory", "Discretionary"
+    private void setupChoiceBox() {
+        CB_itemType.getItems().addAll("Income", "Mandatory", "Discretionary");
     }
 
-    private void setupChangeTracking() {
+    private void setupEventHandlers() {
         TXTFIELD_startBal.textProperty().addListener((observable, oldValue, newValue) -> {
-            hasUnsavedChanges = true;
+            hasUnsavedDataChanges = true;
             updateSaveButtonState();
         });
 
         CHKBOX_include.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            hasUnsavedChanges = true;
+            hasUnsavedTypeChange = true;
             updateSaveButtonState();
         });
+
+        CB_itemType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            hasUnsavedTypeChange = true;
+            updateSaveButtonState();
+        });
+
+        // Setup window close handler
+        Platform.runLater(this::setupWindowCloseHandler);
     }
 
     private void setupInputValidation() {
@@ -187,56 +193,11 @@ public class EditItemController {
         });
     }
 
-    /**
-     * Sets the LineItem to be edited
-     */
-    public void setLineItem(LineItem item) {
-        this.currentLineItem = item;
-        populateFields();
-    }
-
-    /**
-     * Populates the form fields with the LineItem data
-     */
-    private void populateFields() {
-        if (currentLineItem != null) {
-            // Populate your form fields here
-            LBL_id.setText(String.valueOf(currentLineItem.getId()));
-            LBL_date.setText(currentLineItem.getDate() != null ? currentLineItem.getDate().format(DATE_FORMAT) : "N/A");
-            LBL_category.setText(currentLineItem.getCategory());
-            LBL_budget.setText(String.valueOf(currentLineItem.getBudget()));
-            LBL_actual.setText(String.valueOf(currentLineItem.getActual()));
-            TXTFIELD_startBal.setText(formatCurrencyInput(currentLineItem.getStartBal()));
-            CHKBOX_include.setSelected(currentLineItem.includeInTotal());
-            LBL_balance.setText(formatCurrency(currentLineItem.getComputed()));
-       }
-    }
-
-    /**
-     * Updates the window title to show what's being edited
-     */
-    private void updateWindowTitle() {
-        try {
-            Stage stage = (Stage) mainGridPane.getScene().getWindow();
-            stage.setTitle("Edit Item: " + currentLineItem.getCategory());
-        }
-        catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Could not update window title", e);
-        }
-    }
-
-    /**
-     * Returns whether the item was modified
-     */
-    public boolean wasItemModified() {
-        return itemModified;
-    }
-
     private void setupWindowCloseHandler() {
         try {
             Stage stage = (Stage) mainGridPane.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                if (hasUnsavedChanges) {
+                if (hasUnsavedDataChanges || hasUnsavedTypeChange) {
                     event.consume(); // Prevent immediate close
                     handleUnsavedChanges(() -> stage.close());
                 }
@@ -254,7 +215,7 @@ public class EditItemController {
      */
     @FXML
     void button_cancel(ActionEvent event) {
-        if (hasUnsavedChanges) {
+        if (hasUnsavedDataChanges || hasUnsavedTypeChange) {
             handleUnsavedChanges(this::closeWindow);
         }
         else {
@@ -279,7 +240,8 @@ public class EditItemController {
             BTN_save.setDisable(true);
 
             // Save asynchronously
-            saveItemAsync();
+            saveItemData();
+            itemModified = true;
 
         }
         catch (Exception e) {
@@ -297,28 +259,30 @@ public class EditItemController {
      * @param editItem The LineItem to edit
      * @throws IllegalArgumentException if editItem is null
      */
-    public void setItem(LineItem editItem) {
+    public void setLineItem(LineItem editItem) {
         if (editItem == null) {
             throw new IllegalArgumentException("Edit item cannot be null");
         }
 
-        this.item = editItem;
+        this.currentLineItem = editItem;
         populateUIFromItem();
-        hasUnsavedChanges = false;
+        hasUnsavedDataChanges = false;
+        hasUnsavedTypeChange = false;
         updateSaveButtonState();
     }
 
     private void populateUIFromItem() {
         try {
-            LBL_id.setText(String.valueOf(item.getId()));
-            LBL_category.setText(item.getCategory());
-            LBL_actual.setText(formatCurrency(item.getActual()));
-            LBL_budget.setText(formatCurrency(item.getBudget()));
-            LBL_balance.setText(formatCurrency(item.getComputed()));
-            LBL_date.setText(item.getDate() != null ? item.getDate().format(DATE_FORMAT) : "N/A");
-            TXTFIELD_startBal.setText(formatCurrencyInput(item.getStartBal()));
-            CHKBOX_include.setSelected(item.includeInTotal());
-
+            CB_itemType.setValue(currentLineItem.getTypeString());
+            LBL_id.setText(String.valueOf(currentLineItem.getId()));
+            LBL_date.setText(currentLineItem.getDate() != null ? currentLineItem.getDate().format(DATE_FORMAT) : "N/A");
+            LBL_category.setText(currentLineItem.getCategory());
+            LBL_budget.setText(String.valueOf(currentLineItem.getBudget()));
+            LBL_actual.setText(String.valueOf(currentLineItem.getActual()));
+            TXTFIELD_startBal.setText(formatCurrencyInput(currentLineItem.getStartBal()));
+            CHKBOX_include.setSelected(currentLineItem.includeInTotal());
+            LBL_balance.setText(formatCurrency(currentLineItem.getComputed()));
+            resetChangeFlags();
         }
         catch (Exception e) {
             LOGGER.log(Level.WARNING, "Error populating UI from item", e);
@@ -327,13 +291,13 @@ public class EditItemController {
     }
 
     private void updateItemFromUI() {
-        double newStartBal = parseStartBalance();
+        String selectedType = CB_itemType.getValue();
         boolean newIncludeStatus = CHKBOX_include.isSelected();
+        double newStartBal = parseStartBalance();
 
-        item.setStartBal(newStartBal);
-        item.includeInTotal(newIncludeStatus);
-
-        LOGGER.fine("Item updated from UI - StartBal: " + newStartBal + ", Include: " + newIncludeStatus);
+        currentLineItem.setType(selectedType);
+        currentLineItem.includeInTotal(newIncludeStatus);
+        currentLineItem.setStartBal(newStartBal);
     }
 
     // ========================= VALIDATION =========================
@@ -377,13 +341,32 @@ public class EditItemController {
         return Double.parseDouble(text.replace(",", ""));
     }
 
+    private void saveItemData() {
+        boolean saveType = false;
+        if (hasUnsavedDataChanges) {
+            saveItemDataAsync(saveType);
+        }
+        saveType = true;
+        if (hasUnsavedTypeChange) {
+            saveItemDataAsync(saveType);
+        }
+
+    }
+
     // ========================= ASYNC OPERATIONS =========================
 
-    private void saveItemAsync() {
+    private void saveItemDataAsync(boolean saveType) {
         Task<Boolean> saveTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
-                return WriteData.updateLineItemBudget_ActualTable(item);
+                if (saveType) {
+                    boolean result =  WriteData.updateCategoryType(currentLineItem)
+                         && WriteData.updateHideField(currentLineItem);
+                    return result;
+                }
+                else {
+                    return WriteData.updateLineItem(currentLineItem);
+                }
             }
 
             @Override
@@ -409,8 +392,9 @@ public class EditItemController {
     }
 
     private void handleSaveSuccess() {
-        hasUnsavedChanges = false;
-    
+        hasUnsavedDataChanges = false;
+        hasUnsavedTypeChange = false;
+
         // Show brief success message
         showInfoAlert("Success", SAVE_SUCCESS_MESSAGE);
 
@@ -427,7 +411,13 @@ public class EditItemController {
     // ========================= UI UTILITY METHODS =========================
 
     private void updateSaveButtonState() {
-        BTN_save.setDisable(!hasUnsavedChanges || !isValidStartBalance());
+        BTN_save.setDisable(!(hasUnsavedDataChanges || hasUnsavedTypeChange));
+    }
+
+    private void resetChangeFlags() {
+        hasUnsavedDataChanges = false;
+        hasUnsavedTypeChange = false;
+        updateSaveButtonState();
     }
 
     private void handleUnsavedChanges(Runnable onDiscard) {
@@ -438,7 +428,8 @@ public class EditItemController {
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                hasUnsavedChanges = false;
+                hasUnsavedDataChanges = false;
+                hasUnsavedTypeChange = false;
                 onDiscard.run();
             }
         });
@@ -486,29 +477,11 @@ public class EditItemController {
      * @return The current LineItem, or null if none set
      */
     public LineItem getItem() {
-        return item;
+        return currentLineItem;
     }
 
-    /**
-     * Checks if there are unsaved changes.
-     * 
-     * @return true if there are unsaved changes, false otherwise
-     */
-    public boolean hasUnsavedChanges() {
-        return hasUnsavedChanges;
-    }
-
-    /**
-     * Programmatically saves the current changes.
-     * 
-     * @return true if save was initiated successfully, false otherwise
-     */
-    public boolean save() {
-        if (validateInput()) {
-            btn_saveAction(new ActionEvent());
-            return true;
-        }
-        return false;
+    public boolean wasItemModified() {
+        return itemModified;
     }
 
     // ========================= CLEANUP =========================

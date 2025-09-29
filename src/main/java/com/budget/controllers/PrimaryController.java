@@ -76,7 +76,6 @@ public class PrimaryController {
 
         private static final String FILE_PATH_STORAGE = "filePath.txt";
         private static final String DEFAULT_DIRECTORY = "C:\\";
-        private static final String EDIT_CATEGORY_TITLE = "Edit Category";
         private static final String EDIT_ITEM_TITLE = "Edit Item";
         private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
@@ -980,7 +979,7 @@ public class PrimaryController {
                         selectedItem.setBudget(event.getNewValue());
                 }
 
-                WriteData.updateLineItemBudget_ActualTable(item);
+                WriteData.updateLineItem(item);
                 Util.calculateTreeTotals(treeTable.getRoot());
                 totalTable.setItems(FXCollections
                                 .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
@@ -1117,7 +1116,7 @@ public class PrimaryController {
                 editItemController.setLineItem(selectedItem);
 
                 Stage stage = new Stage();
-                stage.setTitle(EDIT_ITEM_TITLE);
+                stage.setTitle("Edit Item: " + selectedItem.getCategory());
                 stage.setScene(new Scene(root));
                 stage.initModality(Modality.WINDOW_MODAL);
 
