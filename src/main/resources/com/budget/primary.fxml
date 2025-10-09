@@ -59,6 +59,7 @@
                <children>
                   <Button fx:id="btn_UpdateBudget" alignment="CENTER" mnemonicParsing="false" onAction="#button_UpdateBudget" text="Get Last Month Budget" textAlignment="CENTER" wrapText="true" />
                   <Button fx:id="btn_UpdateBalance" alignment="CENTER" layoutX="10.0" layoutY="45.0" mnemonicParsing="false" onAction="#button_UpdateBalance" text="Update Start Balance" />
+                  <CheckBox fx:id="CHKBOX_hidden" mnemonicParsing="false" onAction="#CHKBOX_showHidden" text="Show Hidden" />
                </children>
             </VBox>
          </children>

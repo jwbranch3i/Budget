@@ -91,7 +91,7 @@ public class ReadData {
         // Use Util.formatDateForDatabase for consistent formatting
         String dateString = Util.formatDateForDatabase(date);
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.LOAD_LINE_ITEMS)) {
             ps.setString(1, dateString);
             ps.setInt(2, type);
 
@@ -100,7 +100,9 @@ public class ReadData {
                 while (rs.next()) {
                     LineItem newItem = createLineItemFromResultSet(rs, type);
 
-                    
+                    if (!includeHidden && newItem.hide()) {
+                        continue;
+                    }
                     String parent = newItem.getParent();
 
                     // Get or create parent node
@@ -151,7 +153,7 @@ public class ReadData {
         String monthString = String.format("%02d", date.getMonthValue());
         String yearString = String.format("%04d", date.getYear());
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.LOAD_LINE_ITEMS)) {
             ps.setString(1, monthString);
             ps.setString(2, yearString);
             ps.setInt(3, type);

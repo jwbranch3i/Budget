@@ -76,7 +76,6 @@ public class PrimaryController {
 
         private static final String FILE_PATH_STORAGE = "filePath.txt";
         private static final String DEFAULT_DIRECTORY = "C:\\";
-        private static final String EDIT_ITEM_TITLE = "Edit Item";
         private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         // ========================= THREAD POOL =========================
@@ -194,6 +193,8 @@ public class PrimaryController {
         @FXML
         private CheckBox chkBox;
         @FXML
+        private CheckBox CHKBOX_hidden;
+        @FXML
         private Button btn_Update;
         @FXML
         private Button btn_UpdateBudget;
@@ -217,6 +218,9 @@ public class PrimaryController {
                         applyStyles();
 
                         setupChoiceBoxes();
+
+                        CHKBOX_hidden.setSelected(false);
+
 
                         hideTableHeaders(tableIncomeTotal);
                         hideTableHeaders(tableMandatoryTotal);
@@ -247,7 +251,7 @@ public class PrimaryController {
 
         // ========================= EVENT HANDLERS =========================
 
-         /**
+        /**
          * Handles the Update Category button click.
          */
         @FXML
@@ -287,6 +291,15 @@ public class PrimaryController {
                         // updateRunningTotalsAndShowWarnings(); // Add this
                         // line
                 }, "Error updating balance");
+        }
+
+        /**
+         * Handles the Hide/Show Hidden Categories checkbox toggle.     
+         */
+        @FXML
+        void CHKBOX_showHidden(ActionEvent event) {
+                boolean showHidden = CHKBOX_hidden.isSelected();
+                
         }
 
         // ========================= SETUP AND SHUTDOWN METHODS
@@ -762,13 +775,17 @@ public class PrimaryController {
         private DatabaseDataResult loadDatabaseData(LocalDate date) {
                 try {
                         // Load all data in background thread
-                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date, includeHidden);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date,
+                                        includeHidden);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date,
+                                        includeHidden);
 
-                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date);
-                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date);
-                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date);
+                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date, includeHidden);
+                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date,
+                                        includeHidden);
+                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date,
+                                        includeHidden);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -1092,7 +1109,6 @@ public class PrimaryController {
         private void updateMainDateLabel(LocalDate date) {
                 mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
         }
-
 
         /**
          * Opens the edit item detail dialog for the specified line item.
