@@ -205,6 +205,8 @@ public class PrimaryController {
 
         // ========================= INITIALIZATION =========================
 
+        boolean includeHidden = false;
+
         /**
          * Initializes the controller after FXML loading.
          */
@@ -220,7 +222,6 @@ public class PrimaryController {
                         setupChoiceBoxes();
 
                         CHKBOX_hidden.setSelected(false);
-
 
                         hideTableHeaders(tableIncomeTotal);
                         hideTableHeaders(tableMandatoryTotal);
@@ -286,20 +287,23 @@ public class PrimaryController {
         void button_UpdateBalance(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
-                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
-                        refreshDataForDate(workingDate);
-                        // updateRunningTotalsAndShowWarnings(); // Add this
-                        // line
-                }, "Error updating balance");
+                // executeAsyncTask(() -> WriteData.updateBalance(workingDate),
+                // () -> {
+                // refreshDataForDate(workingDate);
+                // // updateRunningTotalsAndShowWarnings(); // Add this
+                // // line
+                // }, "Error updating balance");
         }
 
         /**
-         * Handles the Hide/Show Hidden Categories checkbox toggle.     
+         * Handles the Hide/Show Hidden Categories checkbox toggle.
          */
         @FXML
         void CHKBOX_showHidden(ActionEvent event) {
-                boolean showHidden = CHKBOX_hidden.isSelected();
-                
+                includeHidden = CHKBOX_hidden.isSelected();
+
+                updateTableData();
+
         }
 
         // ========================= SETUP AND SHUTDOWN METHODS
@@ -1055,46 +1059,17 @@ public class PrimaryController {
                 tableDiscretionaryTotal.getItems().clear();
 
                 tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
                 tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
-
-                // getTableRowsFromDatabase(workingDate);
-                readFromDatabase(workingDate);
-                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
-        }
-
-        private void refreshDataAfterEdit() {
-                LocalDate workingDate = getWorkingDate();
-
-                tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
-                tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
-                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
+                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate, includeHidden)));
 
                 // getTableRowsFromDatabase(workingDate);
                 readFromDatabase(workingDate);
                 UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
 
                 // updateRunningTotalsAndShowWarnings();
-        }
-
-        private void refreshDataForDate(LocalDate date) {
-                tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, date)));
-                tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date)));
-                tableDiscretionaryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date)));
-
-                // getTableRowsFromDatabase(date);
-                readFromDatabase(date);
-                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
-                tableIncome.refresh();
         }
 
         private void calculateAllTreeTotals() {
@@ -1144,7 +1119,7 @@ public class PrimaryController {
 
                 // Check if changes were made and refresh if needed
                 if (editItemController.wasItemModified()) {
-                        refreshDataAfterEdit();
+                        updateTableData();
                 }
         }
 
