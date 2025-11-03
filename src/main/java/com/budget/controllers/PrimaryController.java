@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -76,7 +75,6 @@ public class PrimaryController {
 
         private static final String FILE_PATH_STORAGE = "filePath.txt";
         private static final String DEFAULT_DIRECTORY = "C:\\";
-        private static final String EDIT_ITEM_TITLE = "Edit Item";
         private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
         // ========================= THREAD POOL =========================
@@ -194,6 +192,8 @@ public class PrimaryController {
         @FXML
         private CheckBox chkBox;
         @FXML
+        private CheckBox CHKBOX_hidden;
+        @FXML
         private Button btn_Update;
         @FXML
         private Button btn_UpdateBudget;
@@ -203,6 +203,8 @@ public class PrimaryController {
         private Label mainDateLabel;
 
         // ========================= INITIALIZATION =========================
+
+        boolean includeHidden = false;
 
         /**
          * Initializes the controller after FXML loading.
@@ -217,6 +219,8 @@ public class PrimaryController {
                         applyStyles();
 
                         setupChoiceBoxes();
+
+                        CHKBOX_hidden.setSelected(false);
 
                         hideTableHeaders(tableIncomeTotal);
                         hideTableHeaders(tableMandatoryTotal);
@@ -241,13 +245,13 @@ public class PrimaryController {
                 }
                 catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error during PrimaryController initialization", e);
-                        showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
+                        Util.showErrorAlert("Initialization Error", "Failed to initialize the application properly.");
                 }
         }
 
         // ========================= EVENT HANDLERS =========================
 
-         /**
+        /**
          * Handles the Update Category button click.
          */
         @FXML
@@ -280,13 +284,24 @@ public class PrimaryController {
 
         @FXML
         void button_UpdateBalance(ActionEvent event) {
-                LocalDate workingDate = getWorkingDate();
 
-                executeAsyncTask(() -> WriteData.updateBalance(workingDate), () -> {
-                        refreshDataForDate(workingDate);
-                        // updateRunningTotalsAndShowWarnings(); // Add this
-                        // line
-                }, "Error updating balance");
+                // executeAsyncTask(() -> WriteData.updateBalance(workingDate),
+                // () -> {
+                // refreshDataForDate(workingDate);
+                // updateRunningTotalsAndShowWarnings(); // Add this
+                // line
+                // }, "Error updating balance");
+        }
+
+        /**
+         * Handles the Hide/Show Hidden Categories checkbox toggle.
+         */
+        @FXML
+        void CHKBOX_showHidden(ActionEvent event) {
+                includeHidden = CHKBOX_hidden.isSelected();
+
+                updateTableData();
+
         }
 
         // ========================= SETUP AND SHUTDOWN METHODS
@@ -693,7 +708,7 @@ public class PrimaryController {
                                                 }
                                                 catch (IOException e) {
                                                         LOGGER.log(Level.SEVERE, "Error opening secondary window", e);
-                                                        showErrorAlert("Window Error",
+                                                        Util.showErrorAlert("Window Error",
                                                                         "Failed to open the category edit window.");
                                                 }
                                         }
@@ -726,7 +741,7 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, "Failed to initialize data", getException());
-                                Platform.runLater(() -> showErrorAlert("Data Error", "Failed to load initial data."));
+                                Platform.runLater(() -> Util.showErrorAlert("Data Error", "Failed to load initial data."));
                         }
                 };
 
@@ -740,20 +755,9 @@ public class PrimaryController {
                 // Show loading indicator
                 setLoadingState(true);
 
-                CompletableFuture.supplyAsync(() -> loadDatabaseData(date), executorService).thenAcceptAsync(data -> {
-                        Platform.runLater(() -> {
-                                updateUIWithData(data);
-                                setLoadingState(false);
-                        });
-                }).exceptionally(throwable -> {
-                        LOGGER.log(Level.SEVERE, "Error reading data from database", throwable);
-                        Platform.runLater(() -> {
-                                setLoadingState(false);
-                                showErrorAlert("Database Error",
-                                                "Failed to load data from database: " + throwable.getMessage());
-                        });
-                        return null;
-                });
+                updateUIWithData(loadDatabaseData(date));
+                setLoadingState(false);
+
         }
 
         /**
@@ -762,13 +766,17 @@ public class PrimaryController {
         private DatabaseDataResult loadDatabaseData(LocalDate date) {
                 try {
                         // Load all data in background thread
-                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date, includeHidden);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date,
+                                        includeHidden);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date,
+                                        includeHidden);
 
-                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date);
-                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date);
-                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date);
+                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date, includeHidden);
+                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date,
+                                        includeHidden);
+                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date,
+                                        includeHidden);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -848,7 +856,7 @@ public class PrimaryController {
                                         protected void failed() {
                                                 LOGGER.log(Level.SEVERE, "Error reading CSV file in background",
                                                                 getException());
-                                                Platform.runLater(() -> showErrorAlert("Import Error",
+                                                Platform.runLater(() -> Util.showErrorAlert("Import Error",
                                                                 "Failed to import CSV file."));
                                         }
                                 };
@@ -857,12 +865,12 @@ public class PrimaryController {
                         }
                         else {
                                 LOGGER.log(Level.WARNING, "No file selected for import");
-                                showErrorAlert("File Selection Error", "No file was selected for import.");
+                                Util.showErrorAlert("File Selection Error", "No file was selected for import.");
                         }
                 }
                 catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Error handling CSV file import", e);
-                        showErrorAlert("Import Error", "Failed to import CSV file.");
+                        Util.showErrorAlert("Import Error", "Failed to import CSV file.");
                 }
         }
 
@@ -981,8 +989,8 @@ public class PrimaryController {
 
                 WriteData.updateLineItem(item);
                 Util.calculateTreeTotals(treeTable.getRoot());
-                totalTable.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
+                totalTable.setItems(FXCollections.observableArrayList(
+                                ReadData.getTableTotalsFromDatabase(dbType, item.getDate(), includeHidden)));
                 // Update grand total table
                 UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
                 treeTable.refresh();
@@ -1037,47 +1045,18 @@ public class PrimaryController {
                 tableMandatoryTotal.getItems().clear();
                 tableDiscretionaryTotal.getItems().clear();
 
-                tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
-                tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
+                tableIncomeTotal.setItems(FXCollections.observableArrayList(
+                                ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
+                tableMandatoryTotal.setItems(FXCollections.observableArrayList(
+                                ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
+                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate, includeHidden)));
 
                 // getTableRowsFromDatabase(workingDate);
-                readFromDatabase(workingDate);
-                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
-        }
-
-        private void refreshDataAfterEdit() {
-                LocalDate workingDate = getWorkingDate();
-
-                tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
-                tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
-                tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
-
-                // getTableRowsFromDatabase(workingDate);
-                readFromDatabase(workingDate);
+                updateUIWithData(loadDatabaseData(workingDate));
                 UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
 
                 // updateRunningTotalsAndShowWarnings();
-        }
-
-        private void refreshDataForDate(LocalDate date) {
-                tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, date)));
-                tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date)));
-                tableDiscretionaryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date)));
-
-                // getTableRowsFromDatabase(date);
-                readFromDatabase(date);
-                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
-                tableIncome.refresh();
         }
 
         private void calculateAllTreeTotals() {
@@ -1092,7 +1071,6 @@ public class PrimaryController {
         private void updateMainDateLabel(LocalDate date) {
                 mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
         }
-
 
         /**
          * Opens the edit item detail dialog for the specified line item.
@@ -1128,13 +1106,24 @@ public class PrimaryController {
 
                 // Check if changes were made and refresh if needed
                 if (editItemController.wasItemModified()) {
-                        refreshDataAfterEdit();
+                        updateTableData();
                 }
         }
 
         // ========================= ASYNC TASK UTILITIES
         // =========================
 
+        /**
+         * Executes a task on the background thread and runs a UI task on
+         * completion. If the background task fails, an error alert is shown
+         * with the specified error message.
+         * 
+         * @param backgroundTask The task to execute on the background thread
+         * @param uiTask         The task to execute on the UI thread on
+         *                       completion
+         * @param errorMessage   The error message to show if the background
+         *                       task fails
+         */
         private void executeAsyncTask(Runnable backgroundTask, Runnable uiTask, String errorMessage) {
                 Task<Void> task = new Task<Void>() {
                         @Override
@@ -1155,7 +1144,7 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, errorMessage, getException());
-                                Platform.runLater(() -> showErrorAlert("Operation Error", errorMessage));
+                                Platform.runLater(() -> Util.showErrorAlert("Operation Error", errorMessage));
                         }
                 };
 
@@ -1164,13 +1153,6 @@ public class PrimaryController {
 
         // ========================= ERROR HANDLING =========================
 
-        private void showErrorAlert(String title, String message) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(title);
-                alert.setHeaderText(null);
-                alert.setContentText(message);
-                alert.showAndWait();
-        }
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

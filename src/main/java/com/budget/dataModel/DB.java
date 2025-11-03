@@ -55,25 +55,11 @@ public final class DB {
         public static final String CAT_COL_BALANCE = "balance";
         public static final String CAT_COL_DEFAULT_MAXIMUM_AMOUNT = "default_maximum_amount";
 
-        // Column indices (1-based for JDBC)
-        public static final int CAT_COL_ID_INDEX = 1;
-        public static final int CAT_COL_INCLUDE_IN_TOTAL_INDEX = 2;
-        public static final int CAT_COL_HIDE_INDEX = 3;
-        public static final int CAT_COL_TYPE_INDEX = 4;
-        public static final int CAT_COL_PARENT_INDEX = 5;
-        public static final int CAT_COL_MAIN_CATEGORY_INDEX = 6;
-        public static final int CAT_COL_CATEGORY_INDEX = 7;
-        public static final int CAT_COL_ACCT_INDEX = 8;
-        public static final int CAT_COL_BALANCE_INDEX = 9;
-
         // ========================= ACCOUNTS TABLE =========================
 
         public static final String ACCOUNTS_TABLE = "accounts";
         public static final String ACCOUNTS_COL_ID = "id";
         public static final String ACCOUNTS_COL_ACCTNAME = "acctName";
-
-        public static final int ACCOUNTS_COL_ID_INDEX = 1;
-        public static final int ACCOUNTS_COL_ACCTNAME_INDEX = 2;
 
         // ========================= ACTUAL TABLE =========================
 
@@ -87,13 +73,6 @@ public final class DB {
         public static final String ACTUAL_COL_BUDGET = "budget";
         public static final String ACTUAL_COL_STARTBAL = "startBal";
         public static final String ACTUAL_COL_ENDBAL = "endBal";
-
-        // Column indices
-        public static final int ACTUAL_COL_ID_INDEX = 1;
-        public static final int ACTUAL_COL_CATEGORY_INDEX = 2;
-        public static final int ACTUAL_COL_DATE_INDEX = 3;
-        public static final int ACTUAL_COL_ACTUAL_INDEX = 4;
-        public static final int ACTUAL_COL_BUDGET_INDEX = 5;
 
         // ========================= CATEGORY TABLE QUERIES
         // =========================
@@ -172,9 +151,9 @@ public final class DB {
                         + "WHERE " + CAT_COL_PARENT + " = ?";
 
         /**
-         * Update include_in_total
+         * Update HIDE field
          */
-        public static final String UPDATE_HIDE_FIELD = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_INCLUDE_IN_TOTAL + " = ? "
+        public static final String UPDATE_HIDE_FIELD = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_HIDE + " = ? "
                         + "WHERE " + CAT_COL_ID + " = ?";
 
         /**
@@ -214,7 +193,7 @@ public final class DB {
          * Get actual and budget amounts with category details. Parameters:
          * month, year, type
          */
-        public static final String GET_ACTUAL_AND_BUDGET_AMOUNTS = buildComplexSelectQuery();
+        public static final String LOAD_LINE_ITEMS = buildComplexSelectQuery();
 
         /**
          * Find categories not present in actual table for given month/year.
@@ -235,6 +214,12 @@ public final class DB {
                         + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? " + " AND "
                         + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+
+        public static final String GET_TOTALS_INCLUDEHIDDEN = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
+                        + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
+                        + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ";
 
         // ========================= UPDATE QUERIES =========================
 

@@ -91,7 +91,7 @@ public class ReadData {
         // Use Util.formatDateForDatabase for consistent formatting
         String dateString = Util.formatDateForDatabase(date);
 
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.LOAD_LINE_ITEMS)) {
             ps.setString(1, dateString);
             ps.setInt(2, type);
 
@@ -100,7 +100,9 @@ public class ReadData {
                 while (rs.next()) {
                     LineItem newItem = createLineItemFromResultSet(rs, type);
 
-                    
+                    if (!includeHidden && newItem.hide()) {
+                        continue;
+                    }
                     String parent = newItem.getParent();
 
                     // Get or create parent node
@@ -143,36 +145,7 @@ public class ReadData {
         return rootNode;
     }
 
-    /**
-     * Retrieves table amounts as a flat list.
-     */
-    public static List<LineItem> getTableAmounts(int type, LocalDate date) {
-        List<LineItem> items = new ArrayList<>();
-        String monthString = String.format("%02d", date.getMonthValue());
-        String yearString = String.format("%04d", date.getYear());
-
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_ACTUAL_AND_BUDGET_AMOUNTS)) {
-            ps.setString(1, monthString);
-            ps.setString(2, yearString);
-            ps.setInt(3, type);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    LineItem newItem = createLineItemFromResultSet(rs, type);
-                    newItem.includeInTotal(rs.getBoolean("INCLUDE_IN_TOTAL"));
-
-                    if (!newItem.hide()) {
-                        items.add(newItem);
-                    }
-                }
-            }
-        }
-        catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error in getTableAmounts", e);
-        }
-        return items;
-    }
-
+ 
     /**
      * Find categories not in actual table for a given month and add to the
      * actual table.
@@ -205,10 +178,12 @@ public class ReadData {
     /**
      * Get totals for a specific type and date.
      */
-    public static LineItem getTableTotalsFromDatabase(int type, LocalDate date) {
+    public static LineItem getTableTotalsFromDatabase(int type, LocalDate date, boolean includeHidden) {
         LineItem newItem = new LineItem();
-     
-        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.GET_TOTALS)) {
+
+        String dbQuery = includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
+
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(dbQuery)) {
             ps.setString(1, Util.formatDateForDatabase(date));
             ps.setInt(2, type);
 
@@ -218,6 +193,7 @@ public class ReadData {
                     newItem.setBudget(rs.getDouble("BUDGET_TOTAL"));
                     newItem.setCategory("TOTAL");
                     newItem.setType(type);
+                    newItem.hide(includeHidden);
                 }
             }
         }

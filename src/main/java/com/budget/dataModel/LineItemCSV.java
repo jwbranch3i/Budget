@@ -137,14 +137,6 @@ public class LineItemCSV {
     }
 
 
-    // Legacy methods for backward compatibility
-    public boolean include_in_total() {
-        return includeInTotal();
-    }
-
-    public void include_in_total(boolean includeInTotal) {
-        includeInTotal(includeInTotal);
-    }
 
     // ========================= MAIN CATEGORY PROPERTIES =========================
     

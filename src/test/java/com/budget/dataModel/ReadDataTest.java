@@ -48,7 +48,7 @@ public class ReadDataTest {
 
       //  String test = DB.GET_ACTUAL_AND_BUDGET_AMOUNTS;
 
-        result = ReadData.getTableAmountsTree(tableType, inDate);
+        result = ReadData.getTableAmountsTree(tableType, inDate, false);
 
         // print each item in result
         Util.printTreeItems(result);

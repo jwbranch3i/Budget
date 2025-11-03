@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.Util;
 import com.budget.dataModel.Categories;
 import com.budget.dataModel.ReadData;
 import com.budget.dataModel.WriteData;
@@ -95,7 +96,7 @@ public class SecondaryController {
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during SecondaryController initialization", e);
-            showErrorAlert("Initialization Error", "Failed to initialize the category editor properly.");
+            Util.showErrorAlert("Initialization Error", "Failed to initialize the category editor properly.");
         }
 
     }
@@ -145,7 +146,7 @@ public class SecondaryController {
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error finishing edit", e);
-            showErrorAlert("Save Error", "Error occurred while saving changes.");
+            Util.showErrorAlert("Save Error", "Error occurred while saving changes.");
         }
     }
 
@@ -357,7 +358,7 @@ public class SecondaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, "Error loading categories", getException());
-                                showErrorAlert("Data Load Error", "Failed to load categories: " + getException().getMessage());
+                                Util.showErrorAlert("Data Load Error", "Failed to load categories: " + getException().getMessage());
                         }
 
         };    
@@ -408,7 +409,7 @@ public class SecondaryController {
                 }).exceptionally(throwable -> {
                         LOGGER.log(Level.SEVERE, "Error reading data from database", throwable);
                         Platform.runLater(() -> {
-                                showErrorAlert("Database Error",
+                                Util.showErrorAlert("Database Error",
                                                 "Failed to load data from database: " + throwable.getMessage());
                         });
                         return null;
@@ -478,7 +479,7 @@ private TreeItem<Categories> loadDatabaseData() {
             @Override
             protected void failed() {
                 LOGGER.log(Level.SEVERE, errorMessage, getException());
-                Platform.runLater(() -> showErrorAlert("Operation Error", errorMessage));
+                Platform.runLater(() -> Util.showErrorAlert("Operation Error", errorMessage));
             }
         };
 
@@ -488,13 +489,6 @@ private TreeItem<Categories> loadDatabaseData() {
 
     // ========================= ERROR HANDLING =========================
 
-    private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
     // ========================= PUBLIC API =========================
 

@@ -201,7 +201,7 @@ public final class WriteData {
             boolean success = rowsAffected > 0;
 
             if (!success) {
-                 LOGGER.warning("Budget update in Table Actual failed - no rows affected for ID: " + item.getId());
+                LOGGER.warning("Budget update in Table Actual failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
@@ -213,7 +213,30 @@ public final class WriteData {
         }
     }
 
-    public static boolean updateCategoryType(LineItem item){
+    public static boolean updateItemAcrossTables(LineItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+
+        DataSource.getInstance().beginTransaction();
+        boolean updateResult = updateCategoryType(item)
+            && updateHideField(item)
+            && updateLineItem(item);
+
+        if (updateResult) {
+          DataSource.getInstance().commitTransaction();
+        } else {
+          DataSource.getInstance().rollbackTransaction();
+        }
+        
+        if (!updateResult) {
+            LOGGER.warning("Item update failed for ID: " + item.getId());
+        }
+        
+        return updateResult;
+    }
+
+    public static boolean updateCategoryType(LineItem item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
@@ -230,7 +253,8 @@ public final class WriteData {
             boolean success = rowsAffected > 0;
 
             if (!success) {
-                 LOGGER.warning("Category Type update in Table Category failed - no rows affected for ID: " + item.getId());
+                LOGGER.warning(
+                        "Category Type update in Table Category failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
@@ -243,7 +267,7 @@ public final class WriteData {
 
     }
 
-        public static boolean updateHideField(LineItem item){
+    public static boolean updateHideField(LineItem item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
@@ -260,7 +284,7 @@ public final class WriteData {
             boolean success = rowsAffected > 0;
 
             if (!success) {
-                 LOGGER.warning("Hide field update in Table Category failed - no rows affected for ID: " + item.getId());
+                LOGGER.warning("Hide field update in Table Category failed - no rows affected for ID: " + item.getId());
             }
 
             return success;
@@ -272,7 +296,6 @@ public final class WriteData {
         }
 
     }
-
 
     /**
      * Inserts a new record into the actual table in the database.
