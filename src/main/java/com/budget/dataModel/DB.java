@@ -55,7 +55,6 @@ public final class DB {
         public static final String CAT_COL_BALANCE = "balance";
         public static final String CAT_COL_DEFAULT_MAXIMUM_AMOUNT = "default_maximum_amount";
 
- 
         // ========================= ACCOUNTS TABLE =========================
 
         public static final String ACCOUNTS_TABLE = "accounts";
@@ -75,7 +74,7 @@ public final class DB {
         public static final String ACTUAL_COL_STARTBAL = "startBal";
         public static final String ACTUAL_COL_ENDBAL = "endBal";
 
-         // ========================= CATEGORY TABLE QUERIES
+        // ========================= CATEGORY TABLE QUERIES
         // =========================
 
         /**
@@ -216,6 +215,12 @@ public final class DB {
                         + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? " + " AND "
                         + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
 
+        public static final String GET_TOTALS_INCLUDEHIDDEN = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
+                        + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
+                        + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
+                        + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? ";
+
         // ========================= UPDATE QUERIES =========================
 
         /**
@@ -339,8 +344,7 @@ public final class DB {
 
                 // Select columns with aliases
                 String[] selectColumns = { ACTUAL_TABLE + "." + ACTUAL_COL_ID + " AS ID",
-                                CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE",
-                                CAT_TABLE + "." + CAT_COL_INCLUDE_IN_TOTAL,
+                                CAT_TABLE + "." + CAT_COL_HIDE + " AS HIDE", CAT_TABLE + "." + CAT_COL_INCLUDE_IN_TOTAL,
                                 CAT_TABLE + "." + CAT_COL_MAIN_CATEGORY + " AS MAIN_CATEGORY",
                                 CAT_TABLE + "." + CAT_COL_PARENT + " AS PARENT",
                                 CAT_TABLE + "." + CAT_COL_CATEGORY + " AS CATEGORY",

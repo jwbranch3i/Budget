@@ -177,7 +177,7 @@
                   </Label>
                   <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="2">
                      <children>
-                        <Label text="Include in Total:">
+                        <Label text="Hide in View">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -187,7 +187,7 @@
                         </Label>
                      </children>
                   </HBox>
-                  <CheckBox fx:id="CHKBOX_include" alignment="CENTER" mnemonicParsing="false" text="Include" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <CheckBox fx:id="CHKBOX_hide" alignment="CENTER" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>
                         <Font size="18.0" />
                      </font>

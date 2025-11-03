@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.budget.Util;
 import com.budget.dataModel.LineItem;
 import com.budget.dataModel.WriteData;
 
@@ -72,7 +73,7 @@ public class EditItemController {
     @FXML
     private Button BTN_save;
     @FXML
-    private CheckBox CHKBOX_include;
+    private CheckBox CHKBOX_hide;
     @FXML
     private TextField TXTFIELD_startBal;
 
@@ -100,42 +101,10 @@ public class EditItemController {
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during EditItemController initialization", e);
-            showErrorAlert(SAVE_ERROR_TITLE, "Failed to initialize the edit dialog properly.");
+            Util.showErrorAlert(SAVE_ERROR_TITLE, "Failed to initialize the edit dialog properly.");
         }
     }
 
-    /**
-     * Call this when saving changes
-     */
-    // @FXML
-    // private void button_saveStartBal(ActionEvent event) {
-    // if (currentLineItem != null) {
-    // // Update the LineItem with form values
-    // currentLineItem.setCategory(txt_Category.getText());
-
-    // try {
-    // currentLineItem.setBudget(Double.parseDouble(txt_Budget.getText()));
-    // currentLineItem.setActual(Double.parseDouble(txt_Actual.getText()));
-    // }
-    // catch (NumberFormatException e) {
-    // showErrorAlert("Invalid Input", "Please enter valid numbers for budget
-    // and actual amounts.");
-    // return;
-    // }
-
-    // // Save to database
-    // boolean success = WriteData.actualUpdate(currentLineItem);
-
-    // if (success) {
-    // itemModified = true;
-    // showInfoAlert("Success", "Item updated successfully.");
-    // closeWindow();
-    // }
-    // else {
-    // showErrorAlert("Save Error", "Failed to save changes to the database.");
-    // }
-    // }
-    // }
 
     // setup choice box with options "Income", "Mandatory", "Discretionary"
     private void setupChoiceBox() {
@@ -148,7 +117,7 @@ public class EditItemController {
             updateSaveButtonState();
         });
 
-        CHKBOX_include.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        CHKBOX_hide.selectedProperty().addListener((observable, oldValue, newValue) -> {
             hasUnsavedTypeChange = true;
             updateSaveButtonState();
         });
@@ -233,22 +202,21 @@ public class EditItemController {
         }
 
         try {
-            // Update item with new values
             updateItemFromUI();
 
-            // Disable save button during save operation
             BTN_save.setDisable(true);
 
-            // Save asynchronously
             saveItemData();
             itemModified = true;
 
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error preparing item for save", e);
-            showErrorAlert(SAVE_ERROR_TITLE, "Error occurred while preparing to save the item.");
+            Util.showErrorAlert(SAVE_ERROR_TITLE, "Error occurred while preparing to save the item.");
             BTN_save.setDisable(false);
         }
+
+        closeWindow();
     }
 
     // ========================= ITEM MANAGEMENT =========================
@@ -280,23 +248,23 @@ public class EditItemController {
             LBL_budget.setText(String.valueOf(currentLineItem.getBudget()));
             LBL_actual.setText(String.valueOf(currentLineItem.getActual()));
             TXTFIELD_startBal.setText(formatCurrencyInput(currentLineItem.getStartBal()));
-            CHKBOX_include.setSelected(currentLineItem.includeInTotal());
+            CHKBOX_hide.setSelected(currentLineItem.hide());
             LBL_balance.setText(formatCurrency(currentLineItem.getComputed()));
             resetChangeFlags();
         }
         catch (Exception e) {
             LOGGER.log(Level.WARNING, "Error populating UI from item", e);
-            showErrorAlert(SAVE_ERROR_TITLE, "Error loading item data.");
+            Util.showErrorAlert(SAVE_ERROR_TITLE, "Error loading item data.");
         }
     }
 
     private void updateItemFromUI() {
         String selectedType = CB_itemType.getValue();
-        boolean newIncludeStatus = CHKBOX_include.isSelected();
+        boolean newHideStatus = CHKBOX_hide.isSelected();
         double newStartBal = parseStartBalance();
 
         currentLineItem.setType(selectedType);
-        currentLineItem.includeInTotal(newIncludeStatus);
+        currentLineItem.hide(newHideStatus);
         currentLineItem.setStartBal(newStartBal);
     }
 
@@ -304,7 +272,7 @@ public class EditItemController {
 
     private boolean validateInput() {
         if (!isValidStartBalance()) {
-            showErrorAlert(VALIDATION_ERROR_TITLE, "Please enter a valid starting balance (numeric value).");
+            Util.showErrorAlert(VALIDATION_ERROR_TITLE, "Please enter a valid starting balance (numeric value).");
             TXTFIELD_startBal.requestFocus();
             return false;
         }
@@ -342,26 +310,28 @@ public class EditItemController {
     }
 
     private void saveItemData() {
-        boolean saveType = false;
-        if (hasUnsavedDataChanges) {
-            saveItemDataAsync(saveType);
-        }
-        saveType = true;
-        if (hasUnsavedTypeChange) {
-            saveItemDataAsync(saveType);
-        }
+        Runnable taskSaveItemData = new Runnable() {
+            @Override
+            public void run() {
+                WriteData.updateItemAcrossTables(currentLineItem);
+            }
+        };
 
+        new Thread(taskSaveItemData).start();
     }
 
     // ========================= ASYNC OPERATIONS =========================
+
+    private void saveItemDataAsync() {
+    }
 
     private void saveItemDataAsync(boolean saveType) {
         Task<Boolean> saveTask = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
                 if (saveType) {
-                    boolean result =  WriteData.updateCategoryType(currentLineItem)
-                         && WriteData.updateHideField(currentLineItem);
+                    boolean result = WriteData.updateCategoryType(currentLineItem)
+                            && WriteData.updateHideField(currentLineItem);
                     return result;
                 }
                 else {
@@ -396,7 +366,7 @@ public class EditItemController {
         hasUnsavedTypeChange = false;
 
         // Show brief success message
-        showInfoAlert("Success", SAVE_SUCCESS_MESSAGE);
+        Util.showInfoAlert("Success", SAVE_SUCCESS_MESSAGE);
 
         // Close window
         closeWindow();
@@ -405,7 +375,7 @@ public class EditItemController {
     private void handleSaveFailure(String errorMessage) {
         BTN_save.setDisable(false);
         LOGGER.log(Level.SEVERE, "Failed to save item: " + errorMessage);
-        showErrorAlert(SAVE_ERROR_TITLE, "Failed to save the item. Please try again.\n\nError: " + errorMessage);
+        Util.showErrorAlert(SAVE_ERROR_TITLE, "Failed to save the item. Please try again.\n\nError: " + errorMessage);
     }
 
     // ========================= UI UTILITY METHODS =========================
@@ -449,24 +419,6 @@ public class EditItemController {
             return "0.00";
         }
         return CURRENCY_FORMAT.format(value);
-    }
-
-    // ========================= ALERT UTILITIES =========================
-
-    private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showInfoAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show(); // Non-blocking
     }
 
     // ========================= PUBLIC API =========================
