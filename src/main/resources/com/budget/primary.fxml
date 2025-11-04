@@ -39,7 +39,7 @@
                                  </children>
                               </VBox>
                            </children></HBox>
-                        <CheckBox fx:id="chkBox" mnemonicParsing="false" text="Read Data from file." />
+                        <CheckBox fx:id="CKBOX_fromFile" mnemonicParsing="false" text="Read Data from file." />
                      </children>
                      <padding>
                         <Insets bottom="20.0" top="20.0" />

@@ -190,7 +190,7 @@ public class PrimaryController {
         @FXML
         private ComboBox<String> monthBox;
         @FXML
-        private CheckBox chkBox;
+        private CheckBox CKBOX_fromFile;
         @FXML
         private CheckBox CHKBOX_hidden;
         @FXML
@@ -258,7 +258,7 @@ public class PrimaryController {
         void btn_Update(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
-                if (!chkBox.isSelected()) {
+                if (!CKBOX_fromFile.isSelected()) {
                         updateTableData();
                 }
                 else {
@@ -690,6 +690,11 @@ public class PrimaryController {
                                                         // light blue background
                                                         setStyle("-fx-background-color: lightblue;");
                                                 }
+                                                // Display red background for for hidden categories
+                                                else if (treeItem != null && treeItem.getValue().hide()) {
+                                                        setStyle("-fx-background-color: red;");
+                                                        
+                                                }
                                                 else {
                                                         // Leaf item - default
                                                         // background
@@ -909,7 +914,7 @@ public class PrimaryController {
         }
 
         private void resetImportState() {
-                chkBox.setSelected(false);
+                CKBOX_fromFile.setSelected(false);
                 btn_Update.setDisable(true);
         }
 
