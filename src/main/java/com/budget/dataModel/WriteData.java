@@ -278,7 +278,7 @@ public final class WriteData {
         try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_HIDE_FIELD)) {
 
             updateRecord.setBoolean(1, item.hide());
-            updateRecord.setInt(2, item.getCatagoryId());
+            updateRecord.setString(2, item.getParent());
 
             int rowsAffected = updateRecord.executeUpdate();
             boolean success = rowsAffected > 0;

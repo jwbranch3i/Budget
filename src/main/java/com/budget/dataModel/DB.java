@@ -154,7 +154,7 @@ public final class DB {
          * Update HIDE field
          */
         public static final String UPDATE_HIDE_FIELD = "UPDATE " + CAT_TABLE + " SET " + CAT_COL_HIDE + " = ? "
-                        + "WHERE " + CAT_COL_ID + " = ?";
+                        + "WHERE " + CAT_COL_PARENT + " = ?";
 
         /**
          * Get table amounts with category join. Parameters: type
