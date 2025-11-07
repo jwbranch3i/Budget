@@ -690,10 +690,10 @@ public class PrimaryController {
                                                         // light blue background
                                                         setStyle("-fx-background-color: lightblue;");
                                                 }
-                                                // Display red background for for hidden categories
+                                                // Display red background for hidden categories
                                                 else if (treeItem != null && treeItem.getValue().hide()) {
                                                         setStyle("-fx-background-color: red;");
-                                                        
+
                                                 }
                                                 else {
                                                         // Leaf item - default
@@ -746,7 +746,8 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, "Failed to initialize data", getException());
-                                Platform.runLater(() -> Util.showErrorAlert("Data Error", "Failed to load initial data."));
+                                Platform.runLater(() -> Util.showErrorAlert("Data Error",
+                                                "Failed to load initial data."));
                         }
                 };
 
@@ -772,16 +773,12 @@ public class PrimaryController {
                 try {
                         // Load all data in background thread
                         TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date, includeHidden);
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date,
-                                        includeHidden);
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date,
-                                        includeHidden);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date, includeHidden);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date, includeHidden);
 
                         LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date, includeHidden);
-                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date,
-                                        includeHidden);
-                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date,
-                                        includeHidden);
+                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date, includeHidden);
+                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date, includeHidden);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -994,8 +991,8 @@ public class PrimaryController {
 
                 WriteData.updateLineItem(item);
                 Util.calculateTreeTotals(treeTable.getRoot());
-                totalTable.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(dbType, item.getDate(), includeHidden)));
+                totalTable.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate(), includeHidden)));
                 // Update grand total table
                 UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
                 treeTable.refresh();
@@ -1050,10 +1047,10 @@ public class PrimaryController {
                 tableMandatoryTotal.getItems().clear();
                 tableDiscretionaryTotal.getItems().clear();
 
-                tableIncomeTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
-                tableMandatoryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
+                tableIncomeTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
+                tableMandatoryTotal.setItems(FXCollections
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
                                 ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate, includeHidden)));
 
@@ -1157,7 +1154,6 @@ public class PrimaryController {
         }
 
         // ========================= ERROR HANDLING =========================
-
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
