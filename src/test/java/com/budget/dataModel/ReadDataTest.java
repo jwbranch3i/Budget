@@ -38,9 +38,8 @@ public class ReadDataTest {
 
     @Test
     public void testGetTableAmountsTree() {
-        int tableType = 0;
+        int tableType = 1;
 
-        // set date to 9-01-2024
         // LocalDate inDate = LocalDate.of(2025, 5, 1);
         LocalDate inDate = LocalDate.of(2025, 5, 1);
 
@@ -48,7 +47,7 @@ public class ReadDataTest {
 
       //  String test = DB.GET_ACTUAL_AND_BUDGET_AMOUNTS;
 
-        result = ReadData.getTableAmountsTree(tableType, inDate);
+        result = ReadData.getTableAmountsTree(tableType, inDate,  true);
 
         // print each item in result
         Util.printTreeItems(result);

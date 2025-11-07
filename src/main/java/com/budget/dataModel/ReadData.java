@@ -84,7 +84,7 @@ public class ReadData {
      * @param date The date to filter the items.
      * @return The root TreeItem containing grouped LineItems by PARENT.
      */
-    public static TreeItem<LineItem> getTableAmountsTree(int type, LocalDate date) {
+    public static TreeItem<LineItem> getTableAmountsTree(int type, LocalDate date, boolean includeHidden) {
         TreeItem<LineItem> rootNode = new TreeItem<>(new LineItem());
         Map<String, TreeItem<LineItem>> parentMap = new HashMap<>();
 
@@ -100,7 +100,7 @@ public class ReadData {
                 while (rs.next()) {
                     LineItem newItem = createLineItemFromResultSet(rs, type);
 
-                    if (newItem.hide()) {
+                    if (!includeHidden && newItem.hide()) {
                         continue;
                     }
                     String parent = newItem.getParent();
@@ -177,10 +177,10 @@ public class ReadData {
     /**
      * Get totals for a specific type and date.
      */
-    public static LineItem getTableTotalsFromDatabase(int type, LocalDate date) {
+    public static LineItem getTableTotalsFromDatabase(int type, LocalDate date, boolean includeHidden) {
         LineItem newItem = new LineItem();
 
-        String dbQuery = DB.GET_TOTALS;
+        String dbQuery = includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(dbQuery)) {
             ps.setString(1, Util.formatDateForDatabase(date));

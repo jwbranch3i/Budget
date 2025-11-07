@@ -690,8 +690,7 @@ public class PrimaryController {
                                                         // light blue background
                                                         setStyle("-fx-background-color: lightblue;");
                                                 }
-                                                // Display red background for
-                                                // for hidden categories
+                                                // Display red background for hidden categories
                                                 else if (treeItem != null && treeItem.getValue().hide()) {
                                                         setStyle("-fx-background-color: red;");
 
@@ -773,13 +772,13 @@ public class PrimaryController {
         private DatabaseDataResult loadDatabaseData(LocalDate date) {
                 try {
                         // Load all data in background thread
-                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date);
-                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date);
-                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date);
+                        TreeItem<LineItem> incomeRoot = ReadData.getTableAmountsTree(DB.INCOME, date, includeHidden);
+                        TreeItem<LineItem> mandatoryRoot = ReadData.getTableAmountsTree(DB.MANDATORY, date, includeHidden);
+                        TreeItem<LineItem> discretionaryRoot = ReadData.getTableAmountsTree(DB.DISCRETIONARY, date, includeHidden);
 
-                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date);
-                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date);
-                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date);
+                        LineItem incomeTotals = ReadData.getTableTotalsFromDatabase(DB.INCOME, date, includeHidden);
+                        LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date, includeHidden);
+                        LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date, includeHidden);
 
                         // Calculate tree totals in background
                         if (incomeRoot != null) {
@@ -993,7 +992,7 @@ public class PrimaryController {
                 WriteData.updateLineItem(item);
                 Util.calculateTreeTotals(treeTable.getRoot());
                 totalTable.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate())));
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(dbType, item.getDate(), includeHidden)));
                 // Update grand total table
                 UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
                 treeTable.refresh();
@@ -1049,11 +1048,11 @@ public class PrimaryController {
                 tableDiscretionaryTotal.getItems().clear();
 
                 tableIncomeTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate)));
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
                 tableMandatoryTotal.setItems(FXCollections
-                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate)));
+                                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
                 tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate)));
+                                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate, includeHidden)));
 
                 // getTableRowsFromDatabase(workingDate);
                 updateUIWithData(loadDatabaseData(workingDate));
