@@ -121,9 +121,7 @@ public class ReadData {
                             existingItem.setBudget(newItem.getBudget());
                         }
                         else {
-                            // If the parent already has children, we need to
-                            // update
-                            // the existing item
+                            // If the parent already has children, then update the exising item
                             LineItem existingItem = parentNode.getValue();
                             existingItem.setIsCategory(true);
                             existingItem.setActual(existingItem.getActual() + newItem.getActual());
@@ -136,7 +134,7 @@ public class ReadData {
             }
 
             // Calculate root totals
-            calculateRootTotals(rootNode);
+            calculateRootTotals(rootNode, includeHidden);
 
         }
         catch (SQLException e) {
@@ -312,7 +310,7 @@ public class ReadData {
         return category;
     }
 
-    private static void calculateRootTotals(TreeItem<LineItem> rootNode) {
+    private static void calculateRootTotals(TreeItem<LineItem> rootNode, boolean includeHidden) {
         LineItem rootItem = rootNode.getValue();
         double rootActualTotal = 0.0;
         double rootBudgetTotal = 0.0;

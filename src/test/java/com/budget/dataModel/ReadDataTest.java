@@ -38,7 +38,7 @@ public class ReadDataTest {
 
     @Test
     public void testGetTableAmountsTree() {
-        int tableType = 1;
+        int tableType = 2;
 
         // LocalDate inDate = LocalDate.of(2025, 5, 1);
         LocalDate inDate = LocalDate.of(2025, 5, 1);
