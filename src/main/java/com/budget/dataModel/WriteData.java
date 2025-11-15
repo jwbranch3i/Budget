@@ -278,7 +278,7 @@ public final class WriteData {
         try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_HIDE_FIELD)) {
 
             updateRecord.setBoolean(1, item.hide());
-            updateRecord.setInt(2, item.getCatagoryId());
+            updateRecord.setString(2, item.getParent());
 
             int rowsAffected = updateRecord.executeUpdate();
             boolean success = rowsAffected > 0;
@@ -694,7 +694,7 @@ public final class WriteData {
 
                 // Cascade update to future months since their calculations
                 // depend on this change
-                PrimaryController.rt_cascadeRunningTotalsUpdate(monthDate.plusMonths(1));
+                PrimaryController.cascadeRunningTotalsUpdate(monthDate.plusMonths(1));
 
                 return true;
             }
