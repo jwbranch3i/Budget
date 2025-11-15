@@ -369,7 +369,7 @@ public class PrimaryController {
             handleCsvFileImport(workingDate);
         }
 
-        updateRunningTotalsFromMonth(workingDate);
+        rt_updateRunningTotalsFromMonth(workingDate);
         updateMainDateLabel(workingDate);
     }
 
@@ -718,7 +718,7 @@ public class PrimaryController {
 
         updateMainDateLabel(currentDate);
 
-        updateRunningTotalsFromMonth(currentDate);
+        rt_updateRunningTotalsFromMonth(currentDate);
     }
 
     /**
@@ -1195,7 +1195,7 @@ public class PrimaryController {
      * @param startDate The month to start updating from (current month)
      * @return true if all updates were successful, false otherwise
      */
-    public static boolean updateRunningTotalsFromMonth(LocalDate startDate)/**/ {
+    public static boolean rt_updateRunningTotalsFromMonth(LocalDate startDate)/**/ {
         if (startDate == null) {
             throw new IllegalArgumentException("Start date cannot be null");
         }
@@ -1207,7 +1207,7 @@ public class PrimaryController {
 
         // Get all months that need updating (current month and all
         // future months)
-        List<LocalDate> monthsToUpdate = getMonthsToUpdate(startDate);
+        List<LocalDate> monthsToUpdate = rt_getMonthsToUpdate(startDate);
 
         if (monthsToUpdate.isEmpty()) {
             LOGGER.info("No months found to update from " + Util.formatDateForDatabase(startDate));
@@ -1224,7 +1224,7 @@ public class PrimaryController {
         for (LocalDate monthDate : monthsToUpdate) {
             LOGGER.info("Updating running totals for month: " + Util.formatDateForDatabase(monthDate));
 
-            MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+            MonthUpdateResult result = rt_updateRunningTotalsForSingleMonth(monthDate);
 
             if (!result.isSuccess()) {
                 LOGGER.severe("Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
@@ -1247,7 +1247,7 @@ public class PrimaryController {
     /**
      * Gets all months that have actual data from the start date onwards.
      */
-    private static List<LocalDate> getMonthsToUpdate(LocalDate startDate) {
+    private static List<LocalDate> rt_getMonthsToUpdate(LocalDate startDate) {
         List<LocalDate> months = new ArrayList<>();
         String startDateStr = Util.formatDateForDatabase(startDate);
 
@@ -1275,7 +1275,7 @@ public class PrimaryController {
     /**
      * Updates running totals for a single month and returns detailed results.
      */
-    private static MonthUpdateResult updateRunningTotalsForSingleMonth(LocalDate monthDate) {
+    private static MonthUpdateResult rt_updateRunningTotalsForSingleMonth(LocalDate monthDate) {
         String dateString = Util.formatDateForDatabase(monthDate);
         int updatedCount = 0;
         int warningCount = 0;
@@ -1334,7 +1334,7 @@ public class PrimaryController {
      * change. This is the main entry point that should be called after any
      * actual amount updates.
      */
-    public static boolean cascadeRunningTotalsUpdate(LocalDate changedMonth) {
+    public static boolean rt_cascadeRunningTotalsUpdate(LocalDate changedMonth) {
         if (changedMonth == null) {
             throw new IllegalArgumentException("Changed month cannot be null");
         }
@@ -1343,7 +1343,7 @@ public class PrimaryController {
                 "Cascading running totals update triggered by changes in: " + Util.formatDateForDatabase(changedMonth));
 
         return WriteData.performTransactionSafeBatch(() -> {
-            if (!updateRunningTotalsFromMonth(changedMonth)) {
+            if (!rt_updateRunningTotalsFromMonth(changedMonth)) {
                 throw new RuntimeException("Failed to update cascading running totals");
             }
         });
@@ -1386,15 +1386,15 @@ public class PrimaryController {
      * Convenience method to update running totals from current system month
      * forward.
      */
-    public static boolean updateRunningTotalsFromNow() {
+    public static boolean rt_updateRunningTotalsFromNow() {
         LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
-        return updateRunningTotalsFromMonth(currentMonth);
+        return rt_updateRunningTotalsFromMonth(currentMonth);
     }
 
     /**
      * Updates running totals for a specific date range.
      */
-    public static boolean updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth) {
+    public static boolean rt_updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth) {
         if (startMonth == null || endMonth == null) {
             throw new IllegalArgumentException("Start and end months cannot be null");
         }
@@ -1417,7 +1417,7 @@ public class PrimaryController {
         }
 
         // Filter to only include months that have actual data
-        List<LocalDate> monthsToUpdate = getMonthsToUpdate(startMonth).stream()
+        List<LocalDate> monthsToUpdate = rt_getMonthsToUpdate(startMonth).stream()
                 .filter(month -> !month.isAfter(endMonth)).collect(java.util.stream.Collectors.toList());
 
         if (monthsToUpdate.isEmpty()) {
@@ -1427,7 +1427,7 @@ public class PrimaryController {
 
         return WriteData.performTransactionSafeBatch(() -> {
             for (LocalDate monthDate : monthsToUpdate) {
-                MonthUpdateResult result = updateRunningTotalsForSingleMonth(monthDate);
+                MonthUpdateResult result = rt_updateRunningTotalsForSingleMonth(monthDate);
                 if (!result.isSuccess()) {
                     throw new RuntimeException(
                             "Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
@@ -1439,8 +1439,8 @@ public class PrimaryController {
     // ========================= NEW METHOD =========================
 
     // In PrimaryController, call this after any actual amount updates
-    private void handleActualAmountUpdate(LocalDate monthChanged) {
-        executeAsyncTask(() -> cascadeRunningTotalsUpdate(monthChanged), () -> {
+    private void rt_handleActualAmountUpdate(LocalDate monthChanged) {
+        executeAsyncTask(() -> rt_cascadeRunningTotalsUpdate(monthChanged), () -> {
             // Refresh UI after running totals update
             readFromDatabase(getWorkingDate());
             // updateRunningTotalWarnings();
@@ -1450,7 +1450,7 @@ public class PrimaryController {
     /**
      * Allows user to manually modify a running total.
      */
-    public void modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal) {
+    public void rt_modifyRunningTotal(int categoryId, LocalDate monthDate, double newTotal) {
         executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, newTotal), () -> {
             // Refresh UI after modification
             // updateRunningTotalWarnings();
@@ -1461,7 +1461,7 @@ public class PrimaryController {
     /**
      * Clears manual modification for a running total.
      */
-    public void clearRunningTotalModification(int categoryId, LocalDate monthDate) {
+    public void rt_clearRunningTotalModification(int categoryId, LocalDate monthDate) {
         executeAsyncTask(() -> WriteData.setModifiedRunningTotal(categoryId, monthDate, null), () -> {
             // Refresh UI after clearing modification
             // updateRunningTotalWarnings();
