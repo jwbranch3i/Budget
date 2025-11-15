@@ -133,7 +133,7 @@ public class Util {
 
             for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
                 LineItem parentItem = parentNode.getValue();
-                if (parentItem != null) {
+                if (parentItem != null && !parentItem.hide()) {
                     rootActualTotal += parentItem.getActual();
                     rootBudgetTotal += parentItem.getBudget();
                 }

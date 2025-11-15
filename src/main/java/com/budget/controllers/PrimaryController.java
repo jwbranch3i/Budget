@@ -190,7 +190,7 @@ public class PrimaryController {
         @FXML
         private ComboBox<String> monthBox;
         @FXML
-        private CheckBox chkBox;
+        private CheckBox CKBOX_fromFile;
         @FXML
         private CheckBox CHKBOX_hidden;
         @FXML
@@ -258,7 +258,7 @@ public class PrimaryController {
         void btn_Update(ActionEvent event) {
                 LocalDate workingDate = getWorkingDate();
 
-                if (!chkBox.isSelected()) {
+                if (!CKBOX_fromFile.isSelected()) {
                         updateTableData();
                 }
                 else {
@@ -690,6 +690,12 @@ public class PrimaryController {
                                                         // light blue background
                                                         setStyle("-fx-background-color: lightblue;");
                                                 }
+                                                // Display red background for
+                                                // hidden categories
+                                                else if (treeItem != null && treeItem.getValue().hide()) {
+                                                        setStyle("-fx-background-color: red;");
+
+                                                }
                                                 else {
                                                         // Leaf item - default
                                                         // background
@@ -741,7 +747,8 @@ public class PrimaryController {
                         @Override
                         protected void failed() {
                                 LOGGER.log(Level.SEVERE, "Failed to initialize data", getException());
-                                Platform.runLater(() -> Util.showErrorAlert("Data Error", "Failed to load initial data."));
+                                Platform.runLater(() -> Util.showErrorAlert("Data Error",
+                                                "Failed to load initial data."));
                         }
                 };
 
@@ -809,7 +816,8 @@ public class PrimaryController {
                 // Update all UI components
                 updateTreeTables(data);
                 // Update grand total from total tables
-                UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
+                // UIData.updateGrandTotalFromTreeTables(tableIncome,
+                // tableMandatory, tableDiscretionary, tableGrandTotal);
         }
 
         private void updateTreeTables(DatabaseDataResult data) {
@@ -909,7 +917,7 @@ public class PrimaryController {
         }
 
         private void resetImportState() {
-                chkBox.setSelected(false);
+                CKBOX_fromFile.setSelected(false);
                 btn_Update.setDisable(true);
         }
 
@@ -1079,6 +1087,7 @@ public class PrimaryController {
                 // Get the selected LineItem from the row that was right-clicked
                 @SuppressWarnings("unchecked")
                 TreeTableRow<LineItem> row = (TreeTableRow<LineItem>) event.getSource();
+
                 LineItem selectedItem = row.getItem();
 
                 if (selectedItem == null) {
@@ -1152,7 +1161,6 @@ public class PrimaryController {
         }
 
         // ========================= ERROR HANDLING =========================
-
 
         private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

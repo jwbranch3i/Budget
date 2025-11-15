@@ -121,9 +121,7 @@ public class ReadData {
                             existingItem.setBudget(newItem.getBudget());
                         }
                         else {
-                            // If the parent already has children, we need to
-                            // update
-                            // the existing item
+                            // If the parent already has children, then update the exising item
                             LineItem existingItem = parentNode.getValue();
                             existingItem.setIsCategory(true);
                             existingItem.setActual(existingItem.getActual() + newItem.getActual());
@@ -136,7 +134,7 @@ public class ReadData {
             }
 
             // Calculate root totals
-            calculateRootTotals(rootNode);
+          //  calculateRootTotals(rootNode, includeHidden);
 
         }
         catch (SQLException e) {
@@ -145,7 +143,6 @@ public class ReadData {
         return rootNode;
     }
 
- 
     /**
      * Find categories not in actual table for a given month and add to the
      * actual table.
@@ -181,7 +178,7 @@ public class ReadData {
     public static LineItem getTableTotalsFromDatabase(int type, LocalDate date, boolean includeHidden) {
         LineItem newItem = new LineItem();
 
-        String dbQuery = includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
+        String dbQuery = !includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(dbQuery)) {
             ps.setString(1, Util.formatDateForDatabase(date));
@@ -193,7 +190,6 @@ public class ReadData {
                     newItem.setBudget(rs.getDouble("BUDGET_TOTAL"));
                     newItem.setCategory("TOTAL");
                     newItem.setType(type);
-                    newItem.hide(includeHidden);
                 }
             }
         }
@@ -307,7 +303,6 @@ public class ReadData {
     private static Categories createCategoryFromResultSet(ResultSet rs) throws SQLException {
         Categories category = new Categories();
         category.setId(rs.getInt("ID"));
-        category.setIncludeInTotal(rs.getBoolean("INCLUDE_IN_TOTAL"));
         category.setHide(rs.getBoolean("HIDE"));
         category.setType(rs.getInt("TYPE"));
         category.setParent(rs.getString("PARENT"));
@@ -315,15 +310,17 @@ public class ReadData {
         return category;
     }
 
-    private static void calculateRootTotals(TreeItem<LineItem> rootNode) {
+    private static void calculateRootTotals(TreeItem<LineItem> rootNode, boolean includeHidden) {
         LineItem rootItem = rootNode.getValue();
         double rootActualTotal = 0.0;
         double rootBudgetTotal = 0.0;
 
         for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
             LineItem parentItem = parentNode.getValue();
-            rootActualTotal += parentItem.getActual();
-            rootBudgetTotal += parentItem.getBudget();
+            if (!parentItem.hide()) {
+                rootActualTotal += parentItem.getActual();
+                rootBudgetTotal += parentItem.getBudget();
+            }
         }
 
         rootItem.setActual(rootActualTotal);
