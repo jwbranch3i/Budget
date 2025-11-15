@@ -213,7 +213,7 @@ public final class DB {
                         + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? " + " AND "
-                        + CAT_TABLE + "." + CAT_COL_HIDE + " = 0";
+                        + CAT_TABLE + "." + CAT_COL_HIDE + " != 1";
 
         public static final String GET_TOTALS_INCLUDEHIDDEN = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
