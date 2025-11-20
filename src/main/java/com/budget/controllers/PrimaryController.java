@@ -747,16 +747,10 @@ public class PrimaryController {
             LineItem mandatoryTotals = ReadData.getTableTotalsFromDatabase(DB.MANDATORY, date, includeHidden);
             LineItem discretionaryTotals = ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, date, includeHidden);
 
-            // Calculate tree totals in background
-            if (incomeRoot != null) {
-                Util.calculateTreeTotals(incomeRoot);
-            }
-            if (mandatoryRoot != null) {
-                Util.calculateTreeTotals(mandatoryRoot);
-            }
-            if (discretionaryRoot != null) {
-                Util.calculateTreeTotals(discretionaryRoot);
-            }
+            // Calculate tree totals
+            Util.calculateTreeTotals(incomeRoot);
+            Util.calculateTreeTotals(mandatoryRoot);
+            Util.calculateTreeTotals(discretionaryRoot);
 
             return new DatabaseDataResult(incomeRoot, mandatoryRoot, discretionaryRoot, incomeTotals, mandatoryTotals,
                     discretionaryTotals);
@@ -775,17 +769,20 @@ public class PrimaryController {
     }
 
     private void updateUIWithData(DatabaseDataResult data) {
-        // Update all UI components
-        updateTreeTables(data);
-        // Update grand total from total tables
-        // UIData.updateGrandTotalFromTreeTables(tableIncome,
-        // tableMandatory, tableDiscretionary, tableGrandTotal);
-    }
-
-    private void updateTreeTables(DatabaseDataResult data) {
+        // update tree tables
         setTreeTableRoot(tableIncome, data.getIncomeRoot());
         setTreeTableRoot(tableMandatory, data.getMandatoryRoot());
         setTreeTableRoot(tableDiscretionary, data.getDiscretionaryRoot());
+
+        // update totals
+        tableIncomeTotal.getItems().clear();
+        tableMandatoryTotal.getItems().clear();
+        tableDiscretionaryTotal.getItems().clear();
+        tableIncomeTotal.setItems(FXCollections.observableArrayList(data.getIncomeTotals()));
+        tableMandatoryTotal.setItems(FXCollections.observableArrayList(data.getMandatoryTotals()));
+        tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(data.getDiscretionaryTotals()));
+
+        UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
     }
 
     private void setTreeTableRoot(TreeTableView<LineItem> table, TreeItem<LineItem> root) {
@@ -991,7 +988,6 @@ public class PrimaryController {
             return LocalDate.of(year, month, 1);
         }
         catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error parsing working date, using current date", e);
             return LocalDate.now();
         }
     }
@@ -1000,7 +996,7 @@ public class PrimaryController {
         Task<DatabaseDataResult> task = new Task<DatabaseDataResult>() {
             @Override
             protected DatabaseDataResult call() throws Exception {
-                return updateTablesData();
+                return loadDatabaseData(getWorkingDate());
             }
         };
 
@@ -1016,40 +1012,8 @@ public class PrimaryController {
         executorService.submit(task);
     }
 
-    /**
-     * Updates table data on UI thread.
-     */
-    public DatabaseDataResult updateTablesData() {
-        LocalDate workingDate = getWorkingDate();
-
-        tableIncomeTotal.getItems().clear();
-        tableMandatoryTotal.getItems().clear();
-        tableDiscretionaryTotal.getItems().clear();
-
-        tableIncomeTotal.setItems(FXCollections
-                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.INCOME, workingDate, includeHidden)));
-        tableMandatoryTotal.setItems(FXCollections
-                .observableArrayList(ReadData.getTableTotalsFromDatabase(DB.MANDATORY, workingDate, includeHidden)));
-        tableDiscretionaryTotal.setItems(FXCollections.observableArrayList(
-                ReadData.getTableTotalsFromDatabase(DB.DISCRETIONARY, workingDate, includeHidden)));
-
-        UIData.updateGrandTotalFromTreeTables(tableIncome, tableMandatory, tableDiscretionary, tableGrandTotal);
-
-        // updateRunningTotalsAndShowWarnings();
-        return loadDatabaseData(workingDate);
-    }
-
     private void updateMainDateLabel(LocalDate date)/**/ {
         mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
-    }
-
-    private void calculateAllTreeTotals() {
-        if (tableIncome.getRoot() != null)
-            Util.calculateTreeTotals(tableIncome.getRoot());
-        if (tableMandatory.getRoot() != null)
-            Util.calculateTreeTotals(tableMandatory.getRoot());
-        if (tableDiscretionary.getRoot() != null)
-            Util.calculateTreeTotals(tableDiscretionary.getRoot());
     }
 
     /**
@@ -1251,8 +1215,9 @@ public class PrimaryController {
         List<LocalDate> months = new ArrayList<>();
         String startDateStr = Util.formatDateForDatabase(startDate);
 
-      //  String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " + "FROM actual "
-      //          + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
+        // String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date
+        // " + "FROM actual "
+        // + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
 
         try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_MONTHS_TO_UPDATE)) {
             stmt.setString(1, startDateStr);
