@@ -818,7 +818,7 @@ public class PrimaryController {
                         Platform.runLater(() -> {
                             updateTables(); // updateTableData();
                             resetImportState();
-                            // WriteData.updateAllRunningTotals(workingDate);
+                            rt_updateRunningTotalsFromMonth(workingDate);
                         });
                     }
 
@@ -1251,10 +1251,10 @@ public class PrimaryController {
         List<LocalDate> months = new ArrayList<>();
         String startDateStr = Util.formatDateForDatabase(startDate);
 
-        String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " + "FROM actual "
-                + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
+      //  String query = "SELECT DISTINCT STRFTIME('%Y-%m', date) as month_date " + "FROM actual "
+      //          + "WHERE STRFTIME('%Y-%m', date) >= ? " + "ORDER BY month_date";
 
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.ACTUAL_GET_MONTHS_TO_UPDATE)) {
             stmt.setString(1, startDateStr);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -1286,7 +1286,7 @@ public class PrimaryController {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    int categoryId = rs.getInt("id");
+                    int categoryId = rs.getInt("category_id");
                     double budget = rs.getDouble("budget");
                     double actual = rs.getDouble("actual");
                     Double maxAmount = rs.getObject("default_maximum_amount", Double.class);

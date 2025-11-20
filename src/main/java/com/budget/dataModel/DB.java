@@ -74,6 +74,22 @@ public final class DB {
         public static final String ACTUAL_COL_STARTBAL = "startBal";
         public static final String ACTUAL_COL_ENDBAL = "endBal";
 
+
+        //==============================category_running_totals table ================================
+        public static final String CATEGORY_RUNNING_TOTALS_TABLE = "category_running_totals";
+
+        public static final String CATEGORY_RUNNING_TOTALS_COL_ID = "id";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_CATEGORY_ID = "category_id";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_MONTH_DATE = "month_date";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_PREVIOUS_BALANCE = "previous_balance";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_CURRENT_DIFFERENCE = "current_difference";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_RUNNING_TOTAL = "running_total";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_MAXIMUM_AMOUNT = "maximum_amount";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_WARNING_ISSUED = "warning_issued";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_CREATED_DATE = "created_date";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_UPDATED_DATE = "updated_date";
+        public static final String CATEGORY_RUNNING_TOTALS_COL_MODIFIED_RUNNING_TOTAL = "modified_running_total";
+
         // ========================= CATEGORY TABLE QUERIES
         // =========================
 
@@ -180,12 +196,23 @@ public final class DB {
         /**
          * Get all line items for this month.
          */
-        public static final String ACTUAL_GET_LINE_ITEMS_FOR_MONTH = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_ID
+        public static final String ACTUAL_GET_LINE_ITEMS_FOR_MONTH = "SELECT " + ACTUAL_TABLE + "." + ACTUAL_COL_CATEGORY_ID
                         + ", " + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ", " + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ", " + CAT_TABLE + "." + CAT_COL_DEFAULT_MAXIMUM_AMOUNT + ", " + CAT_TABLE + "."
                         + CAT_COL_CATEGORY + " FROM " + ACTUAL_TABLE + " JOIN " + CAT_TABLE + " ON " + ACTUAL_TABLE
                         + "." + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE
                         + "." + ACTUAL_COL_DATE + " = ? ";
+
+        /**
+         * Gets all months that have actual data from the start date onwards.
+         * 
+         * SELECT DISTINCT date as month_date FROM actual WHERE date >= ? ORDER
+         * BY month_date
+         */                                           
+        public static final String ACTUAL_GET_MONTHS_TO_UPDATE = "SELECT DISTINCT " + ACTUAL_COL_DATE + " as month_date "
+                        + "FROM " + ACTUAL_TABLE + " WHERE " + ACTUAL_COL_DATE + " >= ? ORDER BY month_date";
+
+
 
         // ========================= COMPLEX QUERIES =========================
 
@@ -208,14 +235,14 @@ public final class DB {
          * Get totals for specific type and date. Parameters: year-month
          * (YYYY-MM), type
          */
-        public static final String GET_TOTALS = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
+        public static final/**/ String GET_TOTALS = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
                         + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_DATE + " = ? " + " AND " + CAT_TABLE + "." + CAT_COL_TYPE + " = ? " + " AND "
                         + CAT_TABLE + "." + CAT_COL_HIDE + " != 1";
 
-        public static final String GET_TOTALS_INCLUDEHIDDEN = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
+        public static final/**/ String GET_TOTALS_INCLUDEHIDDEN = "SELECT " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_ACTUAL
                         + ") AS ACTUAL_TOTAL, " + "SUM(" + ACTUAL_TABLE + "." + ACTUAL_COL_BUDGET + ") AS BUDGET_TOTAL "
                         + "FROM " + CAT_TABLE + " INNER JOIN " + ACTUAL_TABLE + " ON " + ACTUAL_TABLE + "."
                         + ACTUAL_COL_CATEGORY_ID + " = " + CAT_TABLE + "." + CAT_COL_ID + " WHERE " + ACTUAL_TABLE + "."

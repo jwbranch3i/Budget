@@ -39,6 +39,7 @@ public class LineItem {
     private final SimpleDoubleProperty budget = new SimpleDoubleProperty(0.0);
     private final SimpleDoubleProperty startBal = new SimpleDoubleProperty(0.0);
     private final SimpleDoubleProperty balance = new SimpleDoubleProperty(0.0);
+    private final SimpleDoubleProperty runningTotal = new SimpleDoubleProperty(0.0);
 
     // ========================= CONSTRUCTORS =========================
     
@@ -93,6 +94,8 @@ public class LineItem {
             this.budget.set(other.getBudget());
             this.startBal.set(other.getStartBal());
             this.balance.set(other.getBalance());
+            this.runningTotal.set(other.getRunningTotal());
+            
         }
     }
 
@@ -501,6 +504,35 @@ public class LineItem {
      */
     public void setStartBal(Double startBal) {
         this.startBal.set(startBal != null ? startBal : 0.0);
+    }
+
+    // ========================= runningTotal PROPERTIES   =========================
+
+    /**
+     * Gets the start balance property for data binding.
+     * 
+     * @return The SimpleDoubleProperty for start balance
+     */
+    public SimpleDoubleProperty getRunningTotalProperty() { // Fixed method name
+        return this.runningTotal;
+    }
+
+    /**
+     * Gets the running balance.
+     * 
+     * @return The running balance
+     */
+    public Double getRunningTotal() {
+        return this.runningTotal.get();
+    }
+
+    /**
+     * Sets the running balance and updates the computed balance.
+     * 
+     * @param RunningTotal
+     */
+    public void setRunningTotal(Double runningTotal) {
+        this.runningTotal.set(runningTotal != null ? runningTotal : 0.0);
     }
 
     // ========================= COMPUTED VALUES =========================
