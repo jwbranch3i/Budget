@@ -90,8 +90,6 @@ public class PrimaryController {
     private TreeTableColumn<LineItem, String> tableIncome_Category;
     @FXML
     private TreeTableColumn<LineItem, Double> tableIncome_Diff;
-    @FXML
-    private TreeTableColumn<LineItem, Double> tableIncome_Balance;
 
     @FXML
     private TableView<LineItem> tableIncomeTotal;
@@ -116,7 +114,7 @@ public class PrimaryController {
     @FXML
     private TreeTableColumn<LineItem, Double> tableMandatory_Diff;
     @FXML
-    private TreeTableColumn<LineItem, Double> tableMandatory_Balance;
+    private TreeTableColumn<LineItem, Double> tableMandatory_RunningTotal;
 
     @FXML
     private TableView<LineItem> tableMandatoryTotal;
@@ -129,7 +127,7 @@ public class PrimaryController {
     @FXML
     private TableColumn<LineItem, Double> tableMandatoryTotal_Diff;
     @FXML
-    private TableColumn<LineItem, Double> tableMandatoryTotal_Balance;
+    private TableColumn<LineItem, Double> tableMandatoryTotal_RunningTotal;
 
     // Discretionary Table Components
     @FXML
@@ -143,7 +141,7 @@ public class PrimaryController {
     @FXML
     private TreeTableColumn<LineItem, Double> tableDiscretionary_Diff;
     @FXML
-    private TreeTableColumn<LineItem, Double> tableDiscretionary_Balance;
+    private TreeTableColumn<LineItem, Double> tableDiscretionary_RunningTotal;
 
     @FXML
     private TableView<LineItem> tableDiscretionaryTotal;
@@ -156,7 +154,7 @@ public class PrimaryController {
     @FXML
     private TableColumn<LineItem, Double> tableDiscretionaryTotal_Diff;
     @FXML
-    private TableColumn<LineItem, Double> tableDiscretionaryTotal_Balance;
+    private TableColumn<LineItem, Double> tableDiscretionaryTotal_RunningTotal;
 
     // Totals Table Components
     @FXML
@@ -312,7 +310,7 @@ public class PrimaryController {
         setupTreeTableColumn(tableMandatory_Actual, LineItem::getActual, false);
         setupTreeTableColumn(tableMandatory_Budget, LineItem::getBudget, false);
         setupTreeTableColumn(tableMandatory_Diff, LineItem::getDiff, false);
-        setupTreeTableColumn(tableMandatory_Balance, LineItem::getBalance, false);
+        setupTreeTableColumn(tableMandatory_RunningTotal, LineItem::getRunningTotal, false);
 
         tableMandatory_Budget.setOnEditCommit(this::mandatoryTableBudget_OnEditCommit);
 
@@ -321,7 +319,7 @@ public class PrimaryController {
         setupTotalTableColumn(tableMandatoryTotal_Actual, "actual", true);
         setupTotalTableColumn(tableMandatoryTotal_Budget, "budget", true);
         setupTotalTableColumn(tableMandatoryTotal_Diff, "diff", true);
-        setupTotalTableColumn(tableMandatoryTotal_Balance, "balance", true);
+        setupTotalTableColumn(tableMandatoryTotal_RunningTotal, "runningTotal", true);
     }
 
     private void setupDiscretionaryTableColumns() {
@@ -329,6 +327,7 @@ public class PrimaryController {
         setupTreeTableColumn(tableDiscretionary_Actual, LineItem::getActual, false);
         setupTreeTableColumn(tableDiscretionary_Budget, LineItem::getBudget, false);
         setupTreeTableColumn(tableDiscretionary_Diff, LineItem::getDiff, false);
+        setupTreeTableColumn(tableDiscretionary_RunningTotal, LineItem::getRunningTotal, false);
 
         tableDiscretionary_Budget.setOnEditCommit(this::discretionaryTableBudget_OnEditCommit);
 
@@ -337,6 +336,7 @@ public class PrimaryController {
         setupTotalTableColumn(tableDiscretionaryTotal_Actual, "actual", true);
         setupTotalTableColumn(tableDiscretionaryTotal_Budget, "budget", true);
         setupTotalTableColumn(tableDiscretionaryTotal_Diff, "diff", true);
+        setupTotalTableColumn(tableDiscretionaryTotal_RunningTotal, "runningTotal", true);
     }
 
     private void setupTotalTableColumns() {
@@ -370,7 +370,7 @@ public class PrimaryController {
         }
 
         rt_updateRunningTotalsFromMonth(workingDate);
-        updateMainDateLabel(workingDate);
+        mainDateLabel.setText(workingDate.format(MONTH_YEAR_FORMATTER));
     }
 
     /**
@@ -716,9 +716,9 @@ public class PrimaryController {
 
         updateTables();
 
-        updateMainDateLabel(currentDate);
+        mainDateLabel.setText(currentDate.format(MONTH_YEAR_FORMATTER));
 
-        rt_updateRunningTotalsFromMonth(currentDate);
+        updateRunningTotals(currentDate);
     }
 
     /**
@@ -1012,10 +1012,6 @@ public class PrimaryController {
         executorService.submit(task);
     }
 
-    private void updateMainDateLabel(LocalDate date)/**/ {
-        mainDateLabel.setText(date.format(MONTH_YEAR_FORMATTER));
-    }
-
     /**
      * Opens the edit item detail dialog for the specified line item.
      */
@@ -1151,6 +1147,16 @@ public class PrimaryController {
 
     // Add to your PrimaryController class
 
+    private void updateRunningTotals(LocalDate date) {
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                rt_updateRunningTotalsFromMonth(date);
+            }
+        };
+        new Thread(task).start();
+    }
+
     /**
      * Updates running totals for the current month and all following months.
      * This cascades changes through all future months since each month's
@@ -1169,8 +1175,6 @@ public class PrimaryController {
             return false;
         }
 
-        // Get all months that need updating (current month and all
-        // future months)
         List<LocalDate> monthsToUpdate = rt_getMonthsToUpdate(startDate);
 
         if (monthsToUpdate.isEmpty()) {
@@ -1178,33 +1182,15 @@ public class PrimaryController {
             return true;
         }
 
-        LOGGER.info("Starting cascading running totals update from " + Util.formatDateForDatabase(startDate) + " for "
-                + monthsToUpdate.size() + " months");
-
-        int totalUpdatedCategories = 0;
-        int totalWarnings = 0;
-
         // Process each month in chronological order
         for (LocalDate monthDate : monthsToUpdate) {
-            LOGGER.info("Updating running totals for month: " + Util.formatDateForDatabase(monthDate));
-
             MonthUpdateResult result = rt_updateRunningTotalsForSingleMonth(monthDate);
 
             if (!result.isSuccess()) {
                 LOGGER.severe("Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
                 return false;
             }
-
-            totalUpdatedCategories += result.getUpdatedCount();
-            totalWarnings += result.getWarningCount();
-
-            LOGGER.fine("Month " + Util.formatDateForDatabase(monthDate) + " - Updated: " + result.getUpdatedCount()
-                    + " categories, Warnings: " + result.getWarningCount());
         }
-
-        LOGGER.info("Cascading running totals update completed. Total categories updated: " + totalUpdatedCategories
-                + ", Total warnings: " + totalWarnings);
-
         return true;
     }
 
@@ -1240,7 +1226,7 @@ public class PrimaryController {
     /**
      * Updates running totals for a single month and returns detailed results.
      */
-    private static MonthUpdateResult rt_updateRunningTotalsForSingleMonth(LocalDate monthDate) {
+    private static MonthUpdateResult rt_updateRunningTotalsForSingleMonth(LocalDate monthDate)/**/ {
         String dateString = Util.formatDateForDatabase(monthDate);
         int updatedCount = 0;
         int warningCount = 0;

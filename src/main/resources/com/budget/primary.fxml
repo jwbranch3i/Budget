@@ -119,7 +119,7 @@
                       <TreeTableColumn fx:id="tableMandatory_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
                       <TreeTableColumn fx:id="tableMandatory_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
                       <TreeTableColumn fx:id="tableMandatory_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Diff" />
-                      <TreeTableColumn fx:id="tableMandatory_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" /> </columns>
+                      <TreeTableColumn fx:id="tableMandatory_RunningTotal" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" /> </columns>
                   </TreeTableView>
                   <TableView id="totalTable" fx:id="tableMandatoryTotal" prefHeight="40.0">
                      <columns>
@@ -127,7 +127,7 @@
                         <TableColumn fx:id="tableMandatoryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                         <TableColumn fx:id="tableMandatoryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                         <TableColumn fx:id="tableMandatoryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                        <TableColumn fx:id="tableMandatoryTotal_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" />
+                        <TableColumn fx:id="tableMandatoryTotal_RunningTotal" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" sortable="false" />
                      </columns>
                   </TableView>
                </children>
@@ -145,7 +145,7 @@
                         <TreeTableColumn fx:id="tableDiscretionary_Actual" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Actual" />
                         <TreeTableColumn fx:id="tableDiscretionary_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Budget" />
                         <TreeTableColumn fx:id="tableDiscretionary_Diff" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" text="Diff" />
-                        <TreeTableColumn fx:id="tableDiscretionary_Balance" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
+                        <TreeTableColumn fx:id="tableDiscretionary_RunningTotal" editable="false" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" sortable="false" text="Balance" />
                       </columns>
                     </TreeTableView>
                 
@@ -155,7 +155,7 @@
                         <TableColumn fx:id="tableDiscretionaryTotal_Actual" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                         <TableColumn fx:id="tableDiscretionaryTotal_Budget" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                         <TableColumn fx:id="tableDiscretionaryTotal_Diff" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
-                        <TableColumn fx:id="tableDiscretionaryTotal_Balance" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
+                        <TableColumn fx:id="tableDiscretionaryTotal_RunningTotal" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" />
                      </columns>
                   </TableView>
                </children>

@@ -99,6 +99,8 @@ public class ReadData {
 
                 while (rs.next()) {
                     LineItem newItem = createLineItemFromResultSet(rs, type);
+                    double runningTotal = getRunningTotalfromDB(newItem);
+                    newItem.setRunningTotal(runningTotal);
 
                     if (!includeHidden && newItem.hide()) {
                         continue;
@@ -121,7 +123,8 @@ public class ReadData {
                             existingItem.setBudget(newItem.getBudget());
                         }
                         else {
-                            // If the parent already has children, then update the exising item
+                            // If the parent already has children, then update
+                            // the exising item
                             LineItem existingItem = parentNode.getValue();
                             existingItem.setIsCategory(true);
                             existingItem.setActual(existingItem.getActual() + newItem.getActual());
@@ -134,7 +137,7 @@ public class ReadData {
             }
 
             // Calculate root totals
-          //  calculateRootTotals(rootNode, includeHidden);
+            // calculateRootTotals(rootNode, includeHidden);
 
         }
         catch (SQLException e) {
@@ -273,7 +276,7 @@ public class ReadData {
         return copy;
     }
 
-    private static LineItem createLineItemFromResultSet(ResultSet rs, int type) throws SQLException {
+    private static LineItem createLineItemFromResultSet(ResultSet rs, int type)/**/ throws SQLException {
         LineItem item = new LineItem();
         item.setId(rs.getInt("ID"));
         item.setCategoryId(rs.getInt("CATEGORY_ID"));
@@ -286,7 +289,6 @@ public class ReadData {
         item.setCategory(rs.getString("CATEGORY"));
         item.setActual(rs.getDouble("ACTUAL"));
         item.setBudget(rs.getDouble("BUDGET"));
-        item.setStartBal(rs.getDouble("STARTBAL"));
         return item;
     }
 
@@ -328,6 +330,25 @@ public class ReadData {
     }
 
     // Add to your ReadData class
+    public static double getRunningTotalfromDB(LineItem lineItem)/**/ {
+        double rt = 0.0;
+
+        try (PreparedStatement ps = DataSource.getConn().prepareStatement(DB.RUNNING_TOTAL_FROM_DB)) {
+            ps.setString(1, Util.formatDateForDatabase(lineItem.getDate()));
+            ps.setInt(2, lineItem.getCatagoryId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    rt = rs.getDouble("running_total");
+                }
+            }
+        }
+        catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting running total");
+
+        }
+        return rt;
+    }
 
     /**
      * Gets all running totals for a specific month, using effective totals.
