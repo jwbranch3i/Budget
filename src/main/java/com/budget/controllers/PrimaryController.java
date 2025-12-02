@@ -374,10 +374,22 @@ public class PrimaryController {
     }
 
     /**
+     * Handles the Hide/Show Hidden Categories checkbox toggle.
+     */
+    @FXML
+    void CHKBOX_showHidden(ActionEvent event) {
+        includeHidden = CHKBOX_hidden.isSelected();
+        updateTables(); // updateTableData();
+    }
+
+    //****************************************************************** */
+    //****************************************************************** */
+
+    /**
      * Handles the Update Budget button click.
      */
     @FXML
-    void button_UpdateBudget(ActionEvent event) {
+    void button_UpdateBudget(ActionEvent event)/*-*/ {
         // executeAsyncTask(() ->
         // WriteData.copyLastMonthBudget(getWorkingDate()),
         // this::updateTableData,
@@ -389,7 +401,7 @@ public class PrimaryController {
      */
 
     @FXML
-    void button_UpdateBalance(ActionEvent event) {
+    void button_UpdateBalance(ActionEvent event)/*-*/ {
 
         // executeAsyncTask(() -> WriteData.updateBalance(workingDate),
         // () -> {
@@ -399,19 +411,14 @@ public class PrimaryController {
         // }, "Error updating balance");
     }
 
-    /**
-     * Handles the Hide/Show Hidden Categories checkbox toggle.
-     */
-    @FXML
-    void CHKBOX_showHidden(ActionEvent event) {
-        includeHidden = CHKBOX_hidden.isSelected();
-
-        updateTables(); // updateTableData();
-
-    }
 
     // ========================= SETUP AND SHUTDOWN METHODS
     // =========================
+
+    /**
+     * Adds a shutdown hook to the current stage and the JVM to clean up
+     * resources when the application is closed.
+     */
 
     private void setupShutdownHook()/**/ {
         // Add shutdown hook to current stage
@@ -477,7 +484,7 @@ public class PrimaryController {
     /**
      * Toggle debug logging on/off
      */
-    private void toggleDebugLogging() {
+    private void toggleDebugLogging()/*-*/ {
         if (GlobalVariables.isDebugMode()) {
             GlobalVariables.setInfoLogging();
             showLoggingStatusMessage("Debug logging disabled - Info level active");
@@ -493,7 +500,7 @@ public class PrimaryController {
     /**
      * Show a brief status message about logging changes
      */
-    private void showLoggingStatusMessage(String message) {
+    private void showLoggingStatusMessage(String message)/*-*/ {
         System.out.println("LOGGING: " + message + " - Current level: " + GlobalVariables.getLoggingLevel());
 
         // You could also show this in a status bar or temporary tooltip
@@ -517,7 +524,7 @@ public class PrimaryController {
         yearBox.setOnAction(e -> btn_Update.setDisable(false));
     }
 
-    private void setupYearBoxAsync(LocalDate currentDate) {
+    private void setupYearBoxAsync(LocalDate currentDate)/**/ {
         Task<List<String>> yearTask = new Task<List<String>>() {
             @Override
             protected List<String> call() throws Exception {
@@ -542,7 +549,7 @@ public class PrimaryController {
         executorService.submit(yearTask);
     }
 
-    private void populateYearBox(List<String> years, LocalDate currentDate) {
+    private void populateYearBox(List<String> years, LocalDate currentDate)/**/ {
         String currentYear = String.valueOf(currentDate.getYear());
         String nextYear = String.valueOf(currentDate.getYear() + 1);
         String previousYear = String.valueOf(currentDate.getYear() - 1);
@@ -563,9 +570,14 @@ public class PrimaryController {
         yearBox.getSelectionModel().select(currentYear);
     }
 
+/**
+ * Sets up a listener on the source table's selection property to clear the selection in all other tables when a new item is selected in the source table.
+ * @param sourceTable the table to listen to
+ * @param otherTables the tables to clear the selection in
+ */
     @SafeVarargs
     private final void setupClearSelectionListener(TreeTableView<LineItem> sourceTable,
-            TreeTableView<LineItem>... otherTables) {
+            TreeTableView<LineItem>... otherTables)/**/ {
         sourceTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 for (TreeTableView<LineItem> table : otherTables) {
@@ -577,7 +589,7 @@ public class PrimaryController {
 
     @SuppressWarnings("unchecked")
     private <T> void setupTreeTableColumn(TreeTableColumn<LineItem, T> column,
-            java.util.function.Function<LineItem, T> valueExtractor, boolean isStringColumn) {
+            java.util.function.Function<LineItem, T> valueExtractor, boolean isStringColumn)/**/ {
         column.setCellValueFactory(cellData -> {
             LineItem item = cellData.getValue().getValue();
             if (item != null) {
@@ -648,7 +660,7 @@ public class PrimaryController {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void setupTotalTableColumn(TableColumn<LineItem, T> column, String propertyName, boolean isCurrency) {
+    private <T> void setupTotalTableColumn(TableColumn<LineItem, T> column, String propertyName, boolean isCurrency)/**/ {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
 
         if (isCurrency) {
@@ -660,7 +672,7 @@ public class PrimaryController {
         }
     }
 
-    private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction) {
+    private void setupTreeTableRowFactory(TreeTableView<LineItem> table, boolean hasRightClickAction)/**/ {
         table.setRowFactory(tv -> {
             TreeTableRow<LineItem> row = new TreeTableRow<LineItem>() {
                 @Override
@@ -724,10 +736,8 @@ public class PrimaryController {
     /**
      * Reads data from database for the specified date.
      */
-    public void readFromDatabase(LocalDate date) {
-        // Show loading indicator
+    public void readFromDatabase(LocalDate date)/**/ {
         setLoadingState(true);
-
         updateUIWithData(loadDatabaseData(date));
         setLoadingState(false);
 
@@ -765,7 +775,6 @@ public class PrimaryController {
     private void setLoadingState(boolean loading) {
         // progressIndicator.setVisible(loading);
         btn_Update.setDisable(loading);
-        // Disable other relevant controls during loading
     }
 
     private void updateUIWithData(DatabaseDataResult data) {
