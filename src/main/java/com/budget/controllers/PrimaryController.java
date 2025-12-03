@@ -382,8 +382,8 @@ public class PrimaryController {
         updateTables(); // updateTableData();
     }
 
-    //****************************************************************** */
-    //****************************************************************** */
+    // ****************************************************************** */
+    // ****************************************************************** */
 
     /**
      * Handles the Update Budget button click.
@@ -410,7 +410,6 @@ public class PrimaryController {
         // line
         // }, "Error updating balance");
     }
-
 
     // ========================= SETUP AND SHUTDOWN METHODS
     // =========================
@@ -570,11 +569,14 @@ public class PrimaryController {
         yearBox.getSelectionModel().select(currentYear);
     }
 
-/**
- * Sets up a listener on the source table's selection property to clear the selection in all other tables when a new item is selected in the source table.
- * @param sourceTable the table to listen to
- * @param otherTables the tables to clear the selection in
- */
+    /**
+     * Sets up a listener on the source table's selection property to clear the
+     * selection in all other tables when a new item is selected in the source
+     * table.
+     * 
+     * @param sourceTable the table to listen to
+     * @param otherTables the tables to clear the selection in
+     */
     @SafeVarargs
     private final void setupClearSelectionListener(TreeTableView<LineItem> sourceTable,
             TreeTableView<LineItem>... otherTables)/**/ {
@@ -660,7 +662,8 @@ public class PrimaryController {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void setupTotalTableColumn(TableColumn<LineItem, T> column, String propertyName, boolean isCurrency)/**/ {
+    private <T> void setupTotalTableColumn(TableColumn<LineItem, T> column, String propertyName,
+            boolean isCurrency)/**/ {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
 
         if (isCurrency) {
@@ -887,7 +890,6 @@ public class PrimaryController {
         btn_Update.setDisable(true);
     }
 
-
     // ========================= EDIT COMMIT HANDLERS
     // =========================
 
@@ -915,7 +917,6 @@ public class PrimaryController {
     private void handleBudgetEditCommit(TreeTableColumn.CellEditEvent<LineItem, Double> event,
             TreeTableView<LineItem> treeTable, TableView<LineItem> totalTable, int dbType) {
         LineItem item = event.getTreeTablePosition().getTreeItem().getValue();
-        System.out.println(item);
         if (item == null || item.isCategory()) {
             return;
         }
@@ -1077,6 +1078,14 @@ public class PrimaryController {
 
     // ========================= ERROR HANDLING =========================
 
+    /**
+     * Shows a confirmation alert to the user with the specified title and
+     * message. If the user confirms, the onConfirm task is executed.
+     * 
+     * @param title     The title of the confirmation alert
+     * @param message   The message to display in the confirmation alert
+     * @param onConfirm The task to execute if the user confirms the operation
+     */
     private void showConfirmationAlert(String title, String message, Runnable onConfirm) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -1307,60 +1316,6 @@ public class PrimaryController {
         public List<String> getWarnings() {
             return warnings;
         }
-    }
-
-    /**
-     * Convenience method to update running totals from current system month
-     * forward.
-     */
-    public static boolean rt_updateRunningTotalsFromNow() {
-        LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
-        return rt_updateRunningTotalsFromMonth(currentMonth);
-    }
-
-    /**
-     * Updates running totals for a specific date range.
-     */
-    public static boolean rt_updateRunningTotalsForDateRange(LocalDate startMonth, LocalDate endMonth) {
-        if (startMonth == null || endMonth == null) {
-            throw new IllegalArgumentException("Start and end months cannot be null");
-        }
-
-        if (startMonth.isAfter(endMonth)) {
-            throw new IllegalArgumentException("Start month cannot be after end month");
-        }
-
-        LOGGER.info("Updating running totals for date range: " + Util.formatDateForDatabase(startMonth) + " to "
-                + Util.formatDateForDatabase(endMonth));
-
-        // Get months in the specified range
-        List<LocalDate> monthsInRange = new ArrayList<>();
-        LocalDate current = startMonth.withDayOfMonth(1);
-        LocalDate end = endMonth.withDayOfMonth(1);
-
-        while (!current.isAfter(end)) {
-            monthsInRange.add(current);
-            current = current.plusMonths(1);
-        }
-
-        // Filter to only include months that have actual data
-        List<LocalDate> monthsToUpdate = rt_getMonthsToUpdate(startMonth).stream()
-                .filter(month -> !month.isAfter(endMonth)).collect(java.util.stream.Collectors.toList());
-
-        if (monthsToUpdate.isEmpty()) {
-            LOGGER.info("No months with data found in specified range");
-            return true;
-        }
-
-        return WriteData.performTransactionSafeBatch(() -> {
-            for (LocalDate monthDate : monthsToUpdate) {
-                MonthUpdateResult result = rt_updateRunningTotalsForSingleMonth(monthDate);
-                if (!result.isSuccess()) {
-                    throw new RuntimeException(
-                            "Failed to update running totals for month: " + Util.formatDateForDatabase(monthDate));
-                }
-            }
-        });
     }
 
     // ========================= NEW METHOD =========================
