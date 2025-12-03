@@ -887,39 +887,6 @@ public class PrimaryController {
         btn_Update.setDisable(true);
     }
 
-    /**
-     * Reads and processes data from CSV file. Uses the CsvImporter for modern
-     * file handling and error management.
-     */
-    public static void XreadCSVFile(File file, LocalDate date) {
-        if (file == null) {
-            LOGGER.warning("Null file provided for CSV import");
-            return;
-        }
-
-        try {
-            // Import CSV data using the new importer
-            List<LineItemCSV> items = CSVimporter.importCsvFile(file, date);
-
-            // Process each item
-            items.forEach(item -> {
-                try {
-                    // processLineItem(item);
-                }
-                catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "Error processing item: " + item.getCategory(), e);
-                }
-            });
-
-            // Find any missing categories after import
-            ReadData.findMissingCategories(date);
-
-            LOGGER.info("Successfully processed " + items.size() + " items from CSV file");
-        }
-        catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error reading CSV file: " + file.getName(), e);
-        }
-    }
 
     // ========================= EDIT COMMIT HANDLERS
     // =========================

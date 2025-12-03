@@ -50,9 +50,7 @@ public class CSVimporter {
 
             parsedItems = parseCSVLines(allRows, importDate);
 
-           // updateDatabaseWithParsedItems(parsedItems);
-
-            for (LineItemCSV item : parsedItems) {
+           for (LineItemCSV item : parsedItems) {
                 System.out.println(item);
             }
             return parsedItems;
@@ -157,52 +155,6 @@ public class CSVimporter {
             LOGGER.log(Level.SEVERE, "Error processing line item: " + newLineItem.getCategory(), e);
         }
     }
-
-    private static void updateDatabaseWithParsedItems(List<LineItemCSV> parsedItems) {
-        LineItemCSV existingCategory = new LineItemCSV();
-        LineItemCSV existingActual = new LineItemCSV();
-
-        for (LineItemCSV newLineItem : parsedItems) {
-            // if category not in category table insert it
-            existingCategory = ReadData.categoryFindRecord(newLineItem);
-            if ((existingCategory.getId() == -1)) {
-                existingCategory = WriteData.categoryInsertRecord(newLineItem);
-            }
-
-            // if the category is not in the actual
-            // table, insert it
-            existingActual = ReadData.actualFindCategory(existingCategory);
-            if (existingActual.getId() == -1) {
-                WriteData.actualInsertRecord(existingActual);
-            }
-            else {
-                WriteData.actualUpdateAmount(existingActual);
-            }
-        }
-    }
-
-    /**
-     * Parses type string to integer type.
-     */
-    private static int parseType(String type) {
-        return switch (type.toLowerCase().trim()) {
-        case "income" -> 0;
-        case "mandatory" -> 1;
-        case "discretionary" -> 2;
-        default -> -1;
-        };
-    }
-
-    /**
-     * Parses date string to LocalDate.
-     */
-    private static LocalDate parseDate(String dateStr, LocalDate defaultDate) {
-        try {
-            return LocalDate.parse(dateStr, DATE_FORMATTER);
-        }
-        catch (Exception e) {
-            LOGGER.warning("Invalid date format: " + dateStr + ". Using default date.");
-            return defaultDate;
-        }
-    }
 }
+
+
