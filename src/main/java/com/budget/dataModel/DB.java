@@ -1,8 +1,5 @@
 package com.budget.dataModel;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 /**
  * Database constants and SQL query definitions for the Budget application. This
  * class provides a centralized location for all database-related constants,
@@ -351,13 +348,6 @@ public final class DB {
     private static String buildDateFilter(String dateColumn, String format) {
         String formatString = format.equals("month") ? "%m" : format.equals("year") ? "%Y" : format;
         return "STRFTIME('" + formatString + "', " + dateColumn + ")";
-    }
-
-    /**
-     * Formats a LocalDate to YYYY-MM string format.
-     */
-    public static String formatYearMonth(LocalDate date) {
-        return date.format(DateTimeFormatter.ofPattern("yyyy-MM"));
     }
 
     /**

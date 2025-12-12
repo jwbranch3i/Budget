@@ -24,7 +24,6 @@ import com.budget.dataModel.DB;
 import com.budget.dataModel.DataSource;
 import com.budget.dataModel.DatabaseDataResult;
 import com.budget.dataModel.LineItem;
-import com.budget.dataModel.LineItemCSV;
 import com.budget.dataModel.ReadData;
 import com.budget.dataModel.RunningTotal;
 import com.budget.dataModel.UIData;
@@ -390,10 +389,10 @@ public class PrimaryController {
      */
     @FXML
     void button_UpdateBudget(ActionEvent event)/*-*/ {
-        // executeAsyncTask(() ->
-        // WriteData.copyLastMonthBudget(getWorkingDate()),
-        // this::updateTableData,
-        // "Error updating budget from last month");
+        executeAsyncTask(() ->
+        WriteData.copyLastMonthBudget(getWorkingDate()),
+        this::updateTableData,
+        "Error updating budget from last month");
     }
 
     /**

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -19,7 +18,6 @@ import com.opencsv.exceptions.CsvException;
  */
 public class CSVimporter {
     private static final Logger LOGGER = Logger.getLogger(CSVimporter.class.getName());
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("M/d/yyyy");
 
     /**
      * Reads and processes a CSV file, converting its contents to LineItemCSV
