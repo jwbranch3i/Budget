@@ -389,10 +389,10 @@ public class PrimaryController {
      */
     @FXML
     void button_UpdateBudget(ActionEvent event)/*-*/ {
-        executeAsyncTask(() ->
-        WriteData.copyLastMonthBudget(getWorkingDate()),
-        this::updateTableData,
-        "Error updating budget from last month");
+        // executeAsyncTask(() ->
+        // WriteData.copyLastMonthBudget(getWorkingDate()),
+        // this::updateTableData,
+        // "Error updating budget from last month");
     }
 
     /**
