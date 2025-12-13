@@ -29,7 +29,7 @@ public class LineItem {
 
     private boolean hide = false;
     private boolean includeInTotal = true;
-    private boolean isCategory = false;
+    private boolean isCategory = true;
     
     // Using JavaFX properties for better data binding
     private final SimpleObjectProperty<LocalDate> date = new SimpleObjectProperty<>(LocalDate.now());
@@ -353,9 +353,8 @@ public class LineItem {
      * @return The formatted category name
      */
     public String getCategory() {
-        String categoryName = category.get();
-        return isCategory() ? categoryName : CATEGORY_INDENT + categoryName;
-    }
+        return category.get();
+   }
 
     /**
      * Gets the raw category name without formatting.
