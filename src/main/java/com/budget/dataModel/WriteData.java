@@ -219,20 +219,19 @@ public final class WriteData {
         }
 
         DataSource.getInstance().beginTransaction();
-        boolean updateResult = updateCategoryType(item)
-            && updateHideField(item)
-            && updateLineItem(item);
+        boolean updateResult = updateCategoryType(item) && updateHideField(item) && updateLineItem(item);
 
         if (updateResult) {
-          DataSource.getInstance().commitTransaction();
-        } else {
-          DataSource.getInstance().rollbackTransaction();
+            DataSource.getInstance().commitTransaction();
         }
-        
+        else {
+            DataSource.getInstance().rollbackTransaction();
+        }
+
         if (!updateResult) {
             LOGGER.warning("Item update failed for ID: " + item.getId());
         }
-        
+
         return updateResult;
     }
 
@@ -278,7 +277,7 @@ public final class WriteData {
         try (PreparedStatement updateRecord = DataSource.getConn().prepareStatement(DB.UPDATE_HIDE_FIELD)) {
 
             updateRecord.setBoolean(1, item.hide());
-            updateRecord.setString(2, item.getParent());
+            updateRecord.setInt(2, item.getCatagoryId());
 
             int rowsAffected = updateRecord.executeUpdate();
             boolean success = rowsAffected > 0;
@@ -646,16 +645,17 @@ public final class WriteData {
      * modified.
      */
     private static Double getExistingModifiedRunningTotal(int categoryId, LocalDate monthDate) {
-        String query = "SELECT modified_running_total FROM category_running_totals "
-                + "WHERE category_id = ? AND month_date = ?";
-
-        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(query)) {
-            stmt.setInt(1, categoryId);
-            stmt.setString(2, Util.formatDateForDatabase(monthDate));
+        try (PreparedStatement stmt = DataSource.getConn().prepareStatement(DB.MODIFIED_RUNNING_TOTAL_FROM_DB)) {
+            stmt.setString(1, Util.formatDateForDatabase(monthDate));
+            stmt.setInt(2, categoryId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getObject("modified_running_total", Double.class);
+                    double modifiedRunningTotal = rs.getDouble("modified_running_total");
+
+                    if (!rs.wasNull()) {
+                        return modifiedRunningTotal;
+                    }
                 }
             }
         }
@@ -694,7 +694,7 @@ public final class WriteData {
 
                 // Cascade update to future months since their calculations
                 // depend on this change
-                PrimaryController.cascadeRunningTotalsUpdate(monthDate.plusMonths(1));
+                PrimaryController.rt_cascadeRunningTotalsUpdate(monthDate.plusMonths(1));
 
                 return true;
             }

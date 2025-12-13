@@ -1,9 +1,5 @@
 package com.budget.controllers;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 
 import com.budget.dataModel.DataSource;
@@ -42,7 +38,17 @@ public class PrimaryControllerTest {
         controller.readFromDatabase(inDate);
     }
 
+    @Test
+    public void testrt_updateRunningTotalsFromMonth() {
+        LocalDate inDate = LocalDate.of(2025, 6, 1);
 
+        boolean result = PrimaryController.rt_updateRunningTotalsFromMonth(inDate);
+
+        assert result : "rt_updateRunningTotalsFromMonth should return true";
+        
+        
+ 
+    }
 
     @Test
     public void testLoadDatabaseData_withValidDate() {

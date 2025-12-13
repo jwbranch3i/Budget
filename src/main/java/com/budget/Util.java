@@ -114,7 +114,7 @@ public class Util {
      * 
      * @param rootNode The root TreeItem to process
      */
-    public static void calculateTreeTotals(TreeItem<LineItem> rootNode) {
+    public static void calculateTreeTotals(TreeItem<LineItem> rootNode) /**/ {
         LOGGER.info("Calculating tree totals...");
         // Print the tree structure for debugging
         // printTreeItems(rootNode);
