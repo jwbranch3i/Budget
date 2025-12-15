@@ -181,7 +181,7 @@ public class ReadData {
     public static LineItem getTableTotalsFromDatabase(int type, LocalDate date, boolean includeHidden) {
         LineItem newItem = new LineItem();
 
-        String dbQuery = !includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
+        String dbQuery = includeHidden ? DB.GET_TOTALS_INCLUDEHIDDEN : DB.GET_TOTALS;
 
         try (PreparedStatement ps = DataSource.getConn().prepareStatement(dbQuery)) {
             ps.setString(1, Util.formatDateForDatabase(date));
