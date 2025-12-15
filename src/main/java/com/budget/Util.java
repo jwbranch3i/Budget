@@ -115,9 +115,6 @@ public class Util {
      * @param rootNode The root TreeItem to process
      */
     public static void calculateTreeTotals(TreeItem<LineItem> rootNode) /**/ {
-        LOGGER.info("Calculating tree totals...");
-        // Print the tree structure for debugging
-        // printTreeItems(rootNode);
         if (rootNode == null)
             return;
 
@@ -130,17 +127,20 @@ public class Util {
         if (rootNode.getValue() != null) {
             double rootActualTotal = 0.0;
             double rootBudgetTotal = 0.0;
+            double rootRunningTotalTotal = 0.0;
 
             for (TreeItem<LineItem> parentNode : rootNode.getChildren()) {
                 LineItem parentItem = parentNode.getValue();
                 if (parentItem != null && !parentItem.hide()) {
                     rootActualTotal += parentItem.getActual();
                     rootBudgetTotal += parentItem.getBudget();
+                    rootRunningTotalTotal += parentItem.getRunningTotal();
                 }
             }
 
             rootNode.getValue().setActual(rootActualTotal);
             rootNode.getValue().setBudget(rootBudgetTotal);
+            rootNode.getValue().setRunningTotal(rootRunningTotalTotal);
         }
     }
 
@@ -155,6 +155,7 @@ public class Util {
 
         double actualTotal = 0.0;
         double budgetTotal = 0.0;
+        double rootRunningTotalTotal = 0.0;
 
         // If this node has children, calculate totals from children
         if (!node.getChildren().isEmpty()) {
@@ -166,14 +167,15 @@ public class Util {
                 if (childItem != null) {
                     actualTotal += childItem.getActual();
                     budgetTotal += childItem.getBudget();
+                    rootRunningTotalTotal += childItem.getRunningTotal();
                 }
             }
 
             // Update this node's totals
             node.getValue().setActual(actualTotal);
             node.getValue().setBudget(budgetTotal);
+            node.getValue().setRunningTotal(rootRunningTotalTotal);
         }
-        // If no children, the node keeps its own values (leaf node)
     }
 
     public static String getMonthString(LocalDate date) {

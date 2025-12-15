@@ -17,7 +17,6 @@ public class LineItem {
     // ========================= CONSTANTS =========================
     
     /** Default indentation for non-category items */
-    private static final String CATEGORY_INDENT = " ".repeat(6);
     private static final int INCOME = 0;
     
     // ========================= FIELDS =========================
